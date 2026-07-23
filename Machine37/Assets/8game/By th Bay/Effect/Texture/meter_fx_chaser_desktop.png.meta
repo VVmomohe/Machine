@@ -1,0 +1,1431 @@
+fileFormatVersion: 2
+guid: f74bcb4aadb220844be280b0baeca405
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 880
+        width: 335
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49850747, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5050323c847a415e0800000000000000
+      internalID: -1939741608536505083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_1
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 800
+        width: 335
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49850747, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 281322368a1f84c60800000000000000
+      internalID: 7802752059939369346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_2
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 720
+        width: 335
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49850747, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9bd5cd7cb71bd8560800000000000000
+      internalID: 7317700114739125689
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_3
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 640
+        width: 336
+        height: 78
+      alignment: 9
+      pivot: {x: 0.5, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5958271625d8bed90800000000000000
+      internalID: -7067399805266131563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_4
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 560
+        width: 336
+        height: 78
+      alignment: 9
+      pivot: {x: 0.5, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddf940dc12ce619a0800000000000000
+      internalID: -6262558601894387747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_5
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 1291
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9dcc9d62f0cf9ef10800000000000000
+      internalID: 2299646226755865817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_6
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 400
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 863b66fd6ab7bc7f0800000000000000
+      internalID: -591242969426250904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_7
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 320
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79a073060116cfdf0800000000000000
+      internalID: -145134365021107561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_8
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 240
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0525321205bfdec10800000000000000
+      internalID: 2084598524114326096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_9
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1531
+        width: 338
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49704143, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10183a4bd514a0610800000000000000
+      internalID: 1588153689319899393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_10
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1451
+        width: 338
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49704143, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77ee77aefb06ca8c0800000000000000
+      internalID: -3986705192740983177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_11
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 1531
+        width: 338
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49704143, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73075a2e0f0098350800000000000000
+      internalID: 6019343411552022583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_12
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1371
+        width: 338
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49704143, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fa9fa4ea1e0e6310800000000000000
+      internalID: 1400072042827455225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_13
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 160
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49554896, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2e58734e4068f180800000000000000
+      internalID: -9081402759336927699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_14
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 80
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49554896, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3496a814780ed0eb0800000000000000
+      internalID: -4751895160281208509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_15
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 1055
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49554896, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca97ff0492fab6440800000000000000
+      internalID: 4930226808806144428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_16
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 975
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49554896, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11d8cecfd738678b0800000000000000
+      internalID: -5154788146341442287
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_17
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 895
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.49554896, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60cc0184c2bd58ea0800000000000000
+      internalID: -5871045555973469178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_18
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 480
+        width: 336
+        height: 78
+      alignment: 9
+      pivot: {x: 0.4940476, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c06d54b85d7021fa0800000000000000
+      internalID: -5831589953745332724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_19
+      rect:
+        serializedVersion: 2
+        x: 681
+        y: 1530
+        width: 331
+        height: 79
+      alignment: 9
+      pivot: {x: 0.48640484, y: 0.5063291}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57bbdcacb017bc4c0800000000000000
+      internalID: -4266191926542353547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_20
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 416
+        width: 318
+        height: 79
+      alignment: 9
+      pivot: {x: 0.4654088, y: 0.5063291}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff505deef69fe58f0800000000000000
+      internalID: -549727845348997633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_21
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 88
+        width: 306
+        height: 79
+      alignment: 9
+      pivot: {x: 0.44444445, y: 0.5063291}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50939f5a2e2bb4b40800000000000000
+      internalID: 5425626862614821125
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_22
+      rect:
+        serializedVersion: 2
+        x: 656
+        y: 247
+        width: 294
+        height: 79
+      alignment: 9
+      pivot: {x: 0.4217687, y: 0.5063291}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 660f30a8bca6f5030800000000000000
+      internalID: 3485622059034472550
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_23
+      rect:
+        serializedVersion: 2
+        x: 648
+        y: 84
+        width: 290
+        height: 79
+      alignment: 9
+      pivot: {x: 0.41379312, y: 0.5063291}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c5cda62479ab9850800000000000000
+      internalID: 6384883213058033093
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_24
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 411
+        width: 302
+        height: 79
+      alignment: 9
+      pivot: {x: 0.4370861, y: 0.5063291}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc38b7ecfe2abeda0800000000000000
+      internalID: -5914454534775929905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_25
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 169
+        width: 314
+        height: 79
+      alignment: 9
+      pivot: {x: 0.45859873, y: 0.5063291}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16cb700f88dc01e50800000000000000
+      internalID: 6778143427218881633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_26
+      rect:
+        serializedVersion: 2
+        x: 680
+        y: 1368
+        width: 327
+        height: 78
+      alignment: 9
+      pivot: {x: 0.48012233, y: 0.51282054}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba5bd91afc5dd10b0800000000000000
+      internalID: -5756209660963211861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_27
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 655
+        width: 336
+        height: 78
+      alignment: 9
+      pivot: {x: 0.4940476, y: 0.51282054}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a9bef4151cc3fb70800000000000000
+      internalID: 8931706876924443047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_28
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 576
+        width: 336
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49702382, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10bbffdd113db4e40800000000000000
+      internalID: 5641835031904107265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_29
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 497
+        width: 336
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49702382, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 920b051789e308ff0800000000000000
+      internalID: -35959972561899479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_30
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 729
+        width: 336
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49702382, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53f3c0bedf944b570800000000000000
+      internalID: 8481485353164488501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_31
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 650
+        width: 336
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49702382, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e95bb3ae613b50c0800000000000000
+      internalID: -4586017444283590175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_32
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 571
+        width: 336
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49702382, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c9a22b792e58fab0800000000000000
+      internalID: -4974122256178173497
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_33
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 1371
+        width: 337
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0b5b3ef69517a960800000000000000
+      internalID: 7613077433347693324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_34
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 492
+        width: 336
+        height: 77
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3de50a0089cc40f00800000000000000
+      internalID: 1082214763693366995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_35
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 337
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66e10f92dfe3104a0800000000000000
+      internalID: -6628947919461409178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_36
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 1045
+        width: 337
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a026ee92aa7df2cf0800000000000000
+      internalID: -274763926398410230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_37
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 1213
+        width: 337
+        height: 76
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.5263158}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6587f48475c507200800000000000000
+      internalID: 175741915412527190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_38
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 1135
+        width: 337
+        height: 76
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.5263158}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adc33482946a26e30800000000000000
+      internalID: 4495338211207494874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_39
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 966
+        width: 337
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9875d8acc726d5be0800000000000000
+      internalID: -1486924013848668279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_40
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 887
+        width: 337
+        height: 77
+      alignment: 9
+      pivot: {x: 0.49851632, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4612cb46f2f55650800000000000000
+      internalID: 6221145599929095759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_41
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 808
+        width: 337
+        height: 77
+      alignment: 9
+      pivot: {x: 0.5014837, y: 0.5194805}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f22019b4aed31080800000000000000
+      internalID: -9217779213236428048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_42
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 815
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.5014837, y: 0.525641}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06f8a3f014dd65340800000000000000
+      internalID: 4852308920036396896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_43
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 735
+        width: 337
+        height: 78
+      alignment: 9
+      pivot: {x: 0.5014837, y: 0.525641}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3311738b9b53f6240800000000000000
+      internalID: 4787104000693965107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_44
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 1450
+        width: 337
+        height: 79
+      alignment: 9
+      pivot: {x: 0.5014837, y: 0.51898736}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 648855f4bf8f39b90800000000000000
+      internalID: -7236166418002769850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_45
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1290
+        width: 337
+        height: 79
+      alignment: 9
+      pivot: {x: 0.5014837, y: 0.51898736}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48e4700c18be0c230800000000000000
+      internalID: 3657181839929855620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_46
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1208
+        width: 336
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5029762, y: 0.5125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a821a478637999680800000000000000
+      internalID: -8747794540736671094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_47
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1042
+        width: 335
+        height: 80
+      alignment: 9
+      pivot: {x: 0.50149256, y: 0.5125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c5e08ec1dc97e0b0800000000000000
+      internalID: -5699414378487421495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_48
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 960
+        width: 335
+        height: 80
+      alignment: 9
+      pivot: {x: 0.50149256, y: 0.5125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e15f6a0b3e619590800000000000000
+      internalID: -7669227490578050592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_49
+      rect:
+        serializedVersion: 2
+        x: 680
+        y: 1448
+        width: 330
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5090909, y: 0.5125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0cda54bfccc45bea0800000000000000
+      internalID: -5857691297052774976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_50
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 334
+        width: 317
+        height: 80
+      alignment: 9
+      pivot: {x: 0.52996844, y: 0.5125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c61552f45fb86870800000000000000
+      internalID: 8676395053693081287
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_51
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 6
+        width: 305
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5508197, y: 0.5125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 462a468a3c7c28200800000000000000
+      internalID: 180926578205958756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_52
+      rect:
+        serializedVersion: 2
+        x: 656
+        y: 165
+        width: 292
+        height: 80
+      alignment: 9
+      pivot: {x: 0.5753425, y: 0.5125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e80e83003ce0ba880800000000000000
+      internalID: -8598762832848691058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_53
+      rect:
+        serializedVersion: 2
+        x: 647
+        y: 1
+        width: 288
+        height: 81
+      alignment: 9
+      pivot: {x: 0.5833333, y: 0.50617284}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9bd306010e535b80800000000000000
+      internalID: -8407272720881689701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_54
+      rect:
+        serializedVersion: 2
+        x: 659
+        y: 328
+        width: 301
+        height: 81
+      alignment: 9
+      pivot: {x: 0.55813956, y: 0.50617284}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb717422eb2ce1e60800000000000000
+      internalID: 7934993715348051900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_55
+      rect:
+        serializedVersion: 2
+        x: 340
+        y: 250
+        width: 313
+        height: 82
+      alignment: 9
+      pivot: {x: 0.5367412, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6637c58290899e50800000000000000
+      internalID: 6816620877799962221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_56
+      rect:
+        serializedVersion: 2
+        x: 679
+        y: 1124
+        width: 326
+        height: 82
+      alignment: 9
+      pivot: {x: 0.5153374, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b5b8084060ef70d0800000000000000
+      internalID: -3422770487648275019
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_57
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1124
+        width: 334
+        height: 82
+      alignment: 9
+      pivot: {x: 0.502994, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfd666fb7165e7100800000000000000
+      internalID: 107618101098868221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_58
+      rect:
+        serializedVersion: 2
+        x: 679
+        y: 1288
+        width: 335
+        height: 78
+      alignment: 9
+      pivot: {x: 0.50149256, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e0fe6f576398e760800000000000000
+      internalID: 7487396452695470309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_meter_fx_chaser_desktop_59
+      rect:
+        serializedVersion: 2
+        x: 679
+        y: 1208
+        width: 335
+        height: 78
+      alignment: 9
+      pivot: {x: 0.50149256, y: 0.47435898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 978345489cc1c7a70800000000000000
+      internalID: 8825961021573445753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      FX_meter_fx_chaser_desktop_0: -1939741608536505083
+      FX_meter_fx_chaser_desktop_1: 7802752059939369346
+      FX_meter_fx_chaser_desktop_10: -3986705192740983177
+      FX_meter_fx_chaser_desktop_11: 6019343411552022583
+      FX_meter_fx_chaser_desktop_12: 1400072042827455225
+      FX_meter_fx_chaser_desktop_13: -9081402759336927699
+      FX_meter_fx_chaser_desktop_14: -4751895160281208509
+      FX_meter_fx_chaser_desktop_15: 4930226808806144428
+      FX_meter_fx_chaser_desktop_16: -5154788146341442287
+      FX_meter_fx_chaser_desktop_17: -5871045555973469178
+      FX_meter_fx_chaser_desktop_18: -5831589953745332724
+      FX_meter_fx_chaser_desktop_19: -4266191926542353547
+      FX_meter_fx_chaser_desktop_2: 7317700114739125689
+      FX_meter_fx_chaser_desktop_20: -549727845348997633
+      FX_meter_fx_chaser_desktop_21: 5425626862614821125
+      FX_meter_fx_chaser_desktop_22: 3485622059034472550
+      FX_meter_fx_chaser_desktop_23: 6384883213058033093
+      FX_meter_fx_chaser_desktop_24: -5914454534775929905
+      FX_meter_fx_chaser_desktop_25: 6778143427218881633
+      FX_meter_fx_chaser_desktop_26: -5756209660963211861
+      FX_meter_fx_chaser_desktop_27: 8931706876924443047
+      FX_meter_fx_chaser_desktop_28: 5641835031904107265
+      FX_meter_fx_chaser_desktop_29: -35959972561899479
+      FX_meter_fx_chaser_desktop_3: -7067399805266131563
+      FX_meter_fx_chaser_desktop_30: 8481485353164488501
+      FX_meter_fx_chaser_desktop_31: -4586017444283590175
+      FX_meter_fx_chaser_desktop_32: -4974122256178173497
+      FX_meter_fx_chaser_desktop_33: 7613077433347693324
+      FX_meter_fx_chaser_desktop_34: 1082214763693366995
+      FX_meter_fx_chaser_desktop_35: -6628947919461409178
+      FX_meter_fx_chaser_desktop_36: -274763926398410230
+      FX_meter_fx_chaser_desktop_37: 175741915412527190
+      FX_meter_fx_chaser_desktop_38: 4495338211207494874
+      FX_meter_fx_chaser_desktop_39: -1486924013848668279
+      FX_meter_fx_chaser_desktop_4: -6262558601894387747
+      FX_meter_fx_chaser_desktop_40: 6221145599929095759
+      FX_meter_fx_chaser_desktop_41: -9217779213236428048
+      FX_meter_fx_chaser_desktop_42: 4852308920036396896
+      FX_meter_fx_chaser_desktop_43: 4787104000693965107
+      FX_meter_fx_chaser_desktop_44: -7236166418002769850
+      FX_meter_fx_chaser_desktop_45: 3657181839929855620
+      FX_meter_fx_chaser_desktop_46: -8747794540736671094
+      FX_meter_fx_chaser_desktop_47: -5699414378487421495
+      FX_meter_fx_chaser_desktop_48: -7669227490578050592
+      FX_meter_fx_chaser_desktop_49: -5857691297052774976
+      FX_meter_fx_chaser_desktop_5: 2299646226755865817
+      FX_meter_fx_chaser_desktop_50: 8676395053693081287
+      FX_meter_fx_chaser_desktop_51: 180926578205958756
+      FX_meter_fx_chaser_desktop_52: -8598762832848691058
+      FX_meter_fx_chaser_desktop_53: -8407272720881689701
+      FX_meter_fx_chaser_desktop_54: 7934993715348051900
+      FX_meter_fx_chaser_desktop_55: 6816620877799962221
+      FX_meter_fx_chaser_desktop_56: -3422770487648275019
+      FX_meter_fx_chaser_desktop_57: 107618101098868221
+      FX_meter_fx_chaser_desktop_58: 7487396452695470309
+      FX_meter_fx_chaser_desktop_59: 8825961021573445753
+      FX_meter_fx_chaser_desktop_6: -591242969426250904
+      FX_meter_fx_chaser_desktop_7: -145134365021107561
+      FX_meter_fx_chaser_desktop_8: 2084598524114326096
+      FX_meter_fx_chaser_desktop_9: 1588153689319899393
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

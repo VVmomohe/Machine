@@ -1,0 +1,592 @@
+{
+  "modeName": "ModeA_4x5",
+  "reelCount": 5,
+  "reelRows": [
+    4,
+    4,
+    4,
+    4,
+    4
+  ],
+  "reelStrips": [
+    [
+      6,
+      12,
+      6,
+      6,
+      11,
+      3,
+      3,
+      12,
+      3,
+      3,
+      11,
+      7,
+      7,
+      7,
+      7,
+      9,
+      4,
+      4,
+      4,
+      4,
+      5,
+      5,
+      12,
+      5,
+      1,
+      1,
+      1,
+      1,
+      2,
+      12,
+      2,
+      2,
+      8,
+      8,
+      8,
+      8,
+      12,
+      12
+    ],
+    [
+      8,
+      8,
+      8,
+      8,
+      11,
+      6,
+      6,
+      12,
+      1,
+      1,
+      1,
+      1,
+      2,
+      2,
+      2,
+      2,
+      12,
+      7,
+      7,
+      7,
+      3,
+      3,
+      3,
+      3,
+      4,
+      4,
+      9,
+      11,
+      12,
+      12,
+      4,
+      5,
+      5,
+      5,
+      5,
+      6,
+      12,
+      12,
+      10
+    ],
+    [
+      12,
+      8,
+      12,
+      8,
+      4,
+      4,
+      6,
+      6,
+      11,
+      6,
+      6,
+      1,
+      1,
+      1,
+      1,
+      12,
+      2,
+      2,
+      2,
+      2,
+      12,
+      12,
+      4,
+      10,
+      12,
+      3,
+      3,
+      11,
+      3,
+      3,
+      9,
+      5,
+      5,
+      5,
+      5,
+      7,
+      7,
+      7,
+      7
+    ],
+    [
+      12,
+      12,
+      3,
+      12,
+      7,
+      7,
+      2,
+      2,
+      2,
+      2,
+      12,
+      9,
+      1,
+      1,
+      8,
+      8,
+      4,
+      4,
+      6,
+      6,
+      6,
+      6,
+      8,
+      8,
+      7,
+      7,
+      4,
+      12,
+      11,
+      5,
+      5,
+      1,
+      1,
+      12,
+      3,
+      3,
+      5,
+      5,
+      11
+    ],
+    [
+      7,
+      7,
+      3,
+      3,
+      5,
+      5,
+      5,
+      5,
+      9,
+      6,
+      12,
+      6,
+      6,
+      2,
+      2,
+      12,
+      3,
+      3,
+      11,
+      12,
+      8,
+      8,
+      8,
+      8,
+      12,
+      1,
+      1,
+      10,
+      7,
+      7,
+      4,
+      4,
+      4,
+      4,
+      12,
+      2,
+      11,
+      12,
+      1
+    ]
+  ],
+  "winEval": 2,
+  "paylines": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      2
+    ],
+    [
+      0,
+      1,
+      2,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      1,
+      2,
+      1
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      1
+    ],
+    [
+      1,
+      1,
+      2,
+      1,
+      2
+    ],
+    [
+      1,
+      2,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      2,
+      2,
+      2,
+      2
+    ],
+    [
+      2,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      1,
+      1,
+      1,
+      1
+    ],
+    [
+      2,
+      1,
+      2,
+      2,
+      2
+    ],
+    [
+      2,
+      2,
+      1,
+      2,
+      1
+    ],
+    [
+      2,
+      2,
+      2,
+      3,
+      2
+    ],
+    [
+      2,
+      3,
+      2,
+      1,
+      2
+    ],
+    [
+      2,
+      3,
+      3,
+      3,
+      2
+    ],
+    [
+      3,
+      2,
+      1,
+      2,
+      3
+    ],
+    [
+      3,
+      2,
+      3,
+      2,
+      1
+    ],
+    [
+      3,
+      3,
+      2,
+      2,
+      2
+    ]
+  ],
+  "paytable": [
+    {
+      "id": 1,
+      "name": "9",
+      "wild": false,
+      "scatter": false,
+      "pays": [
+        0.2,
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "id": 2,
+      "name": "10",
+      "wild": false,
+      "scatter": false,
+      "pays": [
+        0.2,
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "id": 3,
+      "name": "J",
+      "wild": false,
+      "scatter": false,
+      "pays": [
+        0.2,
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Q",
+      "wild": false,
+      "scatter": false,
+      "pays": [
+        0.2,
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "id": 5,
+      "name": "K",
+      "wild": false,
+      "scatter": false,
+      "pays": [
+        0.2,
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "id": 6,
+      "name": "A",
+      "wild": false,
+      "scatter": false,
+      "pays": [
+        0.2,
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Starfish",
+      "wild": false,
+      "scatter": false,
+      "pays": [
+        0.6,
+        1.0,
+        1.5
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Fish",
+      "wild": false,
+      "scatter": false,
+      "pays": [
+        0.6,
+        1.0,
+        1.5
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Octopus",
+      "wild": false,
+      "scatter": false,
+      "pays": [
+        0.6,
+        1.5,
+        2.0,
+        3.0
+      ],
+      "minMatch": 2
+    },
+    {
+      "id": 10,
+      "name": "Wild",
+      "wild": true,
+      "scatter": false,
+      "pays": [
+        0.6,
+        1.0,
+        1.5
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Scatter",
+      "wild": false,
+      "scatter": true,
+      "pays": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Fireball",
+      "wild": false,
+      "scatter": false,
+      "fireball": true,
+      "pays": []
+    }
+  ],
+  "scatterPays": [
+    0,
+    0,
+    0,
+    2,
+    10,
+    50
+  ],
+  "minMatch": 3,
+  "totalWays": 0,
+  "lines": 20,
+  "holdSpin": {
+    "respinCount": 3,
+    "triggerMin": 1,
+    "fireballHitProb": 0.32,
+    "featureTriggerProb": 0.0,
+    "dropMin": 1,
+    "dropMax": 3,
+    "bankTarget": 8,
+    "jackpotEnabled": true,
+    "jackpotRatio": 0.10,
+    "jackpotMultipliers": [20, 100, 500, 2000],
+    "jackpotWeights": [80, 12, 6, 2],
+    "freeModeRatio": 0.053,
+    "multipliers": [
+      0.5,
+      0.75,
+      1,
+      1.25,
+      1.5,
+      2.5,
+      3,
+      5,
+      10,
+      15
+    ],
+    "multiplierWeights": [
+      32,
+      24,
+      16,
+      12,
+      8,
+      4,
+      2,
+      1,
+      1,
+      1
+    ]
+  },
+  "fireballSymbolId": 12,
+  "fireLinkSymbolId": 9,
+  "maxRows": 8,
+  "freeSpins": {
+    "triggerScatter": 3,
+    "multiplier": 1,
+    "retrigger": false,
+    "awardSpins": 10,
+    "maxSpins": 10,
+    "scatterRetriggerCounts": [3, 4, 5],
+    "scatterRetriggerAwards": [2, 5, 10],
+    "freeballTiers": [1, 2, 3],
+    "freeballAwards": [2, 5, 10],
+    "miniCap": 50
+  },
+  "jackpots": [
+    {
+      "tier": "Mini",
+      "value": 0.07,
+      "valueIsMultiplier": true,
+      "weight": 50,
+      "potRate": 0.002,
+      "potSeed": 0.1
+    },
+    {
+      "tier": "Minor",
+      "value": 0.2,
+      "valueIsMultiplier": true,
+      "weight": 30,
+      "potRate": 0.005,
+      "potSeed": 0.5
+    },
+    {
+      "tier": "Major",
+      "value": 0.67,
+      "valueIsMultiplier": true,
+      "weight": 15,
+      "potRate": 0.015,
+      "potSeed": 2.5
+    },
+    {
+      "tier": "Mega",
+      "value": 3.3,
+      "valueIsMultiplier": true,
+      "weight": 5,
+      "potRate": 0.05,
+      "potSeed": 20.0
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+# Unity 生成目录（必须忽略，否则仓库会膨胀到几十 GB）
+Library/
+Temp/
+obj/
+Build/
+Builds/
+Logs/
+
+# IDE / 编译产物
+*.csproj
+*.sln
+*.suo
+*.userprefs
+*.pidb
+[Dd]ebug/
+.vs/
+
+# OS 生成文件
+Thumbs.db
+.DS_Store
+
+# 本地用户配置（按需）
+/UserSettings/
+
+# FMOD 编辑器日志
+fmod_editor.log

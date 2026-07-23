@@ -1,0 +1,2905 @@
+fileFormatVersion: 2
+guid: a6e7d42d5a4c3e94b9374e421d7275f3
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_0
+      rect:
+        serializedVersion: 2
+        x: 928
+        y: 2369
+        width: 126
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 100bc3c0e388b4b40800000000000000
+      internalID: 5425579976172548097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_1
+      rect:
+        serializedVersion: 2
+        x: 1285
+        y: 587
+        width: 126
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5a15c673d008c440800000000000000
+      internalID: 4956212298151959131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_2
+      rect:
+        serializedVersion: 2
+        x: 615
+        y: 5
+        width: 126
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d82b60ea52893440800000000000000
+      internalID: 4916103795075393748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_3
+      rect:
+        serializedVersion: 2
+        x: 747
+        y: 5
+        width: 126
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fc46e6c11d1b7580800000000000000
+      internalID: -8828430682341094158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_4
+      rect:
+        serializedVersion: 2
+        x: 879
+        y: 5
+        width: 126
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f322f5474af75cd0800000000000000
+      internalID: -2569309878368459787
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_5
+      rect:
+        serializedVersion: 2
+        x: 1011
+        y: 5
+        width: 126
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e68433fdabe1dd00800000000000000
+      internalID: 995836124967765734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_6
+      rect:
+        serializedVersion: 2
+        x: 1143
+        y: 5
+        width: 126
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6226a0f7d8bc37050800000000000000
+      internalID: 5797200953938174502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_7
+      rect:
+        serializedVersion: 2
+        x: 1275
+        y: 5
+        width: 126
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7546ed0d2b93471f0800000000000000
+      internalID: -1048149373099285417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_8
+      rect:
+        serializedVersion: 2
+        x: 1407
+        y: 5
+        width: 126
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd8baba9210113d70800000000000000
+      internalID: 9021009200691198171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_9
+      rect:
+        serializedVersion: 2
+        x: 1539
+        y: 5
+        width: 124
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 829f62c9c0ed1da90800000000000000
+      internalID: -7290802175995348696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_10
+      rect:
+        serializedVersion: 2
+        x: 1765
+        y: 963
+        width: 124
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7785dc362e0eca960800000000000000
+      internalID: 7614708332918298743
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_11
+      rect:
+        serializedVersion: 2
+        x: 1854
+        y: 414
+        width: 124
+        height: 120
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50416666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38504c89d528428d0800000000000000
+      internalID: -2872027323848981117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_12
+      rect:
+        serializedVersion: 2
+        x: 1737
+        y: 540
+        width: 153
+        height: 138
+      alignment: 9
+      pivot: {x: 0.6143791, y: 0.557971}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a75691d97b8b6660800000000000000
+      internalID: 7380145769700284322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_13
+      rect:
+        serializedVersion: 2
+        x: 890
+        y: 1694
+        width: 250
+        height: 213
+      alignment: 9
+      pivot: {x: 0.5, y: 0.46478873}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ffc3705adbcdd270800000000000000
+      internalID: 8276995828689915893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_14
+      rect:
+        serializedVersion: 2
+        x: 634
+        y: 1680
+        width: 250
+        height: 227
+      alignment: 9
+      pivot: {x: 0.5, y: 0.49339208}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d59128e07c3c3a5a0800000000000000
+      internalID: -6511145376538289827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_15
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 1670
+        width: 250
+        height: 237
+      alignment: 9
+      pivot: {x: 0.5, y: 0.51054853}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b2eeb07d63290e70800000000000000
+      internalID: 9081829076519281332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_16
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 652
+        width: 250
+        height: 240
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e65deaa12d36a61c0800000000000000
+      internalID: -4509682322816182930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_17
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 898
+        width: 250
+        height: 243
+      alignment: 9
+      pivot: {x: 0.5, y: 0.51028806}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a8b7ae320d890af0800000000000000
+      internalID: -429657248656541536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_18
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 896
+        width: 250
+        height: 245
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50612247}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de7537662b2db8900800000000000000
+      internalID: 687875031768979437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_19
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 645
+        width: 250
+        height: 245
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50612247}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 536c140d8aceef570800000000000000
+      internalID: 8502493356314707509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_20
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 394
+        width: 250
+        height: 245
+      alignment: 9
+      pivot: {x: 0.5, y: 0.50612247}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a4e20789b59d7590800000000000000
+      internalID: -7674813565902855001
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_21
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 144
+        width: 250
+        height: 244
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5081967}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da34a94c2a56ce020800000000000000
+      internalID: 2372382853474960301
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_22
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 404
+        width: 248
+        height: 242
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5082645}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af906cb622c44e790800000000000000
+      internalID: -7501787368571663878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_23
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 160
+        width: 248
+        height: 238
+      alignment: 9
+      pivot: {x: 0.5, y: 0.52100843}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c885863525b295300800000000000000
+      internalID: 241271687627692172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_24
+      rect:
+        serializedVersion: 2
+        x: 1764
+        y: 866
+        width: 83
+        height: 91
+      alignment: 9
+      pivot: {x: 0.5180723, y: 0.4945055}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a1055ad07f822340800000000000000
+      internalID: 4837586664611447204
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_25
+      rect:
+        serializedVersion: 2
+        x: 1839
+        y: 2507
+        width: 97
+        height: 103
+      alignment: 9
+      pivot: {x: 0.5154639, y: 0.5048544}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15f6929768352f4c0800000000000000
+      internalID: -4255246860888215727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_26
+      rect:
+        serializedVersion: 2
+        x: 1858
+        y: 291
+        width: 112
+        height: 117
+      alignment: 9
+      pivot: {x: 0.5089286, y: 0.4957265}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90bba7f05f52b76d0800000000000000
+      internalID: -2991755793000645879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_27
+      rect:
+        serializedVersion: 2
+        x: 1384
+        y: 2319
+        width: 127
+        height: 132
+      alignment: 9
+      pivot: {x: 0.511811, y: 0.49242425}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad527aaa7327e07b0800000000000000
+      internalID: -5256138131682941478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_28
+      rect:
+        serializedVersion: 2
+        x: 1384
+        y: 2457
+        width: 142
+        height: 147
+      alignment: 9
+      pivot: {x: 0.5070422, y: 0.48979592}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfff34df0ee53a6e0800000000000000
+      internalID: -1827512703367512068
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_29
+      rect:
+        serializedVersion: 2
+        x: 688
+        y: 2145
+        width: 157
+        height: 162
+      alignment: 9
+      pivot: {x: 0.50318474, y: 0.49382716}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 832274361f05ea770800000000000000
+      internalID: 8623919334144025144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_30
+      rect:
+        serializedVersion: 2
+        x: 1621
+        y: 1781
+        width: 148
+        height: 164
+      alignment: 9
+      pivot: {x: 0.4662162, y: 0.49390244}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d811531e65da3ff0800000000000000
+      internalID: -55497376641509159
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_31
+      rect:
+        serializedVersion: 2
+        x: 1770
+        y: 2327
+        width: 151
+        height: 167
+      alignment: 9
+      pivot: {x: 0.46357617, y: 0.497006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36b80758382df2420800000000000000
+      internalID: 2607534171592100707
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_32
+      rect:
+        serializedVersion: 2
+        x: 851
+        y: 2149
+        width: 153
+        height: 158
+      alignment: 9
+      pivot: {x: 0.4640523, y: 0.53797466}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fc187da8dd783620800000000000000
+      internalID: 2754089541713796345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_33
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 160
+        width: 155
+        height: 160
+      alignment: 9
+      pivot: {x: 0.46451613, y: 0.5375}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1db51fdb42e8d830800000000000000
+      internalID: 4096272676586634523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_34
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 1147
+        width: 145
+        height: 163
+      alignment: 9
+      pivot: {x: 0.50344825, y: 0.5337423}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddebb8690873689a0800000000000000
+      internalID: -6231232008999420195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_35
+      rect:
+        serializedVersion: 2
+        x: 1268
+        y: 713
+        width: 147
+        height: 146
+      alignment: 9
+      pivot: {x: 0.50340134, y: 0.47945204}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9add8aa8fa4a70a50800000000000000
+      internalID: 6487334862103043497
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_36
+      rect:
+        serializedVersion: 2
+        x: 1765
+        y: 1228
+        width: 151
+        height: 137
+      alignment: 9
+      pivot: {x: 0.5033113, y: 0.5109489}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15cd948d18ff49dd0800000000000000
+      internalID: -2480076561629717423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_37
+      rect:
+        serializedVersion: 2
+        x: 1578
+        y: 546
+        width: 153
+        height: 132
+      alignment: 9
+      pivot: {x: 0.503268, y: 0.49242425}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb00b6249ade711b0800000000000000
+      internalID: -5685814693312397124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_38
+      rect:
+        serializedVersion: 2
+        x: 1417
+        y: 547
+        width: 155
+        height: 132
+      alignment: 9
+      pivot: {x: 0.5096774, y: 0.49242425}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 058dc8d5b1f6a03d0800000000000000
+      internalID: -3239654818615338928
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_39
+      rect:
+        serializedVersion: 2
+        x: 1765
+        y: 1089
+        width: 150
+        height: 133
+      alignment: 9
+      pivot: {x: 0.53333336, y: 0.49624062}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17757126cc4cecbb0800000000000000
+      internalID: -4913773761316563087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_40
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 28
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e12ae8bbfe16f2f60800000000000000
+      internalID: 8011729944387166750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_41
+      rect:
+        serializedVersion: 2
+        x: 1533
+        y: 2500
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be919e48e33f63520800000000000000
+      internalID: 2681598077989100011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_42
+      rect:
+        serializedVersion: 2
+        x: 391
+        y: 2493
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52ee6cfe48999cbf0800000000000000
+      internalID: -303542703633273307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_43
+      rect:
+        serializedVersion: 2
+        x: 386
+        y: 2377
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed63c018985184850800000000000000
+      internalID: 6361358153980589790
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_44
+      rect:
+        serializedVersion: 2
+        x: 382
+        y: 2261
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3cbe41078ca1f3b0800000000000000
+      internalID: -5480409575690683330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_45
+      rect:
+        serializedVersion: 2
+        x: 382
+        y: 2145
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4eaae3bb76a2b0c0800000000000000
+      internalID: -4561400422343201203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_46
+      rect:
+        serializedVersion: 2
+        x: 379
+        y: 2029
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 691433e77fa116b30800000000000000
+      internalID: 4278730771255214486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_47
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 1913
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 452f924d8290b3750800000000000000
+      internalID: 6285627775888519764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_48
+      rect:
+        serializedVersion: 2
+        x: 772
+        y: 2495
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 672c6013ad53974a0800000000000000
+      internalID: -6595180968065711498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_49
+      rect:
+        serializedVersion: 2
+        x: 1078
+        y: 2494
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4d4244db8d2b1b50800000000000000
+      internalID: 6564890960407448907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_50
+      rect:
+        serializedVersion: 2
+        x: 681
+        y: 1913
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 718c4900fde157570800000000000000
+      internalID: 8463705017849006103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_51
+      rect:
+        serializedVersion: 2
+        x: 685
+        y: 2029
+        width: 300
+        height: 110
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f8433a0723763510800000000000000
+      internalID: 1528535735050914035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_52
+      rect:
+        serializedVersion: 2
+        x: 692
+        y: 2313
+        width: 230
+        height: 174
+      alignment: 9
+      pivot: {x: 0.49130434, y: 0.4827586}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46e1e5b3cf2ad7330800000000000000
+      internalID: 3710300872234638948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_53
+      rect:
+        serializedVersion: 2
+        x: 1421
+        y: 685
+        width: 231
+        height: 174
+      alignment: 9
+      pivot: {x: 0.4935065, y: 0.4827586}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01ca8b7ae9ef372b0800000000000000
+      internalID: -5587842755264467952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_54
+      rect:
+        serializedVersion: 2
+        x: 1248
+        y: 2132
+        width: 231
+        height: 175
+      alignment: 9
+      pivot: {x: 0.4935065, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09e8ca7ced7d9d030800000000000000
+      internalID: 3520081935599439504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_55
+      rect:
+        serializedVersion: 2
+        x: 1147
+        y: 1408
+        width: 231
+        height: 175
+      alignment: 9
+      pivot: {x: 0.4935065, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aac57a44f4a1e0580800000000000000
+      internalID: -8859114489234629462
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_56
+      rect:
+        serializedVersion: 2
+        x: 1384
+        y: 1770
+        width: 231
+        height: 175
+      alignment: 9
+      pivot: {x: 0.4935065, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69571c2cecfc321f0800000000000000
+      internalID: -1070783799446375018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_57
+      rect:
+        serializedVersion: 2
+        x: 1384
+        y: 1589
+        width: 231
+        height: 175
+      alignment: 9
+      pivot: {x: 0.4935065, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 376f4610a816dd1e0800000000000000
+      internalID: -2171472199965936013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_58
+      rect:
+        serializedVersion: 2
+        x: 1030
+        y: 747
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b099fcec93416040800000000000000
+      internalID: 4639063432438059193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_59
+      rect:
+        serializedVersion: 2
+        x: 1532
+        y: 2319
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c60ca543fa89108e0800000000000000
+      internalID: -1728932903668498324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_60
+      rect:
+        serializedVersion: 2
+        x: 1146
+        y: 2313
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e952a222d9f30b10800000000000000
+      internalID: 1946674144873699812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_61
+      rect:
+        serializedVersion: 2
+        x: 1010
+        y: 2132
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 671a8b744a7b47140800000000000000
+      internalID: 4716596625969553782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_62
+      rect:
+        serializedVersion: 2
+        x: 991
+        y: 1951
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9d965b48f552c670800000000000000
+      internalID: 8557496766861581727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_63
+      rect:
+        serializedVersion: 2
+        x: 1229
+        y: 1951
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba3d9e480935ba5a0800000000000000
+      internalID: -6509016956263607381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_64
+      rect:
+        serializedVersion: 2
+        x: 1485
+        y: 2138
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bbc8d7b9891a3580800000000000000
+      internalID: -8846730438730265672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_65
+      rect:
+        serializedVersion: 2
+        x: 1146
+        y: 1770
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e4f5479e7fcf3700800000000000000
+      internalID: 522364224409040100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_66
+      rect:
+        serializedVersion: 2
+        x: 1146
+        y: 1589
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c41cdec06320e5f0800000000000000
+      internalID: -729544240939658039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_67
+      rect:
+        serializedVersion: 2
+        x: 1384
+        y: 1408
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5785542dd5b5d7d90800000000000000
+      internalID: -7098416979148187531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_68
+      rect:
+        serializedVersion: 2
+        x: 1467
+        y: 1951
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33834bed80240ded0800000000000000
+      internalID: -2391338796270208973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_69
+      rect:
+        serializedVersion: 2
+        x: 1290
+        y: 1227
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97d197cfb42f2a250800000000000000
+      internalID: 5954588065509481849
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_70
+      rect:
+        serializedVersion: 2
+        x: 1290
+        y: 1046
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cba6127ad1e4dfb50800000000000000
+      internalID: 6628540115824241340
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_71
+      rect:
+        serializedVersion: 2
+        x: 1289
+        y: 865
+        width: 232
+        height: 175
+      alignment: 9
+      pivot: {x: 0.49137932, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 753936495d0a63ea0800000000000000
+      internalID: -5893346223189683369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_72
+      rect:
+        serializedVersion: 2
+        x: 1528
+        y: 1227
+        width: 231
+        height: 175
+      alignment: 9
+      pivot: {x: 0.4935065, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2dc9725c929f376a0800000000000000
+      internalID: -6452539883295105838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_73
+      rect:
+        serializedVersion: 2
+        x: 1528
+        y: 1046
+        width: 231
+        height: 175
+      alignment: 9
+      pivot: {x: 0.4935065, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f1b61504536749c0800000000000000
+      internalID: -3943073736225803791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_74
+      rect:
+        serializedVersion: 2
+        x: 1527
+        y: 865
+        width: 231
+        height: 175
+      alignment: 9
+      pivot: {x: 0.4935065, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15d5d57d2777ca8d0800000000000000
+      internalID: -2833758730399687343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_75
+      rect:
+        serializedVersion: 2
+        x: 1658
+        y: 684
+        width: 231
+        height: 175
+      alignment: 9
+      pivot: {x: 0.4935065, y: 0.48}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae2a906cf528410d0800000000000000
+      internalID: -3452991666430303510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_76
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 326
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.484, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a82230dc9a830970800000000000000
+      internalID: 8719965709631891622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_77
+      rect:
+        serializedVersion: 2
+        x: 778
+        y: 1101
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.484, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efbd14bc73cde0010800000000000000
+      internalID: 1157104286472199166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_78
+      rect:
+        serializedVersion: 2
+        x: 890
+        y: 1504
+        width: 250
+        height: 184
+      alignment: 9
+      pivot: {x: 0.484, y: 0.4728261}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9dfcf456dae41c370800000000000000
+      internalID: 8341034491502907353
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_79
+      rect:
+        serializedVersion: 2
+        x: 521
+        y: 1101
+        width: 251
+        height: 188
+      alignment: 9
+      pivot: {x: 0.49003986, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3463f6c9498f3d9a0800000000000000
+      internalID: -6209346144050399677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_80
+      rect:
+        serializedVersion: 2
+        x: 774
+        y: 907
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.492, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb70bb33656dd3180800000000000000
+      internalID: -9133908803514071108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_81
+      rect:
+        serializedVersion: 2
+        x: 774
+        y: 713
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.492, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca70f86e0e5312190800000000000000
+      internalID: -7989045023921469524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_82
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 1477
+        width: 250
+        height: 187
+      alignment: 9
+      pivot: {x: 0.492, y: 0.486631}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e768193e588a002c0800000000000000
+      internalID: -4467385537349450114
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_83
+      rect:
+        serializedVersion: 2
+        x: 634
+        y: 1295
+        width: 250
+        height: 187
+      alignment: 9
+      pivot: {x: 0.492, y: 0.486631}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a98751e6887504370800000000000000
+      internalID: 8304733956345264282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_84
+      rect:
+        serializedVersion: 2
+        x: 890
+        y: 1312
+        width: 251
+        height: 186
+      alignment: 9
+      pivot: {x: 0.49402392, y: 0.48924732}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f44dfa6999543f6a0800000000000000
+      internalID: -6416708518112406449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_85
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 519
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.492, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a17d3d0be1624e4d0800000000000000
+      internalID: -3106315929721252070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_86
+      rect:
+        serializedVersion: 2
+        x: 771
+        y: 325
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.484, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c211c3cc083cb6eb0800000000000000
+      internalID: -4725468426045484756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_87
+      rect:
+        serializedVersion: 2
+        x: 676
+        y: 131
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.484, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea90b414de02d6fd0800000000000000
+      internalID: -2347183627415385682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_88
+      rect:
+        serializedVersion: 2
+        x: 1034
+        y: 1118
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.484, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c83ca8c3ee5d8110800000000000000
+      internalID: 1264771402778294464
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_89
+      rect:
+        serializedVersion: 2
+        x: 634
+        y: 1488
+        width: 250
+        height: 186
+      alignment: 9
+      pivot: {x: 0.484, y: 0.4784946}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 305330af62a39de80800000000000000
+      internalID: -8153421711299889917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_90
+      rect:
+        serializedVersion: 2
+        x: 1034
+        y: 928
+        width: 249
+        height: 184
+      alignment: 9
+      pivot: {x: 0.48594376, y: 0.4728261}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bafd845c07c0dcee0800000000000000
+      internalID: -1239320643971260501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_91
+      rect:
+        serializedVersion: 2
+        x: 932
+        y: 131
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.492, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3eccf208cf9fa73f0800000000000000
+      internalID: -902133912456672029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_92
+      rect:
+        serializedVersion: 2
+        x: 1027
+        y: 325
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.492, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 961e4fce2a76163e0800000000000000
+      internalID: -2062253204901142167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_93
+      rect:
+        serializedVersion: 2
+        x: 1029
+        y: 519
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.492, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1bc3e753cb2143110800000000000000
+      internalID: 1239636396994346161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_94
+      rect:
+        serializedVersion: 2
+        x: 517
+        y: 907
+        width: 251
+        height: 188
+      alignment: 9
+      pivot: {x: 0.49402392, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa1ec51de4a84d380800000000000000
+      internalID: -8947374488553725521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_95
+      rect:
+        serializedVersion: 2
+        x: 1188
+        y: 131
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.492, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4df6dbed23c196fc0800000000000000
+      internalID: -3501236230492950572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_96
+      rect:
+        serializedVersion: 2
+        x: 1283
+        y: 325
+        width: 249
+        height: 188
+      alignment: 9
+      pivot: {x: 0.48995984, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a16cd8280b19b2640800000000000000
+      internalID: 5056295193944114714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_97
+      rect:
+        serializedVersion: 2
+        x: 517
+        y: 520
+        width: 250
+        height: 187
+      alignment: 9
+      pivot: {x: 0.492, y: 0.486631}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 59e238567f416d7a0800000000000000
+      internalID: -6352867171566932331
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_98
+      rect:
+        serializedVersion: 2
+        x: 517
+        y: 713
+        width: 251
+        height: 188
+      alignment: 9
+      pivot: {x: 0.4860558, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e7b32c30ea00cd10800000000000000
+      internalID: 2143725380826281959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_99
+      rect:
+        serializedVersion: 2
+        x: 1444
+        y: 131
+        width: 250
+        height: 188
+      alignment: 9
+      pivot: {x: 0.484, y: 0.48404256}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9c69c5a1d4834760800000000000000
+      internalID: 7440937045310663834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_100
+      rect:
+        serializedVersion: 2
+        x: 1621
+        y: 1623
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a72e40d0f572e3e0800000000000000
+      internalID: -2025927205215918172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_101
+      rect:
+        serializedVersion: 2
+        x: 1622
+        y: 1465
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e40e9e5eb9444790800000000000000
+      internalID: -7546825993586080544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_102
+      rect:
+        serializedVersion: 2
+        x: 1538
+        y: 388
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a512dc5b64b21ebc0800000000000000
+      internalID: -3755673031552458406
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_103
+      rect:
+        serializedVersion: 2
+        x: 1696
+        y: 382
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 668a388c59f863ac0800000000000000
+      internalID: -3875752555828762522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_104
+      rect:
+        serializedVersion: 2
+        x: 1700
+        y: 224
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9759fd3c9c46398a0800000000000000
+      internalID: -6299580636023777927
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_105
+      rect:
+        serializedVersion: 2
+        x: 1700
+        y: 66
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5d3febcfce73c0e0800000000000000
+      internalID: -2250815957810332323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_106
+      rect:
+        serializedVersion: 2
+        x: 1723
+        y: 2161
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4b75fb3a99a41d00800000000000000
+      internalID: 942564701923277645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_107
+      rect:
+        serializedVersion: 2
+        x: 1723
+        y: 2003
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d48337c298f1b550800000000000000
+      internalID: 6174989873392616662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_108
+      rect:
+        serializedVersion: 2
+        x: 1775
+        y: 1845
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5c167cc57334e160800000000000000
+      internalID: 7053819497403522140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_109
+      rect:
+        serializedVersion: 2
+        x: 1779
+        y: 1687
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ceb3b6025bcd5c410800000000000000
+      internalID: 1496845121661647852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_110
+      rect:
+        serializedVersion: 2
+        x: 1780
+        y: 1529
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 339d8d0532a27cfa0800000000000000
+      internalID: -5780605265538131661
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_111
+      rect:
+        serializedVersion: 2
+        x: 1780
+        y: 1371
+        width: 152
+        height: 152
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eac50964c37adccf0800000000000000
+      internalID: -230344128602284882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_112
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 12
+        width: 298
+        height: 142
+      alignment: 9
+      pivot: {x: 0.5738255, y: 0.6126761}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c102174cb5ab4350800000000000000
+      internalID: 6002073156466115015
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_113
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 1147
+        width: 359
+        height: 163
+      alignment: 9
+      pivot: {x: 0.5013928, y: 0.5766871}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 411a2996abad85bf0800000000000000
+      internalID: -335277678069112556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_114
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 1481
+        width: 364
+        height: 170
+      alignment: 9
+      pivot: {x: 0.50549453, y: 0.58235294}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a21684452f5c46a80800000000000000
+      internalID: -8474430954217643734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_115
+      rect:
+        serializedVersion: 2
+        x: 1533
+        y: 2616
+        width: 370
+        height: 175
+      alignment: 9
+      pivot: {x: 0.5108108, y: 0.5942857}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81d00a06a4936d090800000000000000
+      internalID: -8010151895620383464
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_116
+      rect:
+        serializedVersion: 2
+        x: 391
+        y: 2609
+        width: 375
+        height: 182
+      alignment: 9
+      pivot: {x: 0.5173333, y: 0.5934066}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c886b41f2418e7880800000000000000
+      internalID: -8611303312969734004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_117
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 2032
+        width: 368
+        height: 186
+      alignment: 9
+      pivot: {x: 0.49456522, y: 0.58064514}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c8212ee4c64875a0800000000000000
+      internalID: -6523386248623478584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_118
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 2415
+        width: 375
+        height: 185
+      alignment: 9
+      pivot: {x: 0.488, y: 0.55675673}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d73ae66eb5ea8ca80800000000000000
+      internalID: -8446309391402097795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_119
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 2606
+        width: 380
+        height: 185
+      alignment: 9
+      pivot: {x: 0.48421052, y: 0.5675676}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4bf2bd716a12b9b80800000000000000
+      internalID: -8387072883798888524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_120
+      rect:
+        serializedVersion: 2
+        x: 772
+        y: 2611
+        width: 375
+        height: 180
+      alignment: 9
+      pivot: {x: 0.49066666, y: 0.5833333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2bc486aa066479ca0800000000000000
+      internalID: -6010257796712870734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_121
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 1840
+        width: 364
+        height: 186
+      alignment: 9
+      pivot: {x: 0.50274724, y: 0.5913978}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd0a97b50dc3faf10800000000000000
+      internalID: 2283110401685692637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_122
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 2224
+        width: 371
+        height: 185
+      alignment: 9
+      pivot: {x: 0.5013477, y: 0.5945946}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89be029249e5bd250800000000000000
+      internalID: 5970469721447918488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_123
+      rect:
+        serializedVersion: 2
+        x: 1153
+        y: 2610
+        width: 374
+        height: 181
+      alignment: 9
+      pivot: {x: 0.49465242, y: 0.5635359}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0fe8c41bd483ec080800000000000000
+      internalID: -9165326285314158864
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_124
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 1657
+        width: 367
+        height: 177
+      alignment: 9
+      pivot: {x: 0.51771116, y: 0.5480226}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e84ae2dbeaf9ad440800000000000000
+      internalID: 4961453512349099150
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_125
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 1316
+        width: 365
+        height: 159
+      alignment: 9
+      pivot: {x: 0.5287671, y: 0.5849057}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b31d482dfe58fafb0800000000000000
+      internalID: -4634338226465353413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_freespins_fx-hd_126
+      rect:
+        serializedVersion: 2
+        x: 376
+        y: 1325
+        width: 202
+        height: 146
+      alignment: 9
+      pivot: {x: 0.509901, y: 0.65068495}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5cb2066826603a030800000000000000
+      internalID: 3504651955255389125
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      FX_freespins_fx-hd_0: 5425579976172548097
+      FX_freespins_fx-hd_1: 4956212298151959131
+      FX_freespins_fx-hd_10: 7614708332918298743
+      FX_freespins_fx-hd_100: -2025927205215918172
+      FX_freespins_fx-hd_101: -7546825993586080544
+      FX_freespins_fx-hd_102: -3755673031552458406
+      FX_freespins_fx-hd_103: -3875752555828762522
+      FX_freespins_fx-hd_104: -6299580636023777927
+      FX_freespins_fx-hd_105: -2250815957810332323
+      FX_freespins_fx-hd_106: 942564701923277645
+      FX_freespins_fx-hd_107: 6174989873392616662
+      FX_freespins_fx-hd_108: 7053819497403522140
+      FX_freespins_fx-hd_109: 1496845121661647852
+      FX_freespins_fx-hd_11: -2872027323848981117
+      FX_freespins_fx-hd_110: -5780605265538131661
+      FX_freespins_fx-hd_111: -230344128602284882
+      FX_freespins_fx-hd_112: 6002073156466115015
+      FX_freespins_fx-hd_113: -335277678069112556
+      FX_freespins_fx-hd_114: -8474430954217643734
+      FX_freespins_fx-hd_115: -8010151895620383464
+      FX_freespins_fx-hd_116: -8611303312969734004
+      FX_freespins_fx-hd_117: -6523386248623478584
+      FX_freespins_fx-hd_118: -8446309391402097795
+      FX_freespins_fx-hd_119: -8387072883798888524
+      FX_freespins_fx-hd_12: 7380145769700284322
+      FX_freespins_fx-hd_120: -6010257796712870734
+      FX_freespins_fx-hd_121: 2283110401685692637
+      FX_freespins_fx-hd_122: 5970469721447918488
+      FX_freespins_fx-hd_123: -9165326285314158864
+      FX_freespins_fx-hd_124: 4961453512349099150
+      FX_freespins_fx-hd_125: -4634338226465353413
+      FX_freespins_fx-hd_126: 3504651955255389125
+      FX_freespins_fx-hd_13: 8276995828689915893
+      FX_freespins_fx-hd_14: -6511145376538289827
+      FX_freespins_fx-hd_15: 9081829076519281332
+      FX_freespins_fx-hd_16: -4509682322816182930
+      FX_freespins_fx-hd_17: -429657248656541536
+      FX_freespins_fx-hd_18: 687875031768979437
+      FX_freespins_fx-hd_19: 8502493356314707509
+      FX_freespins_fx-hd_2: 4916103795075393748
+      FX_freespins_fx-hd_20: -7674813565902855001
+      FX_freespins_fx-hd_21: 2372382853474960301
+      FX_freespins_fx-hd_22: -7501787368571663878
+      FX_freespins_fx-hd_23: 241271687627692172
+      FX_freespins_fx-hd_24: 4837586664611447204
+      FX_freespins_fx-hd_25: -4255246860888215727
+      FX_freespins_fx-hd_26: -2991755793000645879
+      FX_freespins_fx-hd_27: -5256138131682941478
+      FX_freespins_fx-hd_28: -1827512703367512068
+      FX_freespins_fx-hd_29: 8623919334144025144
+      FX_freespins_fx-hd_3: -8828430682341094158
+      FX_freespins_fx-hd_30: -55497376641509159
+      FX_freespins_fx-hd_31: 2607534171592100707
+      FX_freespins_fx-hd_32: 2754089541713796345
+      FX_freespins_fx-hd_33: 4096272676586634523
+      FX_freespins_fx-hd_34: -6231232008999420195
+      FX_freespins_fx-hd_35: 6487334862103043497
+      FX_freespins_fx-hd_36: -2480076561629717423
+      FX_freespins_fx-hd_37: -5685814693312397124
+      FX_freespins_fx-hd_38: -3239654818615338928
+      FX_freespins_fx-hd_39: -4913773761316563087
+      FX_freespins_fx-hd_4: -2569309878368459787
+      FX_freespins_fx-hd_40: 8011729944387166750
+      FX_freespins_fx-hd_41: 2681598077989100011
+      FX_freespins_fx-hd_42: -303542703633273307
+      FX_freespins_fx-hd_43: 6361358153980589790
+      FX_freespins_fx-hd_44: -5480409575690683330
+      FX_freespins_fx-hd_45: -4561400422343201203
+      FX_freespins_fx-hd_46: 4278730771255214486
+      FX_freespins_fx-hd_47: 6285627775888519764
+      FX_freespins_fx-hd_48: -6595180968065711498
+      FX_freespins_fx-hd_49: 6564890960407448907
+      FX_freespins_fx-hd_5: 995836124967765734
+      FX_freespins_fx-hd_50: 8463705017849006103
+      FX_freespins_fx-hd_51: 1528535735050914035
+      FX_freespins_fx-hd_52: 3710300872234638948
+      FX_freespins_fx-hd_53: -5587842755264467952
+      FX_freespins_fx-hd_54: 3520081935599439504
+      FX_freespins_fx-hd_55: -8859114489234629462
+      FX_freespins_fx-hd_56: -1070783799446375018
+      FX_freespins_fx-hd_57: -2171472199965936013
+      FX_freespins_fx-hd_58: 4639063432438059193
+      FX_freespins_fx-hd_59: -1728932903668498324
+      FX_freespins_fx-hd_6: 5797200953938174502
+      FX_freespins_fx-hd_60: 1946674144873699812
+      FX_freespins_fx-hd_61: 4716596625969553782
+      FX_freespins_fx-hd_62: 8557496766861581727
+      FX_freespins_fx-hd_63: -6509016956263607381
+      FX_freespins_fx-hd_64: -8846730438730265672
+      FX_freespins_fx-hd_65: 522364224409040100
+      FX_freespins_fx-hd_66: -729544240939658039
+      FX_freespins_fx-hd_67: -7098416979148187531
+      FX_freespins_fx-hd_68: -2391338796270208973
+      FX_freespins_fx-hd_69: 5954588065509481849
+      FX_freespins_fx-hd_7: -1048149373099285417
+      FX_freespins_fx-hd_70: 6628540115824241340
+      FX_freespins_fx-hd_71: -5893346223189683369
+      FX_freespins_fx-hd_72: -6452539883295105838
+      FX_freespins_fx-hd_73: -3943073736225803791
+      FX_freespins_fx-hd_74: -2833758730399687343
+      FX_freespins_fx-hd_75: -3452991666430303510
+      FX_freespins_fx-hd_76: 8719965709631891622
+      FX_freespins_fx-hd_77: 1157104286472199166
+      FX_freespins_fx-hd_78: 8341034491502907353
+      FX_freespins_fx-hd_79: -6209346144050399677
+      FX_freespins_fx-hd_8: 9021009200691198171
+      FX_freespins_fx-hd_80: -9133908803514071108
+      FX_freespins_fx-hd_81: -7989045023921469524
+      FX_freespins_fx-hd_82: -4467385537349450114
+      FX_freespins_fx-hd_83: 8304733956345264282
+      FX_freespins_fx-hd_84: -6416708518112406449
+      FX_freespins_fx-hd_85: -3106315929721252070
+      FX_freespins_fx-hd_86: -4725468426045484756
+      FX_freespins_fx-hd_87: -2347183627415385682
+      FX_freespins_fx-hd_88: 1264771402778294464
+      FX_freespins_fx-hd_89: -8153421711299889917
+      FX_freespins_fx-hd_9: -7290802175995348696
+      FX_freespins_fx-hd_90: -1239320643971260501
+      FX_freespins_fx-hd_91: -902133912456672029
+      FX_freespins_fx-hd_92: -2062253204901142167
+      FX_freespins_fx-hd_93: 1239636396994346161
+      FX_freespins_fx-hd_94: -8947374488553725521
+      FX_freespins_fx-hd_95: -3501236230492950572
+      FX_freespins_fx-hd_96: 5056295193944114714
+      FX_freespins_fx-hd_97: -6352867171566932331
+      FX_freespins_fx-hd_98: 2143725380826281959
+      FX_freespins_fx-hd_99: 7440937045310663834
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

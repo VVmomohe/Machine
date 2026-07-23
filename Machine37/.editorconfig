@@ -1,0 +1,29 @@
+# 根配置文件：所有子目录继承此设置
+root = true
+
+# 所有文件：默认 UTF-8 编码，统一换行符为 LF（跨平台友好）
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# C# 脚本：4 空格缩进，UTF-8
+[*.cs]
+charset = utf-8
+indent_size = 4
+indent_style = space
+
+# 着色器文件
+[*.shader]
+charset = utf-8
+
+# 文本/配置类文件
+[*.{json,md,txt,xml,yaml,yml}]
+charset = utf-8
+indent_size = 2
+
+# 资源/二进制文件：不做编码处理
+[*.{png,jpg,jpeg,gif,asset,meta,unity,prefab,mat,fbx,wav,mp3}]
+charset = unset

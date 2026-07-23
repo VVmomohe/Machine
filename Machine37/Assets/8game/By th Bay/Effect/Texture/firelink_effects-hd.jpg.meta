@@ -1,0 +1,2377 @@
+fileFormatVersion: 2
+guid: 5aab844814fcb7c4ba790bf84554fbea
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_0
+      rect:
+        serializedVersion: 2
+        x: 1411
+        y: 1426
+        width: 83
+        height: 91
+      alignment: 9
+      pivot: {x: 0.5180723, y: 0.4945055}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b731802979ac3ba20800000000000000
+      internalID: 3077025722763055995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_1
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 1272
+        width: 97
+        height: 103
+      alignment: 9
+      pivot: {x: 0.5154639, y: 0.5048544}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e387c66229725e1d0800000000000000
+      internalID: -3322205641452521410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_2
+      rect:
+        serializedVersion: 2
+        x: 1576
+        y: 403
+        width: 112
+        height: 117
+      alignment: 9
+      pivot: {x: 0.5089286, y: 0.4957265}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce7b846344e7e9100800000000000000
+      internalID: 116669471791822828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_3
+      rect:
+        serializedVersion: 2
+        x: 763
+        y: 217
+        width: 127
+        height: 132
+      alignment: 9
+      pivot: {x: 0.511811, y: 0.49242425}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2af703a824a0b04b0800000000000000
+      internalID: -5473269641236152414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_4
+      rect:
+        serializedVersion: 2
+        x: 617
+        y: 183
+        width: 142
+        height: 147
+      alignment: 9
+      pivot: {x: 0.5070422, y: 0.48979592}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8de2a7efa6e1a5580800000000000000
+      internalID: -8837717873876390184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_5
+      rect:
+        serializedVersion: 2
+        x: 1247
+        y: 1264
+        width: 157
+        height: 162
+      alignment: 9
+      pivot: {x: 0.50318474, y: 0.49382716}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99812b513ffa48c40800000000000000
+      internalID: 5513725302384236697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_6
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 100
+        width: 148
+        height: 164
+      alignment: 9
+      pivot: {x: 0.4662162, y: 0.49390244}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa1e2cda2a8bf5d40800000000000000
+      internalID: 5575377872547406250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_7
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 97
+        width: 151
+        height: 167
+      alignment: 9
+      pivot: {x: 0.46357617, y: 0.497006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca2dab94457a00890800000000000000
+      internalID: -7493805799488433492
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_8
+      rect:
+        serializedVersion: 2
+        x: 460
+        y: 136
+        width: 153
+        height: 158
+      alignment: 9
+      pivot: {x: 0.4640523, y: 0.53797466}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 396c2827c7382be40800000000000000
+      internalID: 5670739451333232275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_9
+      rect:
+        serializedVersion: 2
+        x: 1876
+        y: 1356
+        width: 155
+        height: 160
+      alignment: 9
+      pivot: {x: 0.46451613, y: 0.5375}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aaf8ad947e7d82a50800000000000000
+      internalID: 6496679850858418090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_10
+      rect:
+        serializedVersion: 2
+        x: 311
+        y: 131
+        width: 145
+        height: 163
+      alignment: 9
+      pivot: {x: 0.50344825, y: 0.5337423}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 978742e4908485740800000000000000
+      internalID: 5140938179446339705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_11
+      rect:
+        serializedVersion: 2
+        x: 1021
+        y: 28
+        width: 147
+        height: 146
+      alignment: 9
+      pivot: {x: 0.50340134, y: 0.47945204}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5e00e72a8a1f4b70800000000000000
+      internalID: 8885349770502082142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_12
+      rect:
+        serializedVersion: 2
+        x: 1172
+        y: 37
+        width: 151
+        height: 137
+      alignment: 9
+      pivot: {x: 0.5033113, y: 0.5109489}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fcc9f43ecdffdd70800000000000000
+      internalID: 9070247236641344754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_13
+      rect:
+        serializedVersion: 2
+        x: 1692
+        y: 372
+        width: 153
+        height: 132
+      alignment: 9
+      pivot: {x: 0.503268, y: 0.49242425}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a144039d8b3dc580800000000000000
+      internalID: -8805316217196494427
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_14
+      rect:
+        serializedVersion: 2
+        x: 1876
+        y: 1220
+        width: 155
+        height: 132
+      alignment: 9
+      pivot: {x: 0.5096774, y: 0.49242425}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b5f36ad47b7114b0800000000000000
+      internalID: -5471456330468035143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_15
+      rect:
+        serializedVersion: 2
+        x: 1327
+        y: 41
+        width: 150
+        height: 133
+      alignment: 9
+      pivot: {x: 0.53333336, y: 0.49624062}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 545c69e78d6b768b0800000000000000
+      internalID: -5158953807176612539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_16
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 268
+        width: 280
+        height: 89
+      alignment: 9
+      pivot: {x: 0.49642858, y: 0.5168539}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a7a1fd43c0817d10800000000000000
+      internalID: 2121618475782875040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_17
+      rect:
+        serializedVersion: 2
+        x: 948
+        y: 427
+        width: 282
+        height: 88
+      alignment: 9
+      pivot: {x: 0.4964539, y: 0.5113636}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ebd56357e189d480800000000000000
+      internalID: -8873918760220238878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_18
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 485
+        width: 282
+        height: 89
+      alignment: 9
+      pivot: {x: 0.4964539, y: 0.5168539}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad4029390f30f6540800000000000000
+      internalID: 5003222042834765018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_19
+      rect:
+        serializedVersion: 2
+        x: 610
+        y: 353
+        width: 281
+        height: 90
+      alignment: 9
+      pivot: {x: 0.49822065, y: 0.51111114}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc6f02e84845a2dd0800000000000000
+      internalID: -2510100914008688945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_20
+      rect:
+        serializedVersion: 2
+        x: 1122
+        y: 881
+        width: 280
+        height: 90
+      alignment: 9
+      pivot: {x: 0.49642858, y: 0.51111114}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 081ac08d5d0fe9850800000000000000
+      internalID: 6385806122901348736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_21
+      rect:
+        serializedVersion: 2
+        x: 1122
+        y: 787
+        width: 280
+        height: 90
+      alignment: 9
+      pivot: {x: 0.49642858, y: 0.51111114}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86efb5daf410b0d70800000000000000
+      internalID: 9010296921207340648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_22
+      rect:
+        serializedVersion: 2
+        x: 1234
+        y: 338
+        width: 280
+        height: 89
+      alignment: 9
+      pivot: {x: 0.49642858, y: 0.5168539}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f734ca6bdada7360800000000000000
+      internalID: 7168282392837502967
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_23
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 392
+        width: 282
+        height: 89
+      alignment: 9
+      pivot: {x: 0.4964539, y: 0.5168539}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dea06b03731b19cb0800000000000000
+      internalID: -4858907672357500179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_24
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 361
+        width: 282
+        height: 89
+      alignment: 9
+      pivot: {x: 0.4964539, y: 0.5168539}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd9a491b19d79abb0800000000000000
+      internalID: -4924266652849886755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_25
+      rect:
+        serializedVersion: 2
+        x: 1290
+        y: 431
+        width: 282
+        height: 89
+      alignment: 9
+      pivot: {x: 0.4964539, y: 0.5168539}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a91293f346fdd130800000000000000
+      internalID: 3593298849421203878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_26
+      rect:
+        serializedVersion: 2
+        x: 895
+        y: 334
+        width: 280
+        height: 89
+      alignment: 9
+      pivot: {x: 0.49642858, y: 0.5168539}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a5c0ab558271f4c0800000000000000
+      internalID: -4255494255794928222
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_27
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 298
+        width: 280
+        height: 90
+      alignment: 9
+      pivot: {x: 0.49642858, y: 0.51111114}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf1dc954532c304c0800000000000000
+      internalID: -4322397683288583685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_28
+      rect:
+        serializedVersion: 2
+        x: 1702
+        y: 508
+        width: 317
+        height: 131
+      alignment: 9
+      pivot: {x: 0.48264983, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38501ddade5324e00800000000000000
+      internalID: 1027442959933572483
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_29
+      rect:
+        serializedVersion: 2
+        x: 1058
+        y: 653
+        width: 318
+        height: 130
+      alignment: 9
+      pivot: {x: 0.48427674, y: 0.52692306}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db7bafccd8ea991f0800000000000000
+      internalID: -1037606315079583811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_30
+      rect:
+        serializedVersion: 2
+        x: 1380
+        y: 524
+        width: 318
+        height: 130
+      alignment: 9
+      pivot: {x: 0.48427674, y: 0.52692306}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85828a403869ce510800000000000000
+      internalID: 1579803058763212888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_31
+      rect:
+        serializedVersion: 2
+        x: 736
+        y: 726
+        width: 318
+        height: 131
+      alignment: 9
+      pivot: {x: 0.48427674, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 806e66334a76ab500800000000000000
+      internalID: 412756270792500744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_32
+      rect:
+        serializedVersion: 2
+        x: 1406
+        y: 658
+        width: 318
+        height: 131
+      alignment: 9
+      pivot: {x: 0.48427674, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6a1bbed732523510800000000000000
+      internalID: 1527373623545502314
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_33
+      rect:
+        serializedVersion: 2
+        x: 971
+        y: 519
+        width: 315
+        height: 130
+      alignment: 9
+      pivot: {x: 0.4857143, y: 0.52692306}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60c74a1a10bc92c60800000000000000
+      internalID: 7793983838008671238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_34
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 454
+        width: 316
+        height: 129
+      alignment: 9
+      pivot: {x: 0.4841772, y: 0.5232558}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c7224026c8ef19e0800000000000000
+      internalID: -1648343000951937086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_35
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 587
+        width: 317
+        height: 130
+      alignment: 9
+      pivot: {x: 0.4858044, y: 0.5192308}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57654467b00fd4e10800000000000000
+      internalID: 2183665326364055157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_36
+      rect:
+        serializedVersion: 2
+        x: 650
+        y: 593
+        width: 317
+        height: 129
+      alignment: 9
+      pivot: {x: 0.4858044, y: 0.5155039}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14f55b9c77be21710800000000000000
+      internalID: 1662650112170876737
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_37
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 578
+        width: 317
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4858044, y: 0.51953125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70d03123b2fbf85b0800000000000000
+      internalID: -5363858438930363129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_38
+      rect:
+        serializedVersion: 2
+        x: 1728
+        y: 643
+        width: 316
+        height: 131
+      alignment: 9
+      pivot: {x: 0.4841772, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a40a551e6dd6327f0800000000000000
+      internalID: -638545952485564342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_39
+      rect:
+        serializedVersion: 2
+        x: 329
+        y: 710
+        width: 317
+        height: 131
+      alignment: 9
+      pivot: {x: 0.48264983, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f00b8cebc32161cc0800000000000000
+      internalID: -3740782388376457201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_40
+      rect:
+        serializedVersion: 2
+        x: 1575
+        y: 182
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 680baffde0cc8d240800000000000000
+      internalID: 4816824165732102278
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_41
+      rect:
+        serializedVersion: 2
+        x: 412
+        y: 53
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 607fcfe243b3fc910800000000000000
+      internalID: 1859770266439972614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_42
+      rect:
+        serializedVersion: 2
+        x: 1481
+        y: 26
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad51c55673f6f3310800000000000000
+      internalID: 1386949493967820250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_43
+      rect:
+        serializedVersion: 2
+        x: 1683
+        y: 26
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9994e41a21526620800000000000000
+      internalID: 2765862362339907996
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_44
+      rect:
+        serializedVersion: 2
+        x: 1684
+        y: 104
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c09ccaba208e4e9a0800000000000000
+      internalID: -6204579288441894644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_45
+      rect:
+        serializedVersion: 2
+        x: 1706
+        y: 294
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61ab2ca0e529f01d0800000000000000
+      internalID: -3382323862526838250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_46
+      rect:
+        serializedVersion: 2
+        x: 1777
+        y: 216
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2dddf41a157635270800000000000000
+      internalID: 8238041743687146962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_47
+      rect:
+        serializedVersion: 2
+        x: 1139
+        y: 1053
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 280ddf3e006210c50800000000000000
+      internalID: 6629621911732998274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_48
+      rect:
+        serializedVersion: 2
+        x: 1139
+        y: 975
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d98fe7563fd299cb0800000000000000
+      internalID: -4856800199739246435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_49
+      rect:
+        serializedVersion: 2
+        x: 615
+        y: 58
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fef0925bdafba9da0800000000000000
+      internalID: -5937222405944963089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_50
+      rect:
+        serializedVersion: 2
+        x: 763
+        y: 139
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f605415e022d55510800000000000000
+      internalID: 1537365886540992623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_51
+      rect:
+        serializedVersion: 2
+        x: 894
+        y: 256
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c91ac2862b2483e50800000000000000
+      internalID: 6789249772280390044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_52
+      rect:
+        serializedVersion: 2
+        x: 818
+        y: 61
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fabcc49de2c1bc9e0800000000000000
+      internalID: -1600154255060317265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_53
+      rect:
+        serializedVersion: 2
+        x: 966
+        y: 178
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be03ac432808c5150800000000000000
+      internalID: 5862702111649313003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_54
+      rect:
+        serializedVersion: 2
+        x: 1097
+        y: 256
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 853a222f17f409650800000000000000
+      internalID: 6237572834720392024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_55
+      rect:
+        serializedVersion: 2
+        x: 1169
+        y: 178
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00a69ca1efd0e8d50800000000000000
+      internalID: 6741341077242472960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_56
+      rect:
+        serializedVersion: 2
+        x: 1300
+        y: 260
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a06fc423ad4a62f70800000000000000
+      internalID: 9162191748985583114
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_57
+      rect:
+        serializedVersion: 2
+        x: 1372
+        y: 182
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d68dce3bb6734d6e0800000000000000
+      internalID: -1813763814203795347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_58
+      rect:
+        serializedVersion: 2
+        x: 1503
+        y: 260
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7afcd92080418ee30800000000000000
+      internalID: 4532895049584594855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_59
+      rect:
+        serializedVersion: 2
+        x: 1774
+        y: 856
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc78e2d3403acb970800000000000000
+      internalID: 8772065412812539853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_60
+      rect:
+        serializedVersion: 2
+        x: 1774
+        y: 778
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6c08c0ac0e632be0800000000000000
+      internalID: -1503236850095485841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_61
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 19
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63af681a06b254b30800000000000000
+      internalID: 4270867515657615926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_62
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 22
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7bcbfa88c0a06090800000000000000
+      internalID: -8043252151298045062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_63
+      rect:
+        serializedVersion: 2
+        x: 1481
+        y: 104
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adbfd944393256c90800000000000000
+      internalID: -7177291315726648358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_64
+      rect:
+        serializedVersion: 2
+        x: 2035
+        y: 1907
+        width: 3
+        height: 3
+      alignment: 9
+      pivot: {x: 86.333336, y: -21.666666}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7cea983a358687d0800000000000000
+      internalID: -2916497223571542916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_65
+      rect:
+        serializedVersion: 2
+        x: 1412
+        y: 1521
+        width: 88
+        height: 122
+      alignment: 9
+      pivot: {x: 0.52272725, y: 0.5081967}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc48cf7dd44e18b70800000000000000
+      internalID: 8899645361648075979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_66
+      rect:
+        serializedVersion: 2
+        x: 1247
+        y: 1131
+        width: 155
+        height: 129
+      alignment: 9
+      pivot: {x: 0.5032258, y: 0.503876}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7c97120455597aa0800000000000000
+      internalID: -6162800795779097478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_67
+      rect:
+        serializedVersion: 2
+        x: 1783
+        y: 1084
+        width: 217
+        height: 132
+      alignment: 9
+      pivot: {x: 0.5253456, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a77f22334258a7aa0800000000000000
+      internalID: -6162466749579856006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_68
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 721
+        width: 321
+        height: 131
+      alignment: 9
+      pivot: {x: 0.51713395, y: 0.5038168}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4021954c58e5c3b30800000000000000
+      internalID: 4268390475458220548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_69
+      rect:
+        serializedVersion: 2
+        x: 463
+        y: 1379
+        width: 401
+        height: 130
+      alignment: 9
+      pivot: {x: 0.521197, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4235a0455c40abcf0800000000000000
+      internalID: -235870784918498524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_70
+      rect:
+        serializedVersion: 2
+        x: 953
+        y: 1430
+        width: 454
+        height: 130
+      alignment: 9
+      pivot: {x: 0.50220263, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 788460e0bc828b690800000000000000
+      internalID: -7586268719726835577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_71
+      rect:
+        serializedVersion: 2
+        x: 494
+        y: 1513
+        width: 455
+        height: 130
+      alignment: 9
+      pivot: {x: 0.50109893, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0e3edbe10e02ab50800000000000000
+      internalID: 6602855405093535246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_72
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1392
+        width: 455
+        height: 130
+      alignment: 9
+      pivot: {x: 0.50109893, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 675991e2bfca3afe0800000000000000
+      internalID: -1178908482630740618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_73
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1914
+        width: 508
+        height: 130
+      alignment: 9
+      pivot: {x: 0.503937, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b547461bde2f86240800000000000000
+      internalID: 4785341706778473563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_74
+      rect:
+        serializedVersion: 2
+        x: 516
+        y: 1914
+        width: 508
+        height: 130
+      alignment: 9
+      pivot: {x: 0.503937, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20610e9ea3f3a6cd0800000000000000
+      internalID: -2564167515569646078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_75
+      rect:
+        serializedVersion: 2
+        x: 1028
+        y: 1914
+        width: 508
+        height: 130
+      alignment: 9
+      pivot: {x: 0.503937, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87b2d8effaf14db50800000000000000
+      internalID: 6616948593264503672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_76
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1780
+        width: 508
+        height: 130
+      alignment: 9
+      pivot: {x: 0.503937, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b9e0d6ae42064990800000000000000
+      internalID: -7402226400707417672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_77
+      rect:
+        serializedVersion: 2
+        x: 1540
+        y: 1914
+        width: 503
+        height: 130
+      alignment: 9
+      pivot: {x: 0.49900597, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1bb86065ccafa5c50800000000000000
+      internalID: 6654907154916871089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_78
+      rect:
+        serializedVersion: 2
+        x: 516
+        y: 1780
+        width: 503
+        height: 130
+      alignment: 9
+      pivot: {x: 0.49900597, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82f64667ebbfe8110800000000000000
+      internalID: 1265225340786339624
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_79
+      rect:
+        serializedVersion: 2
+        x: 1023
+        y: 1780
+        width: 502
+        height: 130
+      alignment: 9
+      pivot: {x: 0.49800798, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2e694dc109f90b80800000000000000
+      internalID: -8427931441512747476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_80
+      rect:
+        serializedVersion: 2
+        x: 1529
+        y: 1781
+        width: 502
+        height: 129
+      alignment: 9
+      pivot: {x: 0.49800798, y: 0.503876}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db8d18b84b720a210800000000000000
+      internalID: 1342116345344547005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_81
+      rect:
+        serializedVersion: 2
+        x: 1529
+        y: 1648
+        width: 501
+        height: 129
+      alignment: 9
+      pivot: {x: 0.497006, y: 0.503876}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef97e86e6ea25e160800000000000000
+      internalID: 7054091562544691710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_82
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1647
+        width: 500
+        height: 129
+      alignment: 9
+      pivot: {x: 0.498, y: 0.503876}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2392c9c8957e8d150800000000000000
+      internalID: 5897718083838814514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_83
+      rect:
+        serializedVersion: 2
+        x: 508
+        y: 1647
+        width: 498
+        height: 129
+      alignment: 9
+      pivot: {x: 0.5, y: 0.503876}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a357b5f23ff32040800000000000000
+      internalID: 4621818236948140961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_84
+      rect:
+        serializedVersion: 2
+        x: 1010
+        y: 1647
+        width: 493
+        height: 129
+      alignment: 9
+      pivot: {x: 0.4989858, y: 0.503876}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc1cc5c494c9d6f00800000000000000
+      internalID: 1111716521658073547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_85
+      rect:
+        serializedVersion: 2
+        x: 1507
+        y: 1520
+        width: 491
+        height: 124
+      alignment: 9
+      pivot: {x: 0.50101835, y: 0.5080645}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78fc2236bc078fb80800000000000000
+      internalID: -8360808689369428089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_86
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1526
+        width: 486
+        height: 117
+      alignment: 9
+      pivot: {x: 0.5020576, y: 0.50427353}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c294ef406a2ced7e0800000000000000
+      internalID: -1738738387814299348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_87
+      rect:
+        serializedVersion: 2
+        x: 953
+        y: 1564
+        width: 455
+        height: 79
+      alignment: 9
+      pivot: {x: 0.50109893, y: 0.49367088}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bfd026ceaab979bd0800000000000000
+      internalID: -2623457099507429893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_88
+      rect:
+        serializedVersion: 2
+        x: 646
+        y: 447
+        width: 298
+        height: 142
+      alignment: 9
+      pivot: {x: 0.5738255, y: 0.6126761}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a6d13b87451e1360800000000000000
+      internalID: 7142169456078345892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_89
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 845
+        width: 359
+        height: 163
+      alignment: 9
+      pivot: {x: 0.5013928, y: 0.5766871}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1004df6b779fc170800000000000000
+      internalID: 8200940002877898780
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_90
+      rect:
+        serializedVersion: 2
+        x: 1406
+        y: 793
+        width: 364
+        height: 170
+      alignment: 9
+      pivot: {x: 0.50549453, y: 0.58235294}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00c04d07fc6cc2e60800000000000000
+      internalID: 7938938837400816640
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_91
+      rect:
+        serializedVersion: 2
+        x: 1406
+        y: 967
+        width: 370
+        height: 175
+      alignment: 9
+      pivot: {x: 0.5108108, y: 0.5942857}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b2c2e8f024572f00800000000000000
+      internalID: 1091933935251931831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_92
+      rect:
+        serializedVersion: 2
+        x: 388
+        y: 1193
+        width: 375
+        height: 182
+      alignment: 9
+      pivot: {x: 0.5173333, y: 0.5934066}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 126bb499db7df4cb0800000000000000
+      internalID: -4877442662098291167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_93
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 1051
+        width: 368
+        height: 186
+      alignment: 9
+      pivot: {x: 0.49456522, y: 0.58064514}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff179a60eed229fd0800000000000000
+      internalID: -2336754756314631681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_94
+      rect:
+        serializedVersion: 2
+        x: 868
+        y: 1241
+        width: 375
+        height: 185
+      alignment: 9
+      pivot: {x: 0.488, y: 0.55675673}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31f75689b09cb3b70800000000000000
+      internalID: 8879912141929676563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_95
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1203
+        width: 380
+        height: 185
+      alignment: 9
+      pivot: {x: 0.48421052, y: 0.5675676}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27f133f77868f4b20800000000000000
+      internalID: 3120860983303806834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_96
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1019
+        width: 375
+        height: 180
+      alignment: 9
+      pivot: {x: 0.49066666, y: 0.5833333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8deb53adf6ef10fe0800000000000000
+      internalID: -1224417867312283944
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_97
+      rect:
+        serializedVersion: 2
+        x: 754
+        y: 861
+        width: 364
+        height: 186
+      alignment: 9
+      pivot: {x: 0.50274724, y: 0.5913978}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66844a5a9ebd8a7d0800000000000000
+      internalID: -2906831762914785178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_98
+      rect:
+        serializedVersion: 2
+        x: 1408
+        y: 1146
+        width: 371
+        height: 185
+      alignment: 9
+      pivot: {x: 0.5013477, y: 0.5945946}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 472ad3871d19f4950800000000000000
+      internalID: 6435522721387225716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_99
+      rect:
+        serializedVersion: 2
+        x: 1498
+        y: 1335
+        width: 374
+        height: 181
+      alignment: 9
+      pivot: {x: 0.49465242, y: 0.5635359}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b9e5db131c06bad0800000000000000
+      internalID: -2686946851469006412
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_100
+      rect:
+        serializedVersion: 2
+        x: 383
+        y: 1012
+        width: 367
+        height: 177
+      alignment: 9
+      pivot: {x: 0.51771116, y: 0.5480226}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66eae034c2b6bf310800000000000000
+      internalID: 1439862343722774118
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_101
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 856
+        width: 365
+        height: 159
+      alignment: 9
+      pivot: {x: 0.5287671, y: 0.5849057}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c1e310aac4cac290800000000000000
+      internalID: -7869261024328425018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_firelink_effects-hd_102
+      rect:
+        serializedVersion: 2
+        x: 1780
+        y: 934
+        width: 202
+        height: 146
+      alignment: 9
+      pivot: {x: 0.509901, y: 0.65068495}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eead2ffe97279f510800000000000000
+      internalID: 1583422612039719662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      FX_firelink_effects-hd_0: 3077025722763055995
+      FX_firelink_effects-hd_1: -3322205641452521410
+      FX_firelink_effects-hd_10: 5140938179446339705
+      FX_firelink_effects-hd_100: 1439862343722774118
+      FX_firelink_effects-hd_101: -7869261024328425018
+      FX_firelink_effects-hd_102: 1583422612039719662
+      FX_firelink_effects-hd_11: 8885349770502082142
+      FX_firelink_effects-hd_12: 9070247236641344754
+      FX_firelink_effects-hd_13: -8805316217196494427
+      FX_firelink_effects-hd_14: -5471456330468035143
+      FX_firelink_effects-hd_15: -5158953807176612539
+      FX_firelink_effects-hd_16: 2121618475782875040
+      FX_firelink_effects-hd_17: -8873918760220238878
+      FX_firelink_effects-hd_18: 5003222042834765018
+      FX_firelink_effects-hd_19: -2510100914008688945
+      FX_firelink_effects-hd_2: 116669471791822828
+      FX_firelink_effects-hd_20: 6385806122901348736
+      FX_firelink_effects-hd_21: 9010296921207340648
+      FX_firelink_effects-hd_22: 7168282392837502967
+      FX_firelink_effects-hd_23: -4858907672357500179
+      FX_firelink_effects-hd_24: -4924266652849886755
+      FX_firelink_effects-hd_25: 3593298849421203878
+      FX_firelink_effects-hd_26: -4255494255794928222
+      FX_firelink_effects-hd_27: -4322397683288583685
+      FX_firelink_effects-hd_28: 1027442959933572483
+      FX_firelink_effects-hd_29: -1037606315079583811
+      FX_firelink_effects-hd_3: -5473269641236152414
+      FX_firelink_effects-hd_30: 1579803058763212888
+      FX_firelink_effects-hd_31: 412756270792500744
+      FX_firelink_effects-hd_32: 1527373623545502314
+      FX_firelink_effects-hd_33: 7793983838008671238
+      FX_firelink_effects-hd_34: -1648343000951937086
+      FX_firelink_effects-hd_35: 2183665326364055157
+      FX_firelink_effects-hd_36: 1662650112170876737
+      FX_firelink_effects-hd_37: -5363858438930363129
+      FX_firelink_effects-hd_38: -638545952485564342
+      FX_firelink_effects-hd_39: -3740782388376457201
+      FX_firelink_effects-hd_4: -8837717873876390184
+      FX_firelink_effects-hd_40: 4816824165732102278
+      FX_firelink_effects-hd_41: 1859770266439972614
+      FX_firelink_effects-hd_42: 1386949493967820250
+      FX_firelink_effects-hd_43: 2765862362339907996
+      FX_firelink_effects-hd_44: -6204579288441894644
+      FX_firelink_effects-hd_45: -3382323862526838250
+      FX_firelink_effects-hd_46: 8238041743687146962
+      FX_firelink_effects-hd_47: 6629621911732998274
+      FX_firelink_effects-hd_48: -4856800199739246435
+      FX_firelink_effects-hd_49: -5937222405944963089
+      FX_firelink_effects-hd_5: 5513725302384236697
+      FX_firelink_effects-hd_50: 1537365886540992623
+      FX_firelink_effects-hd_51: 6789249772280390044
+      FX_firelink_effects-hd_52: -1600154255060317265
+      FX_firelink_effects-hd_53: 5862702111649313003
+      FX_firelink_effects-hd_54: 6237572834720392024
+      FX_firelink_effects-hd_55: 6741341077242472960
+      FX_firelink_effects-hd_56: 9162191748985583114
+      FX_firelink_effects-hd_57: -1813763814203795347
+      FX_firelink_effects-hd_58: 4532895049584594855
+      FX_firelink_effects-hd_59: 8772065412812539853
+      FX_firelink_effects-hd_6: 5575377872547406250
+      FX_firelink_effects-hd_60: -1503236850095485841
+      FX_firelink_effects-hd_61: 4270867515657615926
+      FX_firelink_effects-hd_62: -8043252151298045062
+      FX_firelink_effects-hd_63: -7177291315726648358
+      FX_firelink_effects-hd_64: -2916497223571542916
+      FX_firelink_effects-hd_65: 8899645361648075979
+      FX_firelink_effects-hd_66: -6162800795779097478
+      FX_firelink_effects-hd_67: -6162466749579856006
+      FX_firelink_effects-hd_68: 4268390475458220548
+      FX_firelink_effects-hd_69: -235870784918498524
+      FX_firelink_effects-hd_7: -7493805799488433492
+      FX_firelink_effects-hd_70: -7586268719726835577
+      FX_firelink_effects-hd_71: 6602855405093535246
+      FX_firelink_effects-hd_72: -1178908482630740618
+      FX_firelink_effects-hd_73: 4785341706778473563
+      FX_firelink_effects-hd_74: -2564167515569646078
+      FX_firelink_effects-hd_75: 6616948593264503672
+      FX_firelink_effects-hd_76: -7402226400707417672
+      FX_firelink_effects-hd_77: 6654907154916871089
+      FX_firelink_effects-hd_78: 1265225340786339624
+      FX_firelink_effects-hd_79: -8427931441512747476
+      FX_firelink_effects-hd_8: 5670739451333232275
+      FX_firelink_effects-hd_80: 1342116345344547005
+      FX_firelink_effects-hd_81: 7054091562544691710
+      FX_firelink_effects-hd_82: 5897718083838814514
+      FX_firelink_effects-hd_83: 4621818236948140961
+      FX_firelink_effects-hd_84: 1111716521658073547
+      FX_firelink_effects-hd_85: -8360808689369428089
+      FX_firelink_effects-hd_86: -1738738387814299348
+      FX_firelink_effects-hd_87: -2623457099507429893
+      FX_firelink_effects-hd_88: 7142169456078345892
+      FX_firelink_effects-hd_89: 8200940002877898780
+      FX_firelink_effects-hd_9: 6496679850858418090
+      FX_firelink_effects-hd_90: 7938938837400816640
+      FX_firelink_effects-hd_91: 1091933935251931831
+      FX_firelink_effects-hd_92: -4877442662098291167
+      FX_firelink_effects-hd_93: -2336754756314631681
+      FX_firelink_effects-hd_94: 8879912141929676563
+      FX_firelink_effects-hd_95: 3120860983303806834
+      FX_firelink_effects-hd_96: -1224417867312283944
+      FX_firelink_effects-hd_97: -2906831762914785178
+      FX_firelink_effects-hd_98: 6435522721387225716
+      FX_firelink_effects-hd_99: -2686946851469006412
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

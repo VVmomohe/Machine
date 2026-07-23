@@ -1,0 +1,541 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+using SlotMachine.Core;
+using Com.Back;   // DataManager（读取 Setting[1].auto 自动结算开关）
+
+namespace com.slot
+{
+    /// <summary>GameManager 一局流程部分：
+    ///   上锁 → 滚动 → 等停稳 → (Hold&Spin重转循环) → 结算解锁。</summary>
+    public partial class GameManager
+    {
+        #region 基础局
+        /// <summary>启动一局基础旋转：上锁 → 滚动 → 等停稳 → (可能进入Hold&Spin) → 结算解锁。</summary>
+        void StartBaseSpin(GameResult r)
+        {
+            _spinPending = true;
+
+            if (m_reelView != null)
+            {
+                // 落了火球，把倍率传给 ShowGrid，滚动阶段就显示倍率
+                var fireMults = new Dictionary<int, FireballCell>();
+                if (r.holdSpinState != null)
+                {
+                    var hs = r.holdSpinState;
+                    for (int reel = 0; reel < hs.reels; reel++)
+                        for (int row = 0; row < hs.cells[reel].Length; row++)
+                            if (hs.cells[reel][row].filled)
+                                fireMults[reel * 100 + row] = hs.cells[reel][row];
+                }
+                m_reelView.ShowGrid(r.baseGrid, fireMults.Count > 0 ? fireMults : null);
+                StartCoroutine(SettleAfterReelsStop(r));
+            }
+            else
+            {
+                Settle(r);
+                _spinPending = false;
+            }
+        }
+        #endregion
+
+        #region 结算
+        /// <summary>等转轮停稳后：先亮赢分→停顿一拍→滚进总分；若落了火球则进入 Hold&Spin（等玩家逐轮按 Start）。</summary>
+        IEnumerator SettleAfterReelsStop(GameResult r)
+        {
+            // 1) 等转轮停稳（含 waterfall），确保视觉上完全停了才结算
+            while (m_reelView != null && m_reelView.IsSpinning())
+                yield return null;
+
+            // 2) 基础旋转的中奖高亮
+            if (m_reelView != null)
+            {
+                m_reelView.HighlightWins(r.baseWins);
+                // 普通 ICON 有赢分：播放 event:/Sounds/111
+                if (r.baseWin > 0 && FMODSoundMgr.Instance != null)
+                    FMODSoundMgr.Instance.PlaySound("event:/Sounds/111");
+            }
+
+            // ★ 停轮即结算 LOG：全部滚动停下 = 本局物理结果已确定，立即输出 压分/总分/赢分，
+            //   不推迟到「确认」之后（确认只是赢分滚入总分的演出，不是结算本身）。
+            //   这样无论是否进 Hold&Spin，基础旋转停轮都有一条结算日志；Hold&Spin 每轮由 AdvanceHoldSpin 的 [结算:respin] 覆盖。
+            if (m_player != null)
+                LogSettle("基础", m_machine.totalBet, r.baseWin + r.scatterPayout + r.respinLineWin);
+
+            // ★ Hold & Spin 入口：基础旋转落了火球 → 收集/推进火球特性 → 统一结算
+            if (r.holdSpinState != null)
+            {
+                EnterHoldSpin(r, r.holdSpinState);
+
+                if (r.holdSpinState.IsOver())
+                {
+                    // 初始即满列：播掉落动画
+                    _holdRolling = true;
+                    if (m_reelView != null)
+                        for (int reel = 0; reel < r.holdSpinState.reels; reel++)
+                            if (r.holdSpinState.isFull[reel])
+                            {
+                                yield return StartCoroutine(m_reelView.CollectFullReelAnimation(reel));
+                                if (m_bonus != null) ShowJackpotEffectsForReel(r.holdSpinState, reel);
+                                // 火球收集成功：按本列总倍数分支播放音效（>8→18，否则→110）
+                                if (FMODSoundMgr.Instance != null)
+                                    FMODSoundMgr.Instance.PlaySound(HoldSpinState.ReelSum(r.holdSpinState, reel) > 8f ? "event:/Sounds/18" : "event:/Sounds/110");
+                            }
+                    _holdRolling = false;
+                    // 统计 FREE 火球 + 完成结算（FinishHoldSpin 设 totalPayout + 日志/奖池 + 清理）
+                    AwardFreeballSpinsFromMain(r.holdSpinState, r);
+                    FinishHoldSpin();
+                }
+                else
+                {
+                    // 初始火球已展示（EnterHoldSpin 显示了火球格/计数器）。
+                    // 每轮 respin 由 Start 键通过 OnStartKey → AdvanceHoldSpin 触发。
+                    // 这里直接结束，等玩家按 Start 开始第一轮收集。
+                    yield break;
+                }
+
+                // ★ 仅初始即满列（IsOver）走这里：统一结算
+                if (m_player != null)
+                {
+                    long tw = (long)System.Math.Round(r.totalPayout);
+                    m_player.ShowWinValue(tw);
+                    yield return StartCoroutine(WaitForConfirmKey()); // auto 1s 或手动确认
+                    m_player.ApplySpinResult(r);
+                }
+
+                if (WillEnterMini(r)) { EnterMiniNow(r); yield break; }
+                _spinPending = false;
+                yield break;
+            }
+
+            // 3) 无火球：先显示赢分 → 等按确认键 → 再滚动到总分
+            // ★ 若本局奖励免费旋转且将进入 Mini：先把内部免费旋转赢分剔除（改由 Mini 统一结算火球），
+            //   避免下方 ApplySpinResult 把内部 freeSpinsWin 一起滚进余额造成重复派彩。
+            if (WillEnterMini(r))
+            {
+                r.freeSpinsWin = 0;
+                r.totalPayout = r.baseWin + r.scatterPayout + r.featureWin + r.respinLineWin;
+            }
+            if (m_player != null)
+            {
+                long win = (long)System.Math.Round(r.totalPayout);
+                m_player.ShowWinValue(win);              // 先静态显示赢分
+                yield return StartCoroutine(WaitForConfirmKey()); // 等待玩家按确认键
+                m_player.ApplySpinResult(r);             // 开始滚进总分
+            }
+
+            // 4) 免费游戏触发 → 进入 Mini（隐藏 Main，Mini 内统一结算火球）；否则正常结算解锁
+            if (MaybeEnterMini(r)) { _spinPending = false; yield break; }
+            Settle(r);
+            _spinPending = false;
+        }
+
+        /// <summary>进入 Hold&Spin：显示初始锁定状态 + 每列计数器，然后等待玩家按 Start 逐轮推进。</summary>
+        void EnterHoldSpin(GameResult r, HoldSpinState hs)
+        {
+            _activeHold = hs;
+            _holdResult = r;
+            _holdRolling = false;
+            _holdScatterSpins = r.freeSpinsAwarded;   // ★ 记录 Scatter 触发的原始次数（不含 FREE 火球追加），用于区分 collectedFree
+
+            if (m_reelView != null)
+            {
+                m_reelView.ClearWinHighlight();    // 进入 Hold&Spin = 新局面，清掉基础旋转的中奖高亮
+                m_reelView.ShowFeatureState(hs);   // 火球格锁定 + 倍率文字 + 有火球的列显示计数器3
+            }
+            // 注意：IsOver 判定已移到 SettleAfterReelsStop 协程（需要先播满列掉落动画再收尾）
+        }
+
+        /// <summary>按一次 Start 推进一轮 Hold&Spin：扣压分 → 落火球/减计数器 → 真卷轴滚动 → 停稳结算 → 满列派彩。
+        /// 每轮结束若还有活跃列则返回等下次 Start，若全部结束则收尾+统一结算(ShowWin→Confirm→Apply→Mini)。</summary>
+        IEnumerator AdvanceHoldSpin()
+        {
+            if (_activeHold == null) yield break;
+            _holdRolling = true;
+            var hs = _activeHold;
+
+            try
+            {
+                // === 单轮 respin ===
+                // 扣本轮流注分（每轮单独押注，余额不足则补 LastBet，仍不足则退出）
+                if (m_player != null)
+                {
+                    if (m_player.m_bet_num <= 0) m_player.LastBet();
+                    if (m_player.m_bet_num <= 0) yield break;
+                    m_machine.totalBet = m_player.m_bet_num;
+                    m_machine.session.Contribute(m_player.m_bet_num);
+                }
+
+                float roundWin = 0f;
+                if (m_player != null) m_player.ResetWinDisplay();
+
+                // 1) 推进一轮逻辑（落火球/减计数器/释放列/满列派彩）
+                var step = GameSession.RespinHoldSpin(hs, m_machine.config, m_machine.rng,
+                    m_machine.totalBet, m_machine.session.Pots, allowFreeMode: true,
+                    testForceFreeGame: m_machine.session.testForceFreeGame);
+
+                // 2) 滚动列 = 未集满列 + 收集满列后"释放滚走"中的幽灵列
+                var spun = new List<int>();
+                for (int rr = 0; rr < hs.reels; rr++)
+                {
+                    if (!hs.isFull[rr]) { spun.Add(rr); continue; }
+                    if (m_reelView != null && m_reelView.IsReelReleasing(rr))
+                        spun.Add(rr);
+                }
+
+                // 3) 真卷轴滚动
+                if (m_reelView != null)
+                {
+                    m_reelView.ClearWinHighlight();
+                    if (step.reelSpun != null)
+                        foreach (int reel in step.reelSpun) m_reelView.ReleaseReel(reel);
+
+                    var newFireMults = new Dictionary<int, FireballCell>();
+                    if (step.newFireballs != null)
+                        foreach (var c in step.newFireballs) newFireMults[c.reel * 100 + c.row] = c;
+                    yield return StartCoroutine(m_reelView.SpinHoldRound(spun, 0.75f, newFireMults, step.respinGrid));
+                }
+
+                // 4) 停稳后结算：锁新火球 / 释放列 / 计数器-1 / 满列脉冲
+                if (m_reelView != null)
+                    m_reelView.ApplyRespinStep(step, hs);
+
+                // 4.5) 限百搭
+                if (m_reelView != null)
+                    m_reelView.LimitWildsOnBoard();
+
+                // 5) 本轮普通线奖
+                if (m_machine != null && m_machine.session != null)
+                {
+                    int[][] grid = BuildRespinGrid(hs);
+                    var wins = m_machine.session.EvaluateGrid(grid, m_machine.totalBet);
+                    float win = 0f;
+                    foreach (var w in wins) win += w.payout;
+                    if (wins.Count > 0 && m_reelView != null) m_reelView.HighlightWins(wins);
+                    if (win > 0)
+                    {
+                        if (m_player != null) m_player.ShowWinValue((long)System.Math.Round(win));
+                        if (_holdResult != null) _holdResult.respinLineWin += win;
+                        roundWin += win;
+                        // 普通 ICON 有赢分：播放 event:/Sounds/111
+                        if (FMODSoundMgr.Instance != null)
+                            FMODSoundMgr.Instance.PlaySound("event:/Sounds/111");
+                    }
+                }
+
+                // 6) 满列派彩 + FREE 火球统计 + 列清理
+                if (step.fullReels != null && step.fullReels.Count > 0)
+                {
+                    float collectWin = 0f;
+                    foreach (var fr in step.fullReels) collectWin += fr.payout;
+
+                    // 满列 / 释放列 FREE 火球统一统计
+                    foreach (var fr in step.fullReels) CountFreeFireballs(hs, fr.reel);
+                    if (step.reelSpun != null)
+                        foreach (int rr in step.reelSpun) CountFreeFireballs(hs, rr, clearAfter: true);
+
+                    if (m_reelView != null)
+                        foreach (var fr in step.fullReels)
+                        {
+                            yield return StartCoroutine(m_reelView.CollectFullReelAnimation(fr.reel));
+                            // 彩金特效：检查该列是否有彩金火球
+                            if (m_bonus != null)
+                                ShowJackpotEffectsForReel(hs, fr.reel);
+                            // 火球收集成功：按本列总倍数分支播放音效（>8→18，否则→110）
+                            if (FMODSoundMgr.Instance != null)
+                                FMODSoundMgr.Instance.PlaySound(fr.sum > 8f ? "event:/Sounds/18" : "event:/Sounds/110");
+                        }
+
+                    if (collectWin > 0)
+                    {
+                        if (m_player != null) m_player.ShowWinValue((long)System.Math.Round(collectWin));
+                        roundWin += collectWin;
+                    }
+
+                    foreach (var fr in step.fullReels)
+                    {
+                        int rr = fr.reel;
+                        hs.isFull[rr] = false;
+                        hs.released[rr] = true;
+                        hs.counter[rr] = 0;
+                        for (int row = 0; row < hs.cells[rr].Length; row++)
+                            hs.cells[rr][row].filled = false;
+                        if (m_reelView != null) m_reelView.ReleaseCollectedReel(rr);
+                    }
+                    // ★ 满列收集后刷新特效——收集后该列不再差1个火球，m_effect 应关闭
+                    if (m_reelView != null) m_reelView.RefreshColumnEffects(hs);
+                }
+
+                // 结算日志
+                LogSettle("respin", m_machine.totalBet, roundWin);
+
+                // 本轮押注消费
+                if (m_player != null) m_player.ResetBet();
+
+                // === 判断本轮后如何推进 ===
+                // ★ collectedFree: 仅当 HoldSpin 期间「新增」了 FREE 火球奖励（不含 Scatter 触发的原始次数）。
+                //   之前这里用 freeSpinsAwarded>0 会误把 Scatter 的 10 次也算进去，导致首次 respin 就进 Mini。
+                int freeballAdded = (_holdResult != null) ? _holdResult.freeSpinsAwarded - _holdScatterSpins : 0;
+                bool collectedFree = freeballAdded > 0;
+                if (!hs.IsOver() && !collectedFree)
+                    yield break;
+
+                var holdR = _holdResult;
+
+                // ★ 收集到 FREE 但 HoldSpin 还没结束（counter>0 列仍在）→ 先进 Mini，保留 _activeHold
+                //   Mini 结束后在回调里恢复火球/计数器，继续跑剩余列。
+                if (collectedFree && !hs.IsOver())
+                {
+                    // 结算当前赢分（不调 FinishHoldSpin——保留 _activeHold 给回调恢复）
+                    holdR.featureWin = hs.accumulated;
+                    holdR.totalPayout = holdR.baseWin + holdR.scatterPayout + holdR.respinLineWin + holdR.featureWin + holdR.freeSpinsWin;
+                    Settle(holdR);
+                    LogSettle("特性结束(进Mini)", m_machine.totalBet, holdR.featureWin);
+
+                    if (m_player != null)
+                    {
+                        long tw = (long)System.Math.Round(holdR.totalPayout);
+                        m_player.ShowWinValue(tw);
+                        yield return StartCoroutine(WaitForConfirmKey());
+                        m_player.ApplySpinResult(holdR);
+                    }
+
+                    int awardSpins = holdR.freeSpinsAwarded;   // 先保存（下面会清零）
+
+                    // ★ 清零 ALL FREE 火球 cells（全列遍历），防止 Mini 回来后 IsOver 时
+                    //   AwardFreeballSpinsFromMain 把同一批火球重数一遍 → 二次进 Mini → 次数膨胀。
+                    for (int r = 0; r < hs.reels; r++)
+                        for (int row = 0; row < hs.cells[r].Length; row++)
+                            if (hs.cells[r][row].filled && hs.cells[r][row].kind == FireballKind.FreeSpins)
+                                hs.cells[r][row].filled = false;
+
+                    // 清零已结算字段，Mini 后 IsOver 时只算增量（防重复结算）
+                    holdR.baseWin = 0;
+                    holdR.scatterPayout = 0;
+                    holdR.respinLineWin = 0;
+                    holdR.freeSpinsAwarded = 0;
+                    _holdScatterSpins = 0;          // Scatter 奖励已随本次 Mini 消耗完毕
+                    hs.accumulated = 0;
+
+                    // 隐藏计数器（Mini 回来后恢复），但不清 _activeHold
+                    if (m_reelView != null) m_reelView.HideAllCounters();
+
+                    // 进入 Mini，回调中恢复 HoldSpin
+                    var savedHs = hs;
+                    EnterMiniNow(holdR, () =>
+                    {
+                        _activeHold = savedHs;
+                        if (m_reelView != null)
+                            m_reelView.ShowFeatureState(savedHs);
+                    }, awardSpins);
+                    yield break;
+                }
+
+                // === IsOver → 正常收尾（调 FinishHoldSpin） ===
+                if (hs.IsOver()) AwardFreeballSpinsFromMain(hs, holdR);
+                FinishHoldSpin();
+                LogSettle("特性结束", m_machine.totalBet, holdR != null ? holdR.featureWin : 0f);
+
+                if (m_player != null && holdR != null)
+                {
+                    long tw = (long)System.Math.Round(holdR.totalPayout);
+                    m_player.ShowWinValue(tw);
+                    yield return StartCoroutine(WaitForConfirmKey());
+                    m_player.ApplySpinResult(holdR);
+                }
+
+                if (WillEnterMini(holdR)) { EnterMiniNow(holdR); yield break; }
+                _spinPending = false;
+            }
+            finally
+            {
+                _holdRolling = false;
+            }
+        }
+
+        void FinishHoldSpin()
+        {
+            var r = _holdResult;
+            var hs = _activeHold;
+            _activeHold = null;
+            _holdResult = null;
+            _holdRolling = false;
+            _spinPending = false;
+
+            if (r != null && hs != null)
+            {
+                r.featureWin = hs.accumulated;
+                r.totalPayout = r.baseWin + r.scatterPayout + r.respinLineWin + r.featureWin + r.freeSpinsWin;
+            }
+
+            if (m_reelView != null) m_reelView.HideAllCounters();
+            if (r != null) Settle(r);
+        }
+
+        /// <summary>按列统计 FreeSpins 火球，分档追加免费次数（IsOver 兜底路径用）。</summary>
+        void AwardFreeballSpinsFromMain(HoldSpinState hs, GameResult r)
+        {
+            if (hs == null || r == null || m_machine?.config?.freeSpins == null) return;
+            var fs = m_machine.config.freeSpins;
+            int before = r.freeSpinsAwarded;
+            for (int reel = 0; reel < hs.reels; reel++)
+            {
+                var col = hs.cells[reel];
+                if (col == null) continue;
+                int cnt = 0;
+                for (int row = 0; row < col.Length; row++)
+                    if (col[row].filled && col[row].kind == FireballKind.FreeSpins) cnt++;
+                if (cnt > 0) r.freeSpinsAwarded += fs.FreeballAwardFor(cnt);
+            }
+            if (r.freeSpinsAwarded != before)
+                Debug.Log($"[FREE] 兜底统计: {before} → {r.freeSpinsAwarded}");
+        }
+
+        /// <summary>统计单列 FREE 火球数并累加到 _holdResult.freeSpinsAwarded。</summary>
+        void CountFreeFireballs(HoldSpinState hs, int reel, bool clearAfter = false)
+        {
+            if (_holdResult == null || m_machine?.config?.freeSpins == null) return;
+            int cnt = 0;
+            for (int row = 0; row < hs.cells[reel].Length; row++)
+                if (hs.cells[reel][row].filled && hs.cells[reel][row].kind == FireballKind.FreeSpins) cnt++;
+            if (cnt > 0) _holdResult.freeSpinsAwarded += m_machine.config.freeSpins.FreeballAwardFor(cnt);
+            if (clearAfter)
+                for (int row = 0; row < hs.cells[reel].Length; row++)
+                    hs.cells[reel][row].filled = false;
+        }
+
+        /// <summary>扫描某列中的彩金火球（Mini/Minor/Major/Mega），逐个触发 BonusView 特效。</summary>
+        void ShowJackpotEffectsForReel(HoldSpinState hs, int reel)
+        {
+            if (hs == null || m_bonus == null) return;
+            for (int row = 0; row < hs.cells[reel].Length; row++)
+            {
+                var c = hs.cells[reel][row];
+                if (c.filled && c.kind >= FireballKind.Mini && c.kind <= FireballKind.Mega)
+                    m_bonus.ShowJackpotEffect(c.kind);
+            }
+        }
+
+        /// <summary>构建当前 respin 网格：火球格(状态里 filled)用 fireball 符号，普通格取 ReelView 当前显示符号。
+        /// 用于每轮 respin 的普通线奖评估（火球不并入连线，只当固定遮挡）。</summary>
+        int[][] BuildRespinGrid(HoldSpinState hs)
+        {
+            int fbId = (m_machine != null && m_machine.config != null) ? m_machine.config.fireballSymbolId : 12;
+            int n = hs.reels;
+            int[][] grid = new int[n][];
+            for (int r = 0; r < n; r++)
+            {
+                int rows = hs.cells[r].Length;
+                grid[r] = new int[rows];
+                for (int row = 0; row < rows; row++)
+                {
+                    if (hs.cells[r][row].filled)
+                        grid[r][row] = fbId;   // 火球格冻结
+                    else
+                        grid[r][row] = (m_reelView != null) ? m_reelView.GetVisibleSymbol(r, row) : 0;
+                }
+            }
+            return grid;
+        }
+
+        /// <summary>结算：收分滚动 / 彩金脉冲 / 奖池刷新 / 中奖高亮。</summary>
+        void Settle(GameResult r)
+        {
+            if (m_bonus != null)
+            {
+                m_bonus.PlayJackpots(r);
+                m_bonus.ShowPots(m_machine.session.Pots);
+            }
+
+            string fbTag = (r.holdSpinState != null) ? "HOLD&SPIN" : "none";
+            Debug.Log($"[Spin] mode={m_machine.config.modeName} total={r.totalPayout:F2} " +
+                      $"base={r.baseWin:F2} scatter={r.scatterPayout:F2}({r.scatterCount}) " +
+                      $"feature={r.featureWin:F2} fs={r.freeSpinsWin:F2}(x{r.freeSpinsAwarded}) " +
+                      $"fireballs={fbTag}");
+        }
+        #endregion
+
+        #region Mini 免费小游戏入口
+        bool WillEnterMini(GameResult r)
+        {
+            if (r == null || r.freeSpinsAwarded <= 0 || m_miniGame == null) return false;
+            return m_miniGame.GetComponent<MiniGame>() != null;
+        }
+
+        void EnterMiniNow(GameResult r, System.Action onRestore = null, int overrideSpins = -1)
+        {
+            r.freeSpinsWin = 0;
+            _miniActive = true;
+            // ★ 进入小游戏：清掉基础局赢分显示(归 0)。余额已由 ApplySpinResult 在滚入，
+            //   ResetWinDisplay 会先把进行中的滚分落账再清 0，不丢分。Mini 全程主 HUD 仍可见，
+            //   不清会一直挂着基础局那笔赢分。
+            if (m_player != null) m_player.ResetWinDisplay();
+            // 进入小游戏：切换 BGM 到 event:/Sounds/8（PlayBGM 内部自动停掉主游戏 BGM）
+            if (FMODSoundMgr.Instance != null)
+            {
+                FMODSoundMgr.Instance.PlayBGM("event:/Sounds/8");
+                FMODSoundMgr.Instance.PlaySound("event:/Sounds/7");
+            }
+            int spins = overrideSpins >= 0 ? overrideSpins : r.freeSpinsAwarded;
+            var mini = m_miniGame.GetComponent<MiniGame>();
+            mini.StartMini(spins, (res) =>
+            {
+                _miniActive = false;
+                if (m_player != null && res != null && res.fireTotal > 0f)
+                    m_player.AddFeatureWin(res.fireTotal);
+                // Mini 结束后恢复主游戏 BGM（event:/Sounds/11）
+                if (FMODSoundMgr.Instance != null)
+                    FMODSoundMgr.Instance.PlayBGM("event:/Sounds/11");
+                // Mini 结束后恢复主游戏 HoldSpin（如有）
+                onRestore?.Invoke();
+            });
+        }
+
+        /// <summary>无火球分支用：判定 + 结算（Settle）+ 进 Mini。
+        /// 返回 true 表示已进入 Mini（调用方应 yield break，不再走主游戏结算）。</summary>
+        bool MaybeEnterMini(GameResult r)
+        {
+            if (!WillEnterMini(r)) return false;
+            r.totalPayout = r.baseWin + r.scatterPayout + r.featureWin + r.respinLineWin;
+            Settle(r);   // 日志 + 奖池脉冲（不含免费赢分）
+            EnterMiniNow(r);
+            return true;
+        }
+        #endregion
+
+        #region 辅助
+        /// <summary>结算日志：输出 压分/总分/赢分（调试用，便于核对每轮 respin 是否扣压分 / 赢分是否入账）。</summary>
+        void LogSettle(string tag, float bet, float win)
+        {
+            long credit = (m_player != null) ? m_player.m_credit_num : 0;
+            Debug.Log($"[结算:{tag}] 压分={bet:F0} 赢分={win:F0} 总分={credit}");
+        }
+
+        /// <summary>
+        /// 等待玩家按确认键（Start）后才继续。期间 Start 键由 Input.Update 拦截设 _waitingConfirm=false。
+        /// 自动结算：DataManager.Instance.Setting[1].auto == 1 时，短暂展示赢分后自动确认，
+        /// 无需按确认键（玩家仍可在展示期间按确认键立即跳过等待）。
+        /// </summary>
+        IEnumerator WaitForConfirmKey(bool allowAuto = true)
+        {
+            _waitingConfirm = true;
+
+            // ★ 自动结算：allowAuto==true 且 auto==1 时延时后自动继续（不再等确认键）。
+            //   0.9s 延时给玩家看清赢分/高亮后自动推进。
+            if (allowAuto && DataManager.Instance != null &&
+                DataManager.Instance.Setting != null &&
+                DataManager.Instance.Setting.TryGetValue(1, out var sd) &&
+                sd.auto == 1)
+            {
+                yield return new WaitForSeconds(0.9f);   // 给玩家看清赢分/高亮
+                _waitingConfirm = false;
+                yield break;
+            }
+
+            while (_waitingConfirm)
+                yield return null;
+        }
+        #endregion
+    }
+}

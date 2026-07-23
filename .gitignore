@@ -1,0 +1,23 @@
+# ===== Unity (Machine37) =====
+Machine37/Library/
+Machine37/Temp/
+Machine37/obj/
+Machine37/Build/
+Machine37/Builds/
+Machine37/Logs/
+Machine37/*.csproj
+Machine37/*.sln
+Machine37/*.userprefs
+Machine37/.vs/
+
+# ===== FMODProj =====
+FMODProj/Library/
+FMODProj/Build/
+FMODProj/Logs/
+FMODProj/.cache/
+FMODProj/.unsaved/
+FMODProj/.user/
+
+# ===== OS / IDE =====
+Thumbs.db
+.DS_Store

@@ -1,0 +1,10 @@
+{
+	"name": "ankh.com",
+	"overrideReferences": true,
+	"references": [
+		"UnityEngine.UI"
+	],
+	"precompiledReferences": [
+		"System.IO.Ports.dll"
+	]
+}

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcf7219bab7fe46a1ad266029b2fee19, type: 3}
+  m_Name: Readme
+  m_EditorClassIdentifier: 
+  icon: {fileID: 2800000, guid: f0e933e1cf221274e844a0f8ee2ab9d4, type: 3}
+  title: 
+  sections:
+  - heading: Magic Menu
+    text: Magic Menu is a UI management system designed for Unity's UI system known
+      as "UGUI".  It provides a simple and intuitive workflow to manage different
+      parts of the UI of your game.  The system is designed to be artist frienly,
+      which means that it can be used without writing a lot of code. This makes it
+      easy to create and iterate over the different parts of the UI which reduces
+      the development time and improves the overall workflow.
+    linkText: 
+    url: 
+  - heading: Contact me
+    text: "If you\u2019re interested in hiring me, please don\u2019t hesitate to
+      contact me. I would love to hear from you and discuss how I can help you make
+      your dream game. You can reach me at:"
+    linkText: hm.hasan@gmail.com
+    url: 
+  loadedLayout: 1

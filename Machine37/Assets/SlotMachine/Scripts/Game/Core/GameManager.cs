@@ -1,0 +1,107 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+using Com.Back;
+using SlotMachine.Core;   // GameResult
+
+namespace com.slot
+{
+    /// <summary>
+    /// 三七机主控（MonoBehaviour）。按职责拆成多个 partial 文件：
+    ///   GameManager.cs        —— 引用/字段 / 单例 / 生命周期 / 初始化辅助
+    ///   GameManager.Input.cs  —— 每帧输入 / 开始·停止·加注键处理
+    ///   GameManager.Flow.cs   —— 一局流程（上锁→滚动→等停稳→火球掉落→结算解锁）
+    /// </summary>
+    public partial class GameManager : MonoBehaviour
+    {
+        #region 引用 / 字段
+        public SlotMachine m_machine;
+        public PlayerView m_player;
+        public BonusView m_bonus;
+        public ReelView m_reelView;
+
+        public GameObject m_mainGame;
+        public GameObject m_miniGame;
+
+        /// <summary>转轮滚动 / 火球掉落 / 结算期间为 true，防止重复触发新一局（狂按 Start 不会穿透）。</summary>
+        private bool _spinPending;
+
+        /// <summary>【测试开关】开启后在 Hold&Spin 中火球的 FreeSpins(免费模式)概率从 0.6% 提高到 50%，
+        /// 方便积累 FREE 火球进 Mini 免费游戏（Inspector 勾选即可）。</summary>
+        public bool testForceFreeGame = false;
+
+        /// <summary>【自动游玩】Inspector 勾选（或运行时按 F1）后，系统自动按 Start 键：
+        /// 自动开新局、自动推进 Hold&amp;Spin 每轮 respin、结算确认点自动过、Mini 免费游戏自动续轮。
+        /// 转轮正在滚动时不触发（避免把正在转的卷轴急停），等其自然停稳后下一帧自动继续。取消勾选立即回手动。</summary>
+        public bool autoPlay = false;
+
+        /// <summary>Hold&amp;Spin 特性进行中的状态（非 null=正在 Hold&Spin，Start 键=推进一轮而非开新局）。</summary>
+        private HoldSpinState _activeHold;
+        private GameResult _holdResult;      // 挂起的本局结果，Hold&Spin 结束后才最终结算
+        private bool _holdRolling;           // 本轮 respin 是否正在滚动（防狂按穿透）
+        private int _holdScatterSpins;       // 进入 HoldSpin 时 Scatter 触发的原始免费次数（不含 FREE 火球追加），用于区分 collectedFree
+
+        /// <summary>等待用户按确认键（Start）后才开始滚动赢分到总分。该期间 Start 键不触发新局/respin。</summary>
+        private bool _waitingConfirm;
+
+        /// <summary>Mini 免费小游戏进行中：主游戏输入/流程暂停（Mini 自带流程，不依赖主游戏 Start 键）。</summary>
+        private bool _miniActive = false;
+        #endregion
+
+        #region 单例
+        private static GameManager _instance;
+        public static GameManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = FindObjectOfType<GameManager>();
+                return _instance;
+            }
+        }
+        void OnDestroy()
+        {
+            if (_instance == this) _instance = null;
+        }
+        #endregion
+
+        #region 生命周期
+        void Awake()
+        {
+            DataManager.Instance.LoadData();
+        }
+
+        void Start()
+        {
+            Application.runInBackground = true;
+
+            InitPots();        // 起手初始化四档渐进奖池并显示
+            SyncReelConfig();  // 把当前棋盘模式(行数/符号带/火球id)交给 ReelView
+            if (m_reelView != null) m_reelView.HideAllCounters();  // 起手隐藏全部 respin 计数文本(次数=0不显示)
+
+            FMODSoundMgr.Instance.PlayBGM("event:/Sounds/11");
+        }
+        #endregion
+
+        #region 初始化辅助
+        void InitPots()
+        {
+            if (m_machine == null || m_machine.session == null || m_bonus == null) return;
+            m_machine.session.EnsurePots();
+            m_machine.totalBet = m_player.m_bet_num;
+            m_machine.session.Contribute(m_player.m_bet_num);
+            m_bonus.ShowPots(m_machine.session.Pots);
+        }
+
+        /// <summary>把 config 的棋盘模式（行数/符号带/火球id）同步给 ReelView，覆盖 Inspector 默认值。</summary>
+        void SyncReelConfig()
+        {
+            if (m_reelView == null || m_machine == null || m_machine.config == null) return;
+            m_reelView.m_reelRows = new List<int>(m_machine.config.reelRows);
+            m_reelView.m_reelStrips = m_machine.config.reelStrips;   // 卷轴 loop 滚动用的符号带
+            if (m_machine.config.fireballSymbolId >= 0)
+                m_reelView.m_fireballSymbolId = m_machine.config.fireballSymbolId;
+        }
+        #endregion
+    }
+}
