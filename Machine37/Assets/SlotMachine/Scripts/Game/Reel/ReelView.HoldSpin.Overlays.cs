@@ -53,6 +53,9 @@ namespace com.slot
                 //   overlay 是克隆体，如果 prefab 上 m_effect 默认 active，ghost 会带着 m_effect 停在原位
                 //   直到下一轮 SpinHoldRound 才销毁 → 视觉上 m_effect "不消失"。
                 if (item.m_effect != null) item.m_effect.SetActive(false);
+                // ★ 诊断日志：若 kind 非法或 multiplier 与 kind 不匹配，输出详细值供定位
+                if (cell != null && ((int)cell.kind < 0 || (int)cell.kind > 5 || (cell.kind == FireballKind.Multiplier && cell.multiplier > 10f)))
+                    Debug.LogWarning($"[ShowFireballOverlay] kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} reel={reel} row={row} → label={FireballLabel(cell)}");
             }
             else
             {
@@ -180,6 +183,25 @@ namespace com.slot
                 return RowToY(ra).CompareTo(RowToY(rb));
             });
 
+            // ★ 满列收集演出：所有火球先统一慢慢放大到 ~1.1 倍，再开始逐个下落（不放大的话掉落太突兀）
+            {
+                float popDur = 0.25f;
+                float pt = 0f;
+                while (pt < popDur)
+                {
+                    pt += Time.deltaTime;
+                    float k = Mathf.Clamp01(pt / popDur);
+                    float s = Mathf.Lerp(1f, 1.1f, k * k * (3f - 2f * k));   // SmoothStep 缓动，放大更柔和
+                    foreach (var ov in list)
+                    {
+                        if (ov == null) continue;
+                        var rt0 = ov.transform as RectTransform;
+                        if (rt0 != null) rt0.localScale = new Vector3(s, s, 1f);
+                    }
+                    yield return null;
+                }
+            }
+
             float tongY = float.MinValue;
             if (m_tongs != null && reel >= 0 && reel < m_tongs.Length && m_tongs[reel] != null)
                 tongY = this.transform.InverseTransformPoint(m_tongs[reel].transform.position).y;
@@ -198,6 +220,7 @@ namespace com.slot
                 ghost.name = $"FBGhost_{reel}_{row}";
                 var grt = ghost.transform as RectTransform;
                 if (grt != null) grt.anchoredPosition = new Vector2(0f, RowToY(row));
+                grt.localScale = Vector3.one;   // 残留幽灵保持原大小，不跟随放大（ov 此刻已是 ~1.1）
                 ghost.transform.SetAsLastSibling();
                 SetOverlayAlpha(ghost, 0.8f);
                 // ★ ghost 的 m_effect 也必须关闭——ghost 会停在原位直到下一轮 SpinHoldRound 才滚走销毁，
@@ -245,8 +268,10 @@ namespace com.slot
                 }
 
                 var fbItem = ov.GetComponent<ReelItem>();
-                if (fbItem == null || fbItem.m_type == FireballKind.Multiplier)
-                    AddFireballToCounter(reel, fbMult);
+                FireballKind fbKind = (fbItem != null) ? fbItem.m_type : FireballKind.Multiplier;
+                // 免费模式火球(FreeSpins)不派彩、不入计数器；倍数火球→X数字，彩金火球→档名 MINOR/MAJOR…
+                if (fbKind != FireballKind.FreeSpins)
+                    AddFireballToCounter(reel, fbMult, fbKind);
 
                 _fbOverlays.Remove(ov);
                 Destroy(ov);
@@ -267,6 +292,24 @@ namespace com.slot
             }
             _collectedReels.Add(reel);
             _releaseReels.Add(reel);
+
+            // ★ 全部火球下落完成后，停顿约 0.3s，再把幽灵从 80% 平滑恢复为 100%（满列残留视觉更干净）
+            yield return new WaitForSeconds(0.3f);
+            {
+                float fadeDur = 0.15f;
+                float ft = 0f;
+                while (ft < fadeDur)
+                {
+                    ft += Time.deltaTime;
+                    float k = Mathf.Clamp01(ft / fadeDur);
+                    float a = Mathf.Lerp(0.8f, 1f, k);
+                    foreach (var g in ghosts)
+                        if (g != null) SetOverlayAlpha(g, a);
+                    yield return null;
+                }
+            }
+            foreach (var g in ghosts)
+                if (g != null) SetOverlayAlpha(g, 1f);
         }
 
         /// <summary>设置 overlay 及其子节点的透明度（CanvasGroup）。</summary>

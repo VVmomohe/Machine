@@ -25,7 +25,7 @@ namespace Com.MagicBeans
             // PUSH 事件（心跳用于判断链路；连续 3 秒收不到应判定断线）
             comm.OnHeartbeat += h => Debug.Log($"[MB] heartbeat uptime={h.uptimeSec}s state={h.gameState}");
             comm.OnJpPool += j => Debug.Log($"[MB] JP1={j.jp1Display} JP2={j.jp2Display} JP3={j.jp3Display} online={j.jp1Eligible}/{j.jp2Eligible}/{j.jp3Eligible}");
-            comm.OnKey += k => Debug.Log($"[MB] KEY {k.keyId} pressed");
+            comm.OnKey += k => Debug.Log($"[MB] KEY 0x{k.keyId:X2} pressed");
             comm.OnError += e => Debug.LogWarning($"[MB] ERROR code=0x{e.errorCode:X2} severity={e.severity} ctxSeq={e.contextSeq}");
 
             if (comm.OpenDefault(portName))

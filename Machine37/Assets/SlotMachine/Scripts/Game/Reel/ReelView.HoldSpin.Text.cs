@@ -18,6 +18,9 @@ namespace com.slot
             if (item == null) return;
             item.m_type = cell.kind;
             item.m_rate = cell.multiplier;
+            // ★ 诊断日志：若 kind 非法或 multiplier 与 kind 不匹配，输出详细值供定位
+            if ((int)cell.kind < 0 || (int)cell.kind > 5 || (cell.kind == FireballKind.Multiplier && cell.multiplier > 10f))
+                Debug.LogWarning($"[FireballLabel] kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} reel={st.reelIdx} k={k} → label={FireballLabel(cell)}");
             ApplyFireballText(item.gameObject, cell);
         }
 
@@ -31,8 +34,25 @@ namespace com.slot
                 case FireballKind.Major: return "MAJOR";
                 case FireballKind.Mega: return "MEGA";
                 case FireballKind.FreeSpins: return "FREE";
-                default:
+                case FireballKind.Multiplier:
                     if (c.multiplier <= 0f) return "";
+                    // ★ 防御：倍数火球的 multiplier 不应超过配置的 maxMultiplier（现 5）。
+                    //   若出现 >10 说明 kind 被错误置为 Multiplier(0) 但 multiplier 是彩金值——按 multiplier 推断档位回退显示。
+                    if (c.multiplier > 10f)
+                    {
+                        if (c.multiplier >= 2000f) return "MEGA";
+                        if (c.multiplier >= 500f) return "MAJOR";
+                        if (c.multiplier >= 100f) return "MINOR";
+                        return "MINI";
+                    }
+                    return "x" + c.multiplier.ToString("0.##");
+                default:
+                    // 非法 kind（超出 0~5）：同样按 multiplier 推断档位，避免显示裸数字 x100
+                    if (c.multiplier <= 0f) return "";
+                    if (c.multiplier >= 2000f) return "MEGA";
+                    if (c.multiplier >= 500f) return "MAJOR";
+                    if (c.multiplier >= 100f) return "MINOR";
+                    if (c.multiplier >= 20f) return "MINI";
                     return "x" + c.multiplier.ToString("0.##");
             }
         }

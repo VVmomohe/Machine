@@ -251,9 +251,10 @@ namespace com.slot
                 if (symIdx < 0) symIdx += stripLen;
                 int sym = (stripLen > 0) ? st.displayStrip[symIdx] : RandSymbol();
                 SetCell(st, k, sym);   // displayStrip 已不含火球/空格，滚动中符号稳定不闪
-                // ★ 火球：减速阶段(BeginStop 后)_fbStripMult 已构建，命中则挂倍率（倍率在减速时就出现）
-                //   Mini 持久 overlay 模式(m_persistentFireOverlays)下跳过——火球符号不渲染，文字只由 overlay 显示
-                if (sym == m_fireballSymbolId && !m_persistentFireOverlays)
+                // ★ 火球：减速阶段(BeginStop 后)_fbStripMult 已构建，命中则挂倍率（倍率在减速时就出现，
+                //   不等到停稳后 ShowFeatureState 才出现）。Mini 持久 overlay 模式也走此路径——停稳后 overlay
+                //   在最上层盖住滚动格，位置/文字一致，无重影（与主游戏 Hold&Spin 表现统一）。
+                if (sym == m_fireballSymbolId)
                 {
                     int skey = st.reelIdx * 100000 + symIdx;
                     if (_fbStripMult.TryGetValue(skey, out FireballCell cell)) SetCellFireballMult(st, k, cell);
@@ -292,9 +293,9 @@ namespace com.slot
                 {
                     int sym = st.finalSyms[row];
                     SetCell(st, k, sym);
-                    // ★ 火球：减速最后2格也挂倍率（与 LayoutReel 减速阶段衔接，无跳变）
-                    //   Mini 持久 overlay 模式跳过（文字只由 overlay 显示）
-                    if (sym == m_fireballSymbolId && !m_persistentFireOverlays)
+                    // ★ 火球：减速最后2格也挂倍率（与 LayoutReel 减速阶段衔接，无跳变）。
+                    //   Mini 持久 overlay 模式也挂——停稳后 overlay 在最上层盖住，无重影。
+                    if (sym == m_fireballSymbolId)
                     {
                         int mkey = st.reelIdx * 100 + row;
                         if (_baseFireMults.TryGetValue(mkey, out FireballCell cell)) SetCellFireballMult(st, k, cell);
@@ -322,9 +323,9 @@ namespace com.slot
                 if (sym == m_symbolMax && (st.reelIdx == 0 || row == st.rows - 1))
                     sym = RandNormalSymbol();
                 SetCell(st, k, sym);
-                // ★ 火球：定格时也挂倍率（与减速阶段衔接，无跳变；停稳后 ShowFeatureState 的 overlay 在最上层盖住、视觉一致）
-                //   Mini 持久 overlay 模式跳过（文字只由 overlay 显示）
-                if (sym == m_fireballSymbolId && !m_persistentFireOverlays)
+                // ★ 火球：定格时也挂倍率（与减速阶段衔接，无跳变；停稳后 ShowFeatureState 的 overlay 在最上层盖住、视觉一致）。
+                //   Mini 持久 overlay 模式也挂——位置/文字与 overlay 完全一致，无重影。
+                if (sym == m_fireballSymbolId)
                 {
                     int mkey = st.reelIdx * 100 + row;
                     if (_baseFireMults.TryGetValue(mkey, out FireballCell cell)) SetCellFireballMult(st, k, cell);

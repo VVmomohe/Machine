@@ -31,8 +31,8 @@ namespace SlotMachine.Core
         public int bankTarget = 8;            // 收集盘集满几颗触发 Fire Link 大奖
 
         // 火球倍率集合与权重（按出现频率从高到低；倍率越高权重越小=越稀有）。
-        public List<float> multipliers = new List<float> { 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2.5f, 3f, 5f, 10f, 15f };
-        public List<int> multiplierWeights = new List<int> { 32, 24, 16, 12, 8, 4, 2, 1, 1, 1 };
+        public List<float> multipliers = new List<float> { 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2.5f, 3f, 5f };
+        public List<int> multiplierWeights = new List<int> { 32, 24, 16, 12, 8, 4, 2, 1 };
 
         // ===== 彩金火球（四档：MINI/MINOR/MAJOR/MEGA，无自身倍率，按档给彩金倍数）=====
         public bool jackpotEnabled = true;                                  // 火球是否可能是彩金类型
@@ -52,6 +52,11 @@ namespace SlotMachine.Core
         public int respinCount = 3;
         public int triggerMin = 1;
         public float fireballHitProb = 0.32f;
+
+        // 火球在 Hold&Spin 每轮每空格的落球概率（覆盖条带火球密度）。
+        // <0 或 0 表示回退到"该列 reelStrips 中火球占比"（旧行为）。
+        // 2026-07-24：原游戏火球概率比当前实测 15.4% 低约 30%，故设为 ≈0.108 对齐。
+        public float fbProb = -1f;
     }
 
     /// <summary>免费旋转参数，由 Scatter 触发。奖励次数随 Scatter 数量变化（见 SpinsFor）。

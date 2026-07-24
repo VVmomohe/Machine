@@ -73,6 +73,7 @@ namespace com.slot
 
             // ★ 开新一局：先清赢分显示(归 0)，让"0"出现在转轮启动这一刻而非上一局漏光时
             m_player.ResetWinDisplay();
+            if (m_reelView != null) m_reelView.HideAllCounters();   // 开新基础局才清掉上一局 Hold&Spin 的火球计数器（满列收集/列释放中途不再隐藏，一直撑到此刻）
 
             m_machine.totalBet = m_player.m_bet_num;
             m_machine.session.Contribute(m_player.m_bet_num);

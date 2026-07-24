@@ -504,6 +504,7 @@
   "lines": 20,
   "holdSpin": {
     "respinCount": 3,
+    "fbProb": 0.108,
     "triggerMin": 1,
     "fireballHitProb": 0.32,
     "featureTriggerProb": 0.0,
@@ -523,9 +524,7 @@
       1.5,
       2.5,
       3,
-      5,
-      10,
-      15
+      5
     ],
     "multiplierWeights": [
       32,
@@ -535,8 +534,6 @@
       8,
       4,
       2,
-      1,
-      1,
       1
     ]
   },

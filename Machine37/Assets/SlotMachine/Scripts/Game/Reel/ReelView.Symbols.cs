@@ -67,6 +67,7 @@ namespace com.slot
             var item = go.GetComponent<ReelItem>();
             if (item != null)
             {
+                item.m_id = id;   // ★ 同步逻辑 id，供运行时核对"图标是否与 id 对得上"（m_id 之前从未赋值，恒为 0）
                 if (id == m_fireballSymbolId)
                 {
                     item.ShowFire(true, m_inFreeSpins);    // 火球：FreeSpins 时亮 m_freeFire，否则 m_fire；隐藏 m_image
@@ -138,6 +139,7 @@ namespace com.slot
                     var sit = st.cellItems[k];
                     if (sit != null)
                     {
+                        sit.m_id = id;   // 老火球被持久 overlay 接管，仍记逻辑 id(=12)
                         sit.ShowFire(false);
                         if (sit.m_image != null) sit.m_image.enabled = false;
                         if (sit.m_text != null) sit.m_text.gameObject.SetActive(false);
@@ -152,6 +154,7 @@ namespace com.slot
             var item = st.cellItems[k];
             if (item != null)
             {
+                item.m_id = id;   // ★ 同步逻辑 id，供运行时核对"图标是否与 id 对得上"
                 if (id == m_fireballSymbolId)
                 {
                     // 火球是否亮 m_freeFire：FreeSpins 免费游戏(m_inFreeSpins) 或 该火球自身为 FreeSpins 类型（主游戏生成的免费模式火球）。

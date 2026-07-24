@@ -194,7 +194,8 @@ namespace SlotMachine.Core
                 for (int row = 0; row < rowN; row++)
                     locked[row] = state.cells[r][row].filled;
 
-                // 火球概率（取该列条带火球占比）
+                // 火球概率：优先用配置 holdSpin.fbProb（解耦条带密度，便于对齐原游戏），
+                // 否则回退到该列 reelStrips 火球占比（旧行为）。
                 double fbProb = 0.05;
                 if (cfg.reelStrips != null && r < cfg.reelStrips.Count)
                 {
@@ -202,6 +203,8 @@ namespace SlotMachine.Core
                     if (strip != null && strip.Count > 0)
                         fbProb = (double)strip.Count(x => x == fbId) / strip.Count;
                 }
+                if (cfg.holdSpin != null && cfg.holdSpin.fbProb > 0f)
+                    fbProb = cfg.holdSpin.fbProb;
 
                 // ★ 火球可落在任意列（包括已释放列和新触发列），不锁死在初始触发列。
                 //   已释放列的 counter 不会重置（下方 gotNewFireball 分支已保护），防止无限复活。

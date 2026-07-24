@@ -9,48 +9,40 @@ namespace com.slot
     /// <summary>ReelView 火球倒计时计数器：SetRespinCounterRow、HideAllCounters、AddFireballToCounter。</summary>
     public partial class ReelView
     {
-        /// <summary>把火球倍率累加到该列(reel)的计数器文本（ReelFireNum.AddMultiplier）。</summary>
-        void AddFireballToCounter(int reel, float mult)
+        /// <summary>把火球倍率累加到该列(reel)的计数器文本（ReelFireNum.AddMultiplier）。kind 透传给计数器：彩金档显示档名而非裸数字。</summary>
+        void AddFireballToCounter(int reel, float mult, FireballKind kind = FireballKind.Multiplier)
         {
             if (m_numObjs == null || reel < 0 || reel >= m_numObjs.Length || m_numObjs[reel] == null) return;
-            m_numObjs[reel].AddMultiplier(mult);
+            m_numObjs[reel].AddMultiplier(mult, kind);
         }
 
-        /// <summary>设置某列(reel)的 respin 倒计时：点亮前 count 个圈，其余熄灭；count&lt;=0 显示 0 圈（全灭），
-        /// 待该列火球随卷轴回归滚动队列时由 SpinHoldRound 在回合结束时统一隐藏（不再额外延迟）。</summary>
+        /// <summary>设置某列(reel)的 respin 倒计时：点亮前 count 个圈，其余熄灭；count==0 显示 0 圈（全灭，仍可见，对应"延迟一轮释放"的静止帧）；
+        /// count&lt;0（= -1 哨兵）表示该列已释放/集满，彻底隐藏整个 ReelFireNum。</summary>
         public void SetRespinCounterRow(int reel, int count)
         {
             if (m_numObjs == null || reel < 0 || reel >= m_numObjs.Length) return;
             var fn = m_numObjs[reel];
             if (fn == null) return;
-            if (_collectedReels != null && _collectedReels.Contains(reel))
+
+            // count < 0（= -1 哨兵）：该列已释放/集满，彻底隐藏 ReelFireNum。
+            if (count < 0)
             {
-                Debug.Log($"[COUNTER] reel{reel} count={count} → 被_collectedReels拦截，跳过");
+                fn.ResetMultiplier();
+                fn.gameObject.SetActive(false);
                 return;
             }
 
-            Debug.Log($"[COUNTER] reel{reel} count={count} activeSelf={fn.gameObject.activeSelf}");
-
-            // count<=0：显示 0 圈（所有圈熄灭），不在此处延迟隐藏——
-            // 该列火球在本轮回滚时随卷轴回归队列，计数器由 SpinHoldRound 在回合结束时一并隐藏。
-            if (count <= 0)
-            {
-                if (!fn.gameObject.activeSelf) { Debug.Log($"[COUNTER] reel{reel} count={count} → activeSelf=false，直接return(防闪现)"); return; }
-                fn.gameObject.SetActive(true);
-                var items = fn.m_items;
-                if (items != null)
-                {
-                    for (int i = 0; i < items.Length; i++)
-                        if (items[i] != null) items[i].gameObject.SetActive(false);
-                }
-                return;
-            }
+            // count >= 0：保持可见。
+            // ※ counter 从 1→0 的当轮火球仍锁定（延迟一轮才释放滚走），显示 0 圈但不隐藏，
+            //   避免"圈圈还有一个时计数器消失"；真正释放/集满由调用方传 -1 哨兵隐藏。
             fn.gameObject.SetActive(true);
-            var items2 = fn.m_items;
-            if (items2 != null)
+            if (fn.m_text != null) fn.m_text.gameObject.SetActive(false);
+            var items = fn.m_items;
+            if (items != null)
             {
-                for (int i = 0; i < items2.Length; i++)
-                    if (items2[i] != null) items2[i].gameObject.SetActive(i < count);
+                int lit = Mathf.Clamp(count, 0, items.Length);
+                for (int i = 0; i < items.Length; i++)
+                    if (items[i] != null) items[i].gameObject.SetActive(i < lit);
             }
         }
 

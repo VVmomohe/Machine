@@ -34,7 +34,7 @@ namespace com.slot
             }
             if (s.counter != null)
                 for (int r = 0; r < s.counter.Length; r++)
-                    SetRespinCounterRow(r, s.counter[r]);
+                    SetRespinCounterRow(r, (s.released != null && r < s.released.Length && s.released[r]) ? -1 : s.counter[r]);
 
             RefreshColumnEffects(s, s.counter);   // 近满列(差1火球)→亮整列 m_effect；已释放/集满列不亮
 
@@ -281,15 +281,6 @@ namespace com.slot
 
             DestroyReleasingOverlays();
 
-            // 火球随卷轴回归滚动队列的同时，该列 0 圈计数器一并消失（不再延迟隐藏）
-            foreach (int reel in _releaseReels)
-            {
-                if (m_numObjs != null && reel >= 0 && reel < m_numObjs.Length && m_numObjs[reel] != null)
-                {
-                    m_numObjs[reel].ResetMultiplier();
-                    m_numObjs[reel].gameObject.SetActive(false);
-                }
-            }
             _releaseReels.Clear();
         }
 
@@ -337,7 +328,11 @@ namespace com.slot
             if (step.counters != null)
             {
                 for (int reel = 0; reel < step.counters.Length; reel++)
-                    SetRespinCounterRow(reel, step.counters[reel]);
+                {
+                    // 已释放/集满的列：传 -1 哨兵隐藏计数器；其余按数据层 counter 显示（0..rc）
+                    bool released = (state != null && reel < state.released.Length && state.released[reel]);
+                    SetRespinCounterRow(reel, released ? -1 : step.counters[reel]);
+                }
             }
 
             RefreshColumnEffects(state, step.counters);   // 近满列(差1火球)→亮整列 m_effect；已释放/集满列不亮
@@ -378,8 +373,8 @@ namespace com.slot
         {
             if (reel < 0) return;
             _releaseReels.Add(reel);
-            // 火球随本轮回滚回归队列前，先显示 0 圈（1→0 过渡），随后在 SpinHoldRound 回合结束时一并隐藏。
-            SetRespinCounterRow(reel, 0);
+            // 火球随本轮回滚回归队列：该列已释放，传 -1 哨兵彻底隐藏 ReelFireNum
+            SetRespinCounterRow(reel, -1);
             // ★ 火球开始回归队列的瞬间立即关闭整列 m_effect 预警特效——
             //   之前只在 SpinHoldRound 结束（滚动停稳）→ DestroyReleasingOverlays→RefreshColumnEffects 才关，
             //   导致 m_effect 要等火球滚回队列并停下才消失。现在在 Release 那一刻即关，与火球回滚同步。
@@ -403,12 +398,7 @@ namespace com.slot
         {
             if (_collectedReels == null) return;
             if (!_collectedReels.Remove(reel)) return;
-
-            if (m_numObjs != null && reel >= 0 && reel < m_numObjs.Length && m_numObjs[reel] != null)
-            {
-                m_numObjs[reel].ResetMultiplier();
-                m_numObjs[reel].gameObject.SetActive(false);
-            }
+            // ★ 满列收集后计数器不再中途隐藏（按用户要求一直显示到开新局），仅从已收集集合移除
         }
     }
 }

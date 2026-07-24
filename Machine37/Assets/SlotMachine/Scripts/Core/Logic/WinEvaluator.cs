@@ -160,13 +160,18 @@ namespace SlotMachine.Core
     /// 一旦某一列不包含该符号（且无 wild）立刻断掉，后面不再算。
     /// 高亮所有该符号（含 wild）的位置。
     /// scatter / fireball 不参与（scatter 全局算、fireball 走特性）。
+    /// ★ 百搭去重：单颗 wild 只能服务于一个（赔付最高的）赢。若同一颗 wild 能同时凑成多个符号的赢，
+    ///   只保留赔付最高者；其余赢在排除该 wild 后重新计算（连数可能下降，甚至不再成赢）。
+    ///   若某赢其实不依赖该 wild（该列另有真实符号），wild 不占用，可被更低赢继续使用。
     /// </summary>
     public class RowEvaluator : IPayEvaluator
     {
         public List<Win> Evaluate(int[][] grid, ReelConfig cfg, float totalBet)
         {
-            var wins = new List<Win>();
+            int wildId = cfg.WildId();
+            var candidates = new List<WinCandidate>();
 
+            // 1) 收集每个符号的候选赢（含 wild 替代）
             foreach (var s in cfg.paytable)
             {
                 if (s.scatter || s.fireball || s.firelink) continue;
@@ -174,7 +179,7 @@ namespace SlotMachine.Core
                 int sym = s.symbolId;
 
                 int match = 0;
-                var positions = new System.Collections.Generic.List<int>();
+                var positions = new List<int>();
                 for (int reel = 0; reel < cfg.reelCount; reel++)
                 {
                     bool has = false;
@@ -192,23 +197,92 @@ namespace SlotMachine.Core
                     match++;
                 }
 
-                if (match < cfg.MinMatchFor(sym)) continue;
-
+                int minM = cfg.MinMatchFor(sym);
+                if (match < minM) continue;
                 float mult = cfg.PayMult(sym, match);
                 if (mult <= 0f) continue;
 
-                var w = new Win
+                candidates.Add(new WinCandidate
+                {
+                    sym = sym,
+                    match = match,
+                    positions = positions,
+                    payout = mult * totalBet
+                });
+            }
+
+            // 2) 赔付降序；同赔付取符号 id 更大者（"只算后面的"）
+            candidates.Sort((a, b) =>
+            {
+                int c = b.payout.CompareTo(a.payout);
+                if (c != 0) return c;
+                return b.sym.CompareTo(a.sym);
+            });
+
+            // 3) 贪心：同一颗 wild 只服务于先到的（最高赔付、且确实依赖该 wild 的）赢；
+            //    后续赢排除已占用 wild 后重算（可能连数下降甚至不再成赢）。
+            var wins = new List<Win>();
+            var usedWilds = new HashSet<int>();
+            foreach (var cd in candidates)
+            {
+                int matchF = 0;
+                var posF = new List<int>();
+                for (int reel = 0; reel < cfg.reelCount; reel++)
+                {
+                    bool has = false;
+                    for (int row = 0; row < grid[reel].Length; row++)
+                    {
+                        int pos = reel * 100 + row;
+                        int gid = grid[reel][row];
+                        if (gid == wildId && usedWilds.Contains(pos)) continue;   // 已服务于更高赔付赢
+                        var sp = cfg.GetSymbol(gid);
+                        if (gid == cd.sym || (sp != null && sp.wild))
+                        {
+                            has = true;
+                            posF.Add(pos);
+                        }
+                    }
+                    if (!has) break;
+                    matchF++;
+                }
+
+                int minM2 = cfg.MinMatchFor(cd.sym);
+                if (matchF < minM2) continue;
+                float multF = cfg.PayMult(cd.sym, matchF);
+                if (multF <= 0f) continue;
+
+                // 仅当 wild 是该列成赢的必要条件（该列无真实 cd.sym）时才占用它，
+                // 否则该 wild 不被占用，可供更低赢继续使用。
+                foreach (int p in posF)
+                {
+                    int reel = p / 100, row = p % 100;
+                    if (grid[reel][row] != wildId) continue;
+                    bool colHasSym = false;
+                    for (int r2 = 0; r2 < grid[reel].Length; r2++)
+                        if (grid[reel][r2] == cd.sym) { colHasSym = true; break; }
+                    if (!colHasSym) usedWilds.Add(p);
+                }
+
+                wins.Add(new Win
                 {
                     lineIndex = -1,
-                    symbolId = sym,
-                    count = match,
+                    symbolId = cd.sym,
+                    count = matchF,
                     ways = 0,
-                    payout = mult * totalBet
-                };
-                w.positions.AddRange(positions);
-                wins.Add(w);
+                    payout = multF * totalBet,
+                    positions = posF
+                });
             }
             return wins;
         }
+    }
+
+    /// <summary>内部：RowEvaluator 百搭去重用的候选赢（含原始匹配/赔付，便于按赔付排序）。</summary>
+    class WinCandidate
+    {
+        public int sym;
+        public int match;
+        public List<int> positions;
+        public float payout;
     }
 }

@@ -6,12 +6,14 @@ namespace SlotMachine.Core
 {
     /// <summary>
     /// 转轴结果生成：纯垂直聚类（同一列内上下连续行同符号），水平方向完全随机。
-    /// 规则（按从上往下数的绝对行号）：
-    ///   第1排(row0)：无聚类，纯随机单格
-    ///   第2排(row1)：最大竖连 2
-    ///   第3排(row2)：最大竖连 2-3
-    ///   第4排(row3)：最大竖连 3-4
-    ///   第5排+(row4+)：最大竖连 4-5
+    /// 规则（按【列/转轮索引】reel，从 0 起算，对应列高 4/4/6/6/8）：
+    ///   reel0（最左，高4）：无垂直聚类（每格独立随机，竖连上限 = 1）
+    ///   reel1（高4）：竖连上限 = 2
+    ///   reel2（高6）：竖连上限 = 3
+    ///   reel3（高6）：竖连上限 = 4
+    ///   reel4（高8）：竖连上限 = 5
+    /// ★ 相邻游程强制不同号（去重），游程不能跨行拼接 → 严格保证每列竖连 ≤ 该列上限。
+    ///   这样既能按列给出确定的最大连号，又不会因"拼接"突破上限（对齐原游戏"超高"连号率）。
     /// 特殊符号(9章鱼/10百搭/11免费/12火球)：不参与聚类，按概率以单格散落。
     /// 返回 grid[reel][row]，row0=顶部，row=rows-1=底部。
     /// </summary>
@@ -42,16 +44,17 @@ namespace SlotMachine.Core
         }
 
         /// <summary>
-        /// 填充一列：从底部往上走。
-        /// 每个游程的上限由 GetMaxValidRun 保证不超限；相邻游程强制不同符号防止合并。
+        /// 填充一列：自底向上，按【列索引】给定竖连上限逐段填游程。
+        /// 相邻游程强制不同号，游程不能跨段拼接 → 单列竖连严格 ≤ 该列上限。
         /// </summary>
         static void FillClusteredColumn(int[][] grid, int col, int rows,
             List<int> specialBag, double specialProb, ISlotRng rng)
         {
             if (rows <= 0) return;
 
-            int r = rows - 1;               // 从最底行开始往上
-            int belowSym = -1;              // 正下方已填的符号（初始无）
+            int cap = GetReelCap(col);          // 该列竖连上限（reel0=1 无聚类 … reel4=5）
+            int r = rows - 1;                    // 从最底行开始往上
+            int belowSym = -1;                   // 正下方已填符号（初始无）
 
             while (r >= 0)
             {
@@ -59,7 +62,6 @@ namespace SlotMachine.Core
                 bool useSpecial = specialBag.Count > 0 && rng.NextDouble() < specialProb;
                 if (useSpecial)
                 {
-                    // ★ 特殊符号也避开正下方同值，防止两个散落的特殊符合并超限
                     var spCandidates = (belowSym >= 9 && belowSym <= 12)
                         ? specialBag.Where(s => s != belowSym).ToList()
                         : specialBag;
@@ -71,15 +73,16 @@ namespace SlotMachine.Core
                     continue;
                 }
 
-                int maxRun = GetMaxValidRun(r);
-                int runLen = Math.Max(1, 1 + rng.Next(maxRun));
+                // ★ 普通游程：长度 1..cap（同时不超过剩余行数 r+1）
+                int maxRun = Math.Min(cap, r + 1);
+                int runLen = 1 + rng.Next(maxRun);
 
-                // ★ 选符号时避开正下方紧邻的符号，防止两个游程合并超限
-                int sym;
-                var candidates = (belowSym >= 1 && NormalPool.Contains(belowSym))
+                // ★ 相邻游程强制不同号：新游程符号排除正下方符号，
+                //   防止两段同号拼接突破该列上限（保证竖连严格 ≤ cap）。
+                var candidates = (belowSym >= 1 && belowSym <= 8)
                     ? NormalPool.Where(s => s != belowSym).ToList()
                     : NormalPool;
-                sym = candidates[rng.Next(candidates.Count)];
+                int sym = candidates[rng.Next(candidates.Count)];
 
                 for (int k = 0; k < runLen; k++)
                     grid[col][r - k] = sym;
@@ -89,35 +92,11 @@ namespace SlotMachine.Core
             }
         }
 
-        /// <summary>
-        /// 返回在行 r 及以上能启动的最大竖向游程长度。
-        /// 游程向上延伸 [r-len+1, r]，必须保证每行的上限都不被突破。
-        /// 由于 GetMaxForRow 随行号递增（顶部最严），只需校验游程顶行即可。
-        /// </summary>
-        static int GetMaxValidRun(int row)
+        /// <summary>返回某列(reel)允许的最大竖向游程长度（按列索引，对应布局 4/4/6/6/8）：
+        /// reel0=1（无聚类），reel1=2，reel2=3，reel3=4，reel4=5，更靠右的列类推（封顶 5）。</summary>
+        static int GetReelCap(int reel)
         {
-            int maxPossible = Math.Min(5, row + 1);     // 不超过全局最大5，也不越过 row0
-            // 从大到小试，找到第一个满足"顶行允许该长度"的值
-            for (int len = maxPossible; len >= 1; len--)
-            {
-                int topRow = row - len + 1;             // 游程最高到达的行
-                if (GetMaxForRow(topRow) >= len)
-                    return len;
-            }
-            return 1;                                   // 兜底至少单格
-        }
-
-        /// <summary>返回某绝对行号允许的最大竖向游程长度。</summary>
-        static int GetMaxForRow(int row)
-        {
-            return row switch
-            {
-                0 => 1,     // 第1排：单格，不聚类
-                1 => 2,     // 第2排：最多连 2
-                2 => 3,     // 第3排：最多连 3
-                3 => 4,     // 第4排：最多连 4
-                _ => 5,     // 第5排及以下：最多连 5
-            };
+            return Math.Min(reel + 1, 5);
         }
 
         // ─── 符号池 ────────────────────────────────────────────

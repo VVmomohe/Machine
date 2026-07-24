@@ -205,11 +205,51 @@ namespace com.slot
                 if (m_reelView != null)
                     m_reelView.LimitWildsOnBoard();
 
-                // 5) 本轮普通线奖
+                // 5) 本轮普通线奖（★ 用 step.respinGrid 权威数据构建结算网格，
+                //    避免读 shownSym 缓存与滚动后实际不一致导致"有符号但不赔"）
                 if (m_machine != null && m_machine.session != null)
                 {
-                    int[][] grid = BuildRespinGrid(hs);
+                    int[][] grid = BuildRespinGrid(hs, step.respinGrid);
+                    // ★ 诊断：输出 respin 结算网格（定位"屏幕有符号但不赔"）
+                    //   grid 现在优先用 step.respinGrid（权威数据），不再依赖 shownSym 缓存
+                    {
+                        var sb = new System.Text.StringBuilder("[DIAG-RespinGrid]");
+                        for (int ri = 0; ri < grid.Length; ri++)
+                        {
+                            sb.Append($" reel{ri}:[");
+                            for (int k = 0; k < grid[ri].Length; k++) sb.Append(grid[ri][k]).Append(k < grid[ri].Length - 1 ? "," : "");
+                            sb.Append("]");
+                        }
+                        UnityEngine.Debug.Log(sb.ToString());
+                        // 对比：shownSym 旧路径读到的值（若与 respinGrid 不同则证明之前确实是 shownSync 不同步导致的）
+                        if (m_reelView != null)
+                        {
+                            var sbShown = new System.Text.StringBuilder("[DIAG-ShownSym]");
+                            for (int ri2 = 0; ri2 < hs.reels; ri2++)
+                            {
+                                sbShown.Append($" reel{ri2}:[");
+                                for (int r2 = 0; r2 < hs.cells[ri2].Length; r2++)
+                                {
+                                    if (!hs.cells[ri2][r2].filled)
+                                        sbShown.Append(m_reelView.GetVisibleSymbol(ri2, r2));
+                                    else
+                                        sbShown.Append("F");  // F=火球格
+                                    if (r2 < hs.cells[ri2].Length - 1) sbShown.Append(",");
+                                }
+                                sbShown.Append("]");
+                            }
+                            UnityEngine.Debug.Log(sbShown.ToString());
+                        }
+                    }
+
                     var wins = m_machine.session.EvaluateGrid(grid, m_machine.totalBet);
+
+                    // ★ 诊断：输出评估结果
+                    var sb2 = new System.Text.StringBuilder("[DIAG-RespinWins] count=").Append(wins.Count);
+                    foreach (var w in wins)
+                        sb2.Append($" id{w.symbolId}={w.count}连 pay={w.payout:F2}");
+                    UnityEngine.Debug.Log(sb2.ToString());
+
                     float win = 0f;
                     foreach (var w in wins) win += w.payout;
                     if (wins.Count > 0 && m_reelView != null) m_reelView.HighlightWins(wins);
@@ -261,7 +301,13 @@ namespace com.slot
                         hs.counter[rr] = 0;
                         for (int row = 0; row < hs.cells[rr].Length; row++)
                             hs.cells[rr][row].filled = false;
-                        if (m_reelView != null) m_reelView.ReleaseCollectedReel(rr);
+                        if (m_reelView != null)
+                        {
+                            m_reelView.ReleaseCollectedReel(rr);
+                            // ★ 满列收集后立即隐藏计数器（-1 哨兵）：既清掉 CollectFullReelAnimation
+                            //    里 AddFireballToCounter 累积的 X3.75 残留文本，又让该列火球滚走后不再挂计数器
+                            m_reelView.SetRespinCounterRow(rr, -1);
+                        }
                     }
                     // ★ 满列收集后刷新特效——收集后该列不再差1个火球，m_effect 应关闭
                     if (m_reelView != null) m_reelView.RefreshColumnEffects(hs);
@@ -363,13 +409,16 @@ namespace com.slot
             _holdRolling = false;
             _spinPending = false;
 
+            // ★ 特性结束立即隐藏火球计数器：Hold&Spin 收尾即清，不再等到开新基础局，
+            //   避免"赢分展示/等确认期间计数器还挂着上一局"的观感。开新基础局(OnStartKey)与进 Mini 仍会再清一遍(幂等)。
+            if (m_reelView != null) m_reelView.HideAllCounters();
+
             if (r != null && hs != null)
             {
                 r.featureWin = hs.accumulated;
                 r.totalPayout = r.baseWin + r.scatterPayout + r.respinLineWin + r.featureWin + r.freeSpinsWin;
             }
 
-            if (m_reelView != null) m_reelView.HideAllCounters();
             if (r != null) Settle(r);
         }
 
@@ -419,7 +468,14 @@ namespace com.slot
 
         /// <summary>构建当前 respin 网格：火球格(状态里 filled)用 fireball 符号，普通格取 ReelView 当前显示符号。
         /// 用于每轮 respin 的普通线奖评估（火球不并入连线，只当固定遮挡）。</summary>
-        int[][] BuildRespinGrid(HoldSpinState hs)
+        /// <summary>
+        /// 构建 Hold&amp;Spin respin 结算用的符号网格。
+        /// ★ 优先用 step.respinGrid（RespinHoldSpin 生成的权威数据），
+        ///   不再绕道 GetVisibleSymbol → shownSym（经过 SpinHoldRound 滚动渲染后的缓存，
+        ///   displayStrip→shownSym 的多层偏移映射可能导致与权威数据不一致，
+        ///   表现为"屏幕有连号符号但赢分=0"）。
+        /// </summary>
+        int[][] BuildRespinGrid(HoldSpinState hs, int[][] respinGrid = null)
         {
             int fbId = (m_machine != null && m_machine.config != null) ? m_machine.config.fireballSymbolId : 12;
             int n = hs.reels;
@@ -430,10 +486,23 @@ namespace com.slot
                 grid[r] = new int[rows];
                 for (int row = 0; row < rows; row++)
                 {
+                    // 火球格：始终为火球 ID（以 HoldSpinState.cells 为准）
                     if (hs.cells[r][row].filled)
-                        grid[r][row] = fbId;   // 火球格冻结
-                    else
-                        grid[r][row] = (m_reelView != null) ? m_reelView.GetVisibleSymbol(r, row) : 0;
+                    {
+                        grid[r][row] = fbId;
+                        continue;
+                    }
+
+                    // 非火球格：优先用权威数据 respinGrid
+                    if (respinGrid != null && r < respinGrid.Length && respinGrid[r] != null
+                        && row < respinGrid[r].Length && respinGrid[r][row] > 0)
+                    {
+                        grid[r][row] = respinGrid[r][row];
+                        continue;
+                    }
+
+                    // Fallback：无 respinGrid 时从视图层读取（基础旋转路径等）
+                    grid[r][row] = (m_reelView != null) ? m_reelView.GetVisibleSymbol(r, row) : 0;
                 }
             }
             return grid;
