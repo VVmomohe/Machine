@@ -67,7 +67,7 @@ namespace com.slot
             var item = go.GetComponent<ReelItem>();
             if (item != null)
             {
-                item.m_id = id;   // ★ 同步逻辑 id，供运行时核对"图标是否与 id 对得上"（m_id 之前从未赋值，恒为 0）
+                item.m_id = id;   // ★ 唯一创建时赋值点：SetCellSprite 仅由 CreateCell（格子实例化）调用。中途不再改写。
                 if (id == m_fireballSymbolId)
                 {
                     item.ShowFire(true, m_inFreeSpins);    // 火球：FreeSpins 时亮 m_freeFire，否则 m_fire；隐藏 m_image
@@ -115,12 +115,12 @@ namespace com.slot
 
             // ★ 百搭统一拦截点（根治"第一排出百搭"）：
             //   所有定格路径——基础旋转 SnapFinal / Hold&Spin respin SpinHoldRound —— 最终都经 SetCell 写入 shownSym，
-            //   在此一处拦截，保证顶行 / 第一列(reel0) 永远不显示/不记录百搭(Wild=m_symbolMax)。
+            //   在此一处拦截，保证顶行 / 第一列(reel0) 永远不显示/不记录百搭(Wild=m_wildId)。
             //   ★ 坐标系：row = k - m_buf，row 越大越靠上，row=0 是底行、row=rows-1 才是屏幕"第一行"(顶部)，
             //     故拦截的是 row == st.rows - 1（之前误写成 row==0 拦的是底行，导致顶部百搭漏网）。
             //   只拦 Wild，保留火球(fireballSymbolId)与免费(Scatter)；非顶行/非 reel0 的百搭照常显示。
             //   换成确定性普通符(1..m_symbolMax-1)，不推进 RNG、不闪烁。
-            if (id == m_symbolMax)
+            if (id == m_wildId)
             {
                 int row = k - m_buf;
                 if (st.reelIdx == 0 || row == st.rows - 1)
@@ -142,7 +142,7 @@ namespace com.slot
                     var sit = st.cellItems[k];
                     if (sit != null)
                     {
-                        sit.m_id = id;   // 老火球被持久 overlay 接管，仍记逻辑 id(=12)
+                        // ★ m_id 仅在创建时赋值（SetCellSprite），此处不再中途改写（用户要求：中途变值的都不给值）。
                         sit.ShowFire(false);
                         if (sit.m_image != null) sit.m_image.enabled = false;
                         if (sit.m_text != null) sit.m_text.gameObject.SetActive(false);
@@ -157,7 +157,7 @@ namespace com.slot
             var item = st.cellItems[k];
             if (item != null)
             {
-                item.m_id = id;   // ★ 同步逻辑 id，供运行时核对"图标是否与 id 对得上"
+                // ★ m_id 仅在创建时赋值（SetCellSprite），此处不再中途改写（用户要求：中途变值的都不给值）。
                 if (id == m_fireballSymbolId)
                 {
                     // 火球是否亮 m_freeFire：FreeSpins 免费游戏(m_inFreeSpins) 或 该火球自身为 FreeSpins 类型（主游戏生成的免费模式火球）。

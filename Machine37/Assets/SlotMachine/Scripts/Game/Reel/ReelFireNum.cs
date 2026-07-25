@@ -7,9 +7,11 @@ namespace com.slot
 {
     /// <summary>单列火球倒计时计数器（ReelFireNum）。
     ///
-    /// ★ 纯显示 / 统计组件（用户拍板 2026-07-25）：本组件【单向】——只由游戏逻辑写入，永不回读进玩法逻辑。
-    ///   真正的 respin 倒计时与玩法（列释放 / 满列派彩 / jackpot）由 HoldSpinState.counter 驱动，本组件只是它的镜像显示。
-    ///   玩法完全独立于本组件：即使本组件不存在 / 不显示，Hold&amp;Spin 的轮次、释放、结算照常进行。圈圈只做"统计展示"。
+    /// ★ 显示 / 统计组件（用户拍板 2026-07-25）：本组件主要【单向】由游戏逻辑写入（SetCount/AddMultiplier），
+    ///   仅 "列释放(火球回归)" 这一项例外——GameSession.RespinHoldSpin 会【回读 m_engaged】作为释放判据
+    ///   （用户 2026-07-25 明确要求：释放别用纯计数逻辑，用 m_engaged==false），使"圈圈显示"与"火球离场"彻底同步。
+    ///   其余玩法(满列派彩/jackpot/轮次)仍由 HoldSpinState.counter 驱动；倒计时 3→2→1→0 仍由 counter 镜像显示，
+    ///   m_engaged 在 m_num<=0 时被 CheckEngaged 清掉，从而驱动下一轮释放。
     ///
     /// 极简模型（用户拍板，2026-07-25 修正）：
     ///   m_active 是【整个 Hold&amp;Spin 会话】的开关（进入=true，开新局=false），不能区分“哪一列有火球”。
@@ -110,6 +112,9 @@ namespace com.slot
         /// OnStartKey 每次按确认都在最顶部先调它，保证 100% 执行（任何分支提前 return 都拦不住）。</summary>
         public void CheckEngaged()
         {
+            // ★ 用户口径：每次按确认(含 Hold&Spin 每轮 respin 推进)都是"新的一局"→ 重算。
+            //   所以这里先把 m_rate=0 / 按 num 重判 m_engaged，随后由本局 SetRespinCounterRow/AddMultiplier 重建显示；
+            //   最终结算后"开新基础局"那次确认由 HideAllCounters→ResetAll(m_active=false) 负责隐藏，不靠这里清零。
             m_rate = 0;
             if (m_num <= 0)
                 m_engaged = false;

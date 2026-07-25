@@ -136,7 +136,7 @@ namespace SlotMachine.Core
         /// 返回本步增量（新火球/满列/计数器更新）。
         /// </summary>
         public static HoldSpinStep RespinHoldSpin(HoldSpinState state, ReelConfig cfg, ISlotRng rng,
-            float bet, IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false)
+            float bet, IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false, bool[] engaged = null)
         {
             int fbId = cfg.fireballSymbolId;
             int rc = (cfg.holdSpin != null) ? cfg.holdSpin.respinCount : 3;
@@ -173,9 +173,9 @@ namespace SlotMachine.Core
 
             // ★ 按「列(reel)」推进：每轮所有"未集满"的列都参与，
             //   每个空位独立以 fbProb 落火球（纯随机，不限于被触发的列）。
-            //   落新火球 → 该列倒计时重置为 respinCount 并取消释放（可"复活"）；
-            //   否则倒计时 -1，到 0 则该列释放（火球 overlay 滚走），但仍继续参与后续滚动、
-            //   仍有机会再落火球——从而实现"火球可在任意列随机出现"，不再锁死在初始列。
+            //   落新火球 → 该列倒计时重置为 respinCount 并取消释放（可"复活"），但仅限倒计时>0 / 未到释放点的轮次；
+            //   否则倒计时 -1，到 0 则该列 m_engaged 清掉 → 下一轮由 m_engaged==false 触发释放（火球 overlay 滚走），
+            //   但仍继续参与后续滚动、仍有机会再落火球——从而实现"火球可在任意列随机出现"，不再锁死在初始列。
             for (int r = 0; r < state.reels; r++)
             {
                 if (state.isFull[r]) continue;
@@ -202,9 +202,22 @@ namespace SlotMachine.Core
                 if (cfg.holdSpin != null && cfg.holdSpin.fbProb > 0f)
                     fbProb = cfg.holdSpin.fbProb;
 
-                // ★ 火球可落在任意列（包括已释放列和新触发列），不锁死在初始触发列。
-                //   已释放列的 counter 不会重置（下方 gotNewFireball 分支已保护），防止无限复活。
-                bool gotNewFireball = false;
+            // ★ 火球可落在任意「未满列」（含从未出过火球的列、已释放列），不锁死在初始触发列，
+            //   与「普通局」出火球方式一致（纯随机、任意位置）——故【空列】不受任何限制，可正常落新火球。
+            // ★ 但「圈圈已归零(即将/正在释放)的列」禁止落新火球，防止其"复活"续命：
+            //   判定 = 该列当前有火球(hasFireballs) 且 (counter==0 或 m_engaged==false)。
+            //   空列 hasFireballs=false → 不命中 → 仍可落新球；有火球且 counter>0 的计数中列 → 不命中 → 可续命(正常)。
+            //   有火球且 counter==0(圈圈=0 这一轮) 或 m_engaged 已清(释放轮) → 命中 → 不落新球，火球按 3→2→1→0(锁一轮)→释放 回归队列。
+            bool hasFireballs = false;
+            for (int row = 0; row < rowN; row++)
+                if (state.cells[r][row].filled) { hasFireballs = true; break; }
+            bool atCounterZero = hasFireballs && state.counter[r] == 0;   // 圈圈=0 这一轮：禁落新球防复活
+            bool dueToRelease;
+            if (engaged != null && r < engaged.Length)
+                dueToRelease = hasFireballs && !engaged[r];
+            else
+                dueToRelease = hasFireballs && (state.counter[r] == 0 && !state.released[r]); // 兜底：无 engaged 输入时保持旧计数判定
+            bool gotNewFireball = false;
                 for (int row = 0; row < rowN; row++)
                 {
                     if (locked[row]) { step.respinGrid[r][row] = fbId; continue; }
@@ -213,7 +226,7 @@ namespace SlotMachine.Core
                     if (sym == wildId && (r == 0 || row == 0))
                         sym = normalPool[rng.Next(normalPool.Count)];
 
-                    if (rng.NextDouble() < fbProb)
+                    if (!atCounterZero && rng.NextDouble() < fbProb)
                     {
                         sym = fbId;
                         var c = HoldSpinState.RollFireball(cfg, rng, bet, pots, allowFreeMode);
@@ -236,20 +249,19 @@ namespace SlotMachine.Core
                 }
                     else
                     {
-                        int prevCounter = state.counter[r];
+                        // ★ 倒计时仍照常递减（驱动圈圈显示 3→2→1→0）；但"释放(火球回归)"改由 dueToRelease(=m_engaged==false) 判定。
                         if (state.counter[r] > 0)
                             state.counter[r] = Math.Max(0, state.counter[r] - 1);
-                        // ★ counter 减到 0 当轮立即释放（不再延迟一轮）。
-                        //   倒计时时间线：3→2→1→0(当轮释放，火球回归滚动队列)。
-                        //   旧逻辑要求 prevCounter==0（即"已经为 0 的下一轮"才释放），导致圈圈显示 0 但火球仍锁一整轮，
-                        //   用户反馈"圈圈数为零但火球没有回归队列滚动"——已改为当场释放。
-                        if (state.counter[r] == 0 && !state.released[r])
-                    {
-                        state.released[r] = true;
-                        if (step.reelSpun == null) step.reelSpun = new List<int>();
-                        step.reelSpun.Add(r);
+                        // ★ 释放：m_engaged==false（该列已无火球 / 倒计时已归零）即回归滚动队列。
+                        //   因 m_engaged 在 OnStartKey 的 CheckEngaged 里、m_num<=0 时清掉，故圈圈显示 0 的那一轮火球仍锁定(空面板)，
+                        //   下一轮(engaged 已 false)才回归——即 3→2→1→0(锁一轮)→释放，且显示与行为完全同步。
+                        if (!state.released[r] && dueToRelease)
+                        {
+                            state.released[r] = true;
+                            if (step.reelSpun == null) step.reelSpun = new List<int>();
+                            step.reelSpun.Add(r);
+                        }
                     }
-                }
             }
 
             // 检查本轮新集满的列 → 派彩
@@ -297,10 +309,15 @@ namespace SlotMachine.Core
                     var spCandidates = (belowSym >= 9 && belowSym <= 11)
                         ? specialPool.Where(s => s != belowSym).ToList()
                         : specialPool;
-                    grid[r] = spCandidates.Count > 0
+                    int picked = spCandidates.Count > 0
                         ? spCandidates[rng.Next(spCandidates.Count)]
                         : normalPool[rng.Next(normalPool.Count)];
-                    belowSym = grid[r];
+                    // ★ 百搭(id=10)概率减半（用户 2026-07-25）：落点为百搭时，50% 概率降级为普通符 ID 1-8，
+                    //   被砍概率质量分摊回 normalPool(1-8)，与基础旋转口径一致。
+                    if (picked == 10 && rng.NextDouble() < 0.5)
+                        picked = normalPool[rng.Next(normalPool.Count)];
+                    grid[r] = picked;
+                    belowSym = picked;
                     r--;
                     continue;
                 }

@@ -105,6 +105,8 @@ namespace com.slot
                     // ★ 计数器不在确认时隐藏（同正常收尾口径）：保留显示到玩家开新基础局才清。
                 }
 
+                int fbInit = r.freeSpinsAwarded - _holdScatterSpins;
+                LogMiniEntry("Hold&Spin初始即满列(IsOver)", r, _holdScatterSpins, fbInit, r.holdSpinState);
                 if (WillEnterMini(r)) { EnterMiniNow(r); yield break; }
                 _spinPending = false;
                 yield break;
@@ -113,6 +115,7 @@ namespace com.slot
             // 3) 无火球：先显示赢分 → 等按确认键 → 再滚动到总分
             // ★ 若本局奖励免费旋转且将进入 Mini：先把内部免费旋转赢分剔除（改由 Mini 统一结算火球），
             //   避免下方 ApplySpinResult 把内部 freeSpinsWin 一起滚进余额造成重复派彩。
+            LogMiniEntry("基础局Scatter触发", r, r.freeSpinsAwarded, 0, null);
             if (WillEnterMini(r))
             {
                 r.freeSpinsWin = 0;
@@ -142,7 +145,10 @@ namespace com.slot
 
             if (m_reelView != null)
             {
-                m_reelView.ClearWinHighlight();    // 进入 Hold&Spin = 新局面，清掉基础旋转的中奖高亮
+                // ★ 不在此处 ClearWinHighlight：基础旋转的中奖高亮须保留到玩家按 Start 进第一轮 respin 时才清，
+                //   否则 HighlightWins 刚播就立刻被清掉（EnterHoldSpin 紧跟 SettleAfterReelsStop 的 HighlightWins 之后调用），
+                //   导致用户看不到普通符号(如 J)的中奖动画（2026-07-25 用户报"J没有播放中奖动画"）。
+                //   清理已移至 AdvanceHoldSpin 开头（respin 滚动前）。
                 m_reelView.ShowFeatureState(hs);   // 火球格锁定 + 倍率文字 + 有火球的列显示计数器3
             }
             // 注意：IsOver 判定已移到 SettleAfterReelsStop 协程（需要先播满列掉落动画再收尾）
@@ -158,6 +164,10 @@ namespace com.slot
 
             try
             {
+                // ★ 清掉基础旋转的中奖高亮（原在 EnterHoldSpin 立即清，导致 HighlightWins 刚播就被清——用户看不到 J 等符号的中奖动画）。
+                //   移到这里：玩家按 Start 进第一轮 respin 时才清，基础高亮在"等确认"期间持续可见。
+                if (m_reelView != null) m_reelView.ClearWinHighlight();
+
                 // === 单轮 respin ===
                 // 扣本轮流注分（每轮单独押注，余额不足则补 LastBet，仍不足则退出）
                 if (m_player != null)
@@ -172,8 +182,10 @@ namespace com.slot
                 if (m_player != null) m_player.ResetWinDisplay();
 
                 // 1) 推进一轮逻辑（落火球/减计数器/释放列/满列派彩）
+                // ★ 释放判定改由显示层 m_engaged 驱动：先把各列 engaged 状态读出来传给逻辑层（在 CheckEngagedAll 之后、本回合滚动之前）。
+                bool[] engagedCols = (m_reelView != null) ? m_reelView.GetEngagedColumns() : null;
                 var step = GameSession.RespinHoldSpin(hs, m_machine.config, m_machine.rng,
-                    m_machine.totalBet, m_machine.session.Pots, allowFreeMode: true);
+                    m_machine.totalBet, m_machine.session.Pots, allowFreeMode: true, engaged: engagedCols);
 
                 // 2) 滚动列 = 未集满列 + 收集满列后"释放滚走"中的幽灵列
                 var spun = new List<int>();
@@ -324,7 +336,18 @@ namespace com.slot
                 int freeballAdded = (_holdResult != null) ? _holdResult.freeSpinsAwarded - _holdScatterSpins : 0;
                 bool collectedFree = freeballAdded > 0;
                 if (!hs.IsOver() && !collectedFree)
+                {
+                    // ★ 防狂按穿透（用户 2026-07-25 拍板：选"急停+结算完才推进"）：
+                    //   本轮赢分信用滚动(IsRolling)动画期间仍保持 _holdRolling=true，忽略所有 Start 输入，
+                    //   等动画结束才放行下一轮 Start——避免"结算（赢分滚动）还没播完，狂按就又触发下一轮 respin"（用户反馈的 BUG）。
+                    //   之前 yield break 后 finally 立即把 _holdRolling 置 false，信用滚动未播完时狂按直接连开下一轮。
+                    //   注：滚动途中"按一下=平滑急停"的手感保留（IsSpinning 分支 StopNow 不受影响）；
+                    //       此处只堵"停稳后信用滚动期间的连按推进"。
+                    int waitFrames = 0;
+                    while (m_player != null && m_player.IsRolling && waitFrames++ < 600)
+                        yield return null;
                     yield break;
+                }
 
                 var holdR = _holdResult;
 
@@ -368,6 +391,7 @@ namespace com.slot
 
                     // 进入 Mini，回调中恢复 HoldSpin
                     var savedHs = hs;
+                    LogMiniEntry("Hold&Spin中途收集FreeSpins火球", holdR, _holdScatterSpins, freeballAdded, savedHs);
                     EnterMiniNow(holdR, () =>
                     {
                         _activeHold = savedHs;
@@ -395,6 +419,8 @@ namespace com.slot
                     //   (OnStartKey → Spin → ShowGrid 入口的 HideAllCounters) 才统一消失。
                 }
 
+                int fbEnd = holdR.freeSpinsAwarded - _holdScatterSpins;
+                LogMiniEntry("Hold&Spin收尾(IsOver)", holdR, _holdScatterSpins, fbEnd, hs);
                 if (WillEnterMini(holdR)) { EnterMiniNow(holdR); yield break; }
                 _spinPending = false;
             }
@@ -428,7 +454,8 @@ namespace com.slot
             if (r != null) Settle(r);
         }
 
-        /// <summary>按列统计 FreeSpins 火球，分档追加免费次数（IsOver 兜底路径用）。</summary>
+        /// <summary>按列统计 FreeSpins 火球，分档追加免费次数（IsOver 兜底路径用）。
+        /// ★ 仅统计「已集满(isFull)」的列：未满列即便有 FreeSpins 火球也不计入，须先填满一整列（播满列收集动画）才给免费次数。</summary>
         void AwardFreeballSpinsFromMain(HoldSpinState hs, GameResult r)
         {
             if (hs == null || r == null || m_machine?.config?.freeSpins == null) return;
@@ -436,6 +463,7 @@ namespace com.slot
             int before = r.freeSpinsAwarded;
             for (int reel = 0; reel < hs.reels; reel++)
             {
+                if (!hs.isFull[reel]) continue;   // ★ 门槛：仅满列才统计 FreeSpins 火球
                 var col = hs.cells[reel];
                 if (col == null) continue;
                 int cnt = 0;
@@ -444,12 +472,15 @@ namespace com.slot
                 if (cnt > 0) r.freeSpinsAwarded += fs.FreeballAwardFor(cnt);
             }
             if (r.freeSpinsAwarded != before)
-                Debug.Log($"[FREE] 兜底统计: {before} → {r.freeSpinsAwarded}");
+                Debug.Log($"[FREE] 兜底统计(满列): {before} → {r.freeSpinsAwarded}");
         }
 
-        /// <summary>统计单列 FREE 火球数并累加到 _holdResult.freeSpinsAwarded。</summary>
+        /// <summary>统计单列 FREE 火球数并累加到 _holdResult.freeSpinsAwarded。
+        /// ★ 仅统计「已集满(isFull)」的列：未满列（含刚转出的散落 FreeSpins 火球）不计入，须先填满一整列才给免费次数。</summary>
         void CountFreeFireballs(HoldSpinState hs, int reel, bool clearAfter = false)
         {
+            if (hs == null || reel < 0 || reel >= hs.reels) return;
+            if (!hs.isFull[reel]) return;   // ★ 门槛：仅满列才统计 FreeSpins 火球
             if (_holdResult == null || m_machine?.config?.freeSpins == null) return;
             int cnt = 0;
             for (int row = 0; row < hs.cells[reel].Length; row++)
@@ -542,6 +573,7 @@ namespace com.slot
         {
             r.freeSpinsWin = 0;
             _miniActive = true;
+            Debug.Log($"[MINI-ENTRY] ★ 实际进入小游戏: 次数={(overrideSpins >= 0 ? overrideSpins : r.freeSpinsAwarded)} scatterCount={r.scatterCount}");
             // ★ 进入小游戏：清掉基础局赢分显示(归 0)。余额已由 ApplySpinResult 在滚入，
             //   ResetWinDisplay 会先把进行中的滚分落账再清 0，不丢分。Mini 全程主 HUD 仍可见，
             //   不清会一直挂着基础局那笔赢分。
@@ -585,6 +617,24 @@ namespace com.slot
         {
             long credit = (m_player != null) ? m_player.m_credit_num : 0;
             Debug.Log($"[结算:{tag}] 压分={bet:F0} 赢分={win:F0} 总分={credit}");
+        }
+
+        /// <summary>进 Mini 之前的来源 LOG：区分是「Scatter 触发」还是「Hold&Spin 收集 FreeSpins 火球」触发，
+        /// 并统计实际的 FreeSpins 火球格数，便于排查"莫名进入免费小游戏"。</summary>
+        void LogMiniEntry(string whence, GameResult r, int scatterOrig, int freeballOrig, HoldSpinState hs = null)
+        {
+            if (r == null) return;
+            string fbCells = "";
+            if (hs != null)
+            {
+                int cnt = 0;
+                for (int rr = 0; rr < hs.reels; rr++)
+                    if (hs.isFull[rr])   // ★ 仅满列内的 FreeSpins 火球才算（与 award 门槛一致）
+                        for (int row = 0; row < hs.cells[rr].Length; row++)
+                            if (hs.cells[rr][row].filled && hs.cells[rr][row].kind == FireballKind.FreeSpins) cnt++;
+                fbCells = $" 满列内FreeSpins火球格数={cnt}";
+            }
+            Debug.Log($"[MINI-ENTRY] 来源={whence} | scatterCount={r.scatterCount} Scatter触发={scatterOrig} FreeSpins火球追加={freeballOrig} 进入次数={r.freeSpinsAwarded}{fbCells}");
         }
 
         /// <summary>

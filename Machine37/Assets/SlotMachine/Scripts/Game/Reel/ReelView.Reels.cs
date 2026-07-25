@@ -154,7 +154,7 @@ namespace com.slot
                 int s = src[i];
                 if (s == 0) s = RandSymbol();  // 仅空格替换；火球(12)保留原样
                 // ★ reel0 永不显示 Wild（即使条带数据含 Wild 符号）
-                if (s == m_symbolMax && reel == 0)
+                if (s == m_wildId && reel == 0)
                     s = m_symbolMin + (i % (m_symbolMax - m_symbolMin));
                 dst.Add(s);
             }
@@ -328,7 +328,7 @@ namespace com.slot
                 if (k >= st.cells.Count) continue;
                 int sym = st.finalSyms[row];
                 // ★ 百搭约束：不能在第一列(reel0)、不能在顶行(row=rows-1，即屏幕第一行；row0 是底行)——与数据层拦截一致的双保险
-                if (sym == m_symbolMax && (st.reelIdx == 0 || row == st.rows - 1))
+                if (sym == m_wildId && (st.reelIdx == 0 || row == st.rows - 1))
                     sym = RandNormalSymbol();
                 SetCell(st, k, sym);
                 // ★ 火球：定格时也挂倍率（与减速阶段衔接，无跳变；停稳后 ShowFeatureState 的 overlay 在最上层盖住、视觉一致）。
@@ -345,6 +345,15 @@ namespace com.slot
 
         public void StopNow()
         {
+            // ★ Hold&Spin 模式下 respin 滚动不走基础 _reels[i].spinning，故优先用 Hold 标志拦截：
+            //   置 _holdStopRequested → SpinHoldRound 下一帧转入平滑减速（m_quickDecel）到预定停位，
+            //   手感与普通局 StopNow 急停一致（不再瞬间定格）。
+            if (_holdSpinning)
+            {
+                _holdStopRequested = true;
+                return;
+            }
+
             for (int i = 0; i < _reels.Count; i++)
             {
                 var st = _reels[i];

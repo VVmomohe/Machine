@@ -97,6 +97,12 @@ namespace com.slot
             m_reelView.m_reelStrips = m_machine.config.reelStrips;   // 卷轴 loop 滚动用的符号带
             if (m_machine.config.fireballSymbolId >= 0)
                 m_reelView.m_fireballSymbolId = m_machine.config.fireballSymbolId;
+            // ★ 关键：把"百搭判定 id"也从 config 对齐，覆盖场景 Inspector 默认值。
+            //   之前 m_symbolMax / m_wildId 一直沿用场景序列化值（Game0 默认 10，但 Game1.unity 曾被写成 11），
+            //   而所有"第一列/顶行禁百搭"拦截都拿它当 Wild 比——一旦场景值≠真实 WildId，拦截整体静默失效，
+            //   导致「reel0 反复出现百搭」这类修不完的 bug。此处从 config.WildId() 单一真相源强制对齐。
+            int wid = m_machine.config.WildId();
+            if (wid > 0) { m_reelView.m_symbolMax = wid; m_reelView.m_wildId = wid; }
         }
         #endregion
     }

@@ -40,6 +40,24 @@ namespace SlotMachine.Core
                 FillClusteredColumn(grid, c, cfg.reelRows[c], specialBag, specialProb, rng);
 
             LimitWilds(grid, cfg, rng);
+
+            // ★ 百搭概率减半（用户 2026-07-25）：基础旋转经 LimitWilds 后整盘最多保留 1 个百搭，
+            //   这里以 50% 概率把那唯一的百搭换成普通符 ID 1-8，使「整盘出现百搭」的概率整体减半；
+            //   被砍掉的概率质量均匀分摊回 NormalPool(1-8)，不凭空消失。
+            int wildId = cfg.WildId();
+            if (wildId >= 0)
+            {
+                var wildCells = new List<(int r, int row)>();
+                for (int r = 1; r < grid.Length; r++)
+                    for (int row = 0; row < grid[r].Length; row++)
+                        if (grid[r][row] == wildId) wildCells.Add((r, row));
+                if (wildCells.Count > 0 && rng.NextDouble() < 0.5)
+                {
+                    var cell = wildCells[rng.Next(wildCells.Count)];
+                    grid[cell.r][cell.row] = NormalPool[rng.Next(NormalPool.Count)];
+                }
+            }
+
             return grid;
         }
 

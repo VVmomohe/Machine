@@ -114,6 +114,7 @@ public class MiniGame : MonoBehaviour
             rv.m_minSpinTime = GameManager.Instance.m_reelView.m_minSpinTime;
             rv.m_symbolMin = GameManager.Instance.m_reelView.m_symbolMin;
             rv.m_symbolMax = GameManager.Instance.m_reelView.m_symbolMax;
+            rv.m_wildId = GameManager.Instance.m_reelView.m_wildId;
             rv.m_symbolPrefab = GameManager.Instance.m_reelView.m_symbolPrefab;   // 火球文字/视觉依赖此 prefab
         }
 

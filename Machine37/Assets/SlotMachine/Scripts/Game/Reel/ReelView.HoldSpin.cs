@@ -15,6 +15,11 @@ namespace com.slot
         HashSet<int> _collectedReels = new HashSet<int>();
         bool _wasSpinning = false;
 
+        // ★ Hold&Spin respin 滚动的急停支持：SpinHoldRound 是自定义协程（不走基础 _reels[i].spinning），
+        //   故 StopNow 无法通过 st.spinning 命中。用这两个标志让 StopNow 能识别并提前打断 Hold 滚动。
+        bool _holdSpinning = false;       // 当前是否处于 Hold&Spin 滚动协程中
+        bool _holdStopRequested = false;  // StopNow 置位 → 下一帧 SpinHoldRound 循环 break 并立即结算定格
+
         // ===== 进入 Hold&Spin =====
 
         public virtual void ShowFeatureState(HoldSpinState s)
@@ -58,6 +63,9 @@ namespace com.slot
         {
             if (spunReels == null || spunReels.Count == 0) yield break;
 
+            _holdSpinning = true;
+            _holdStopRequested = false;
+
             var offset = new Dictionary<int, float>();
             var stopAt = new Dictionary<int, float>();
             for (int i = 0; i < spunReels.Count; i++)
@@ -79,7 +87,13 @@ namespace com.slot
             }
 
             var fbStripMult = new Dictionary<int, FireballCell>();
+            // ★ 干净循环副本 + 落点追踪：用于"停止键急停时把落点从远处预测停位改到当前附近"，
+            //   像普通局 StopNow(FindAlignedStopPos) 就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（看起来像"没停"）。
+            var displayStripOriginal = new Dictionary<int, List<int>>();
+            var placedIndices = new Dictionary<int, List<int>>();
+            var quickStopped = new HashSet<int>();
 
+            // 干净循环：残留火球替换成普通符号，并备份为 displayStripOriginal（停止时还原落点用）
             foreach (int reel in spunReels)
             {
                 if (reel < 0 || reel >= _reels.Count) continue;
@@ -88,58 +102,66 @@ namespace com.slot
                 if (stripLen <= 0) continue;
                 for (int i = 0; i < stripLen; i++)
                     if (st.displayStrip[i] == m_fireballSymbolId) st.displayStrip[i] = RandNormalSymbol();
+                displayStripOriginal[reel] = new List<int>(st.displayStrip);  // 干净循环副本
             }
 
-            if (newFireMults != null && newFireMults.Count > 0)
+            // ★ 把本轮 respin 结果（newFireMults 火球 + respinGrid 符号）写入 displayStrip 的 landOffset 落点，并同步 fbStripMult。
+            //   重复调用会先按 placedIndices 还原到 displayStripOriginal（干净循环），再写新落点——
+            //   这是"停止键就近重算落点"的关键：停止时把落点从远处预测位挪到当前附近，火球/符号随之平移，卷轴快速收敛停下。
+            void PlaceRespinResult(int reel, int landOffset)
             {
-                var fireByReel = new Dictionary<int, List<KeyValuePair<int, FireballCell>>>();
-                foreach (var kv in newFireMults)
+                if (reel < 0 || reel >= _reels.Count) return;
+                var st = _reels[reel];
+                int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
+                if (stripLen <= 0) return;
+
+                // 1) 还原上一次落点（恢复成干净循环符号）
+                if (placedIndices.ContainsKey(reel))
+                    foreach (int idx in placedIndices[reel])
+                        st.displayStrip[idx] = displayStripOriginal[reel][idx];
+                placedIndices[reel] = new List<int>();
+
+                // 2) 清本列旧 fbStripMult
+                int prefix = reel * 100000;
+                var stale = new List<int>();
+                foreach (var kv in fbStripMult)
+                    if (kv.Key >= prefix && kv.Key < prefix + 100000) stale.Add(kv.Key);
+                foreach (var key in stale) fbStripMult.Remove(key);
+
+                // 3) 火球落点
+                if (newFireMults != null)
                 {
-                    int rk = kv.Key / 100;
-                    int row = kv.Key % 100;
-                    if (!fireByReel.ContainsKey(rk)) fireByReel[rk] = new List<KeyValuePair<int, FireballCell>>();
-                    fireByReel[rk].Add(new KeyValuePair<int, FireballCell>(row, kv.Value));
-                }
-                foreach (var kvp in fireByReel)
-                {
-                    int reel = kvp.Key;
-                    if (reel < 0 || reel >= _reels.Count) continue;
-                    if (!scrollCells.ContainsKey(reel)) continue;
-                    var st = _reels[reel];
-                    int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
-                    if (stripLen <= 0) continue;
-                    int B = scrollCells[reel];
-                    foreach (var fr in kvp.Value)
+                    foreach (var kv in newFireMults)
                     {
-                        int row = fr.Key;
-                        FireballCell cell = fr.Value;
-                        int fbIdx = ((st.stripBase + B + m_buf + row) % stripLen + stripLen) % stripLen;
+                        int rk = kv.Key / 100;
+                        if (rk != reel) continue;
+                        int row = kv.Key % 100;
+                        int fbIdx = ((st.stripBase + landOffset + m_buf + row) % stripLen + stripLen) % stripLen;
                         st.displayStrip[fbIdx] = m_fireballSymbolId;
-                        fbStripMult[reel * 100000 + fbIdx] = cell;
+                        placedIndices[reel].Add(fbIdx);
+                        fbStripMult[reel * 100000 + fbIdx] = kv.Value;
                     }
                 }
-            }
 
-            if (respinGrid != null)
-            {
-                foreach (int reel in spunReels)
+                // 4) respinGrid 符号落点（火球格跳过）
+                if (respinGrid != null && reel < respinGrid.Length && respinGrid[reel] != null)
                 {
-                    if (reel < 0 || reel >= _reels.Count) continue;
-                    if (reel >= respinGrid.Length || respinGrid[reel] == null) continue;
-                    var st2 = _reels[reel];
-                    int sl2 = (st2.displayStrip != null) ? st2.displayStrip.Count : 0;
-                    if (sl2 <= 0) continue;
-                    int B2 = scrollCells[reel];
                     for (int row2 = 0; row2 < respinGrid[reel].Length; row2++)
                     {
                         int sym2 = respinGrid[reel][row2];
-                        if (sym2 <= 0) continue;
-                        if (sym2 == m_fireballSymbolId) continue;
-                        int landIdx2 = ((st2.stripBase + B2 + m_buf + row2) % sl2 + sl2) % sl2;
-                        st2.displayStrip[landIdx2] = sym2;
+                        if (sym2 <= 0 || sym2 == m_fireballSymbolId) continue;
+                        int landIdx2 = ((st.stripBase + landOffset + m_buf + row2) % stripLen + stripLen) % stripLen;
+                        st.displayStrip[landIdx2] = sym2;
+                        placedIndices[reel].Add(landIdx2);
                     }
                 }
+
+                scrollCells[reel] = landOffset;
             }
+
+            // 初始：把结果放到自然预测停位 scrollCells（未按停止键时的落点）
+            foreach (int reel in spunReels)
+                if (scrollCells.ContainsKey(reel)) PlaceRespinResult(reel, scrollCells[reel]);
 
             FireballCell FindFireballCell(int reel, int k, int symIdx)
             {
@@ -155,13 +177,41 @@ namespace com.slot
                 return cell;
             }
 
-            int landWild = 0;
+            // ★ 参与滚动的有效列（用于"全部停稳即提前结束"，避免停止键急停后还空等到 endTime 才结算）
+            var participating = new List<int>();
+            foreach (int reel in spunReels)
+            {
+                if (reel < 0 || reel >= _reels.Count) continue;
+                var stC = _reels[reel];
+                int sl = (stC.displayStrip != null) ? stC.displayStrip.Count : 0;
+                if (sl <= 0) continue;
+                participating.Add(reel);
+            }
+
             float t = 0f;
             var stoppedReels = new HashSet<int>();
+            // ★ 停止键急停：像普通局 StopNow→DelayedStop(i*0.2f) 那样，逐列错开 0.2s 才进入减速，
+            //   形成"一列一列依次停下"的 waterfall 手感，而不是所有列一起停（那会显得很怪、不像普通局）。
+            var stopStart = new Dictionary<int, float>();
+            bool stopScheduled = false;
             while (t < endTime)
             {
                 t += Time.deltaTime;
                 float dt = Time.deltaTime;
+
+                // 停止键首次触发：为每列排定错开的减速起始时刻（reel i → t + i*0.2s），并视情况延长 endTime 兜底。
+                if (_holdStopRequested && !stopScheduled)
+                {
+                    stopScheduled = true;
+                    float maxIdx = 0f;
+                    foreach (int r in participating)
+                    {
+                        stopStart[r] = t + r * 0.2f;   // 对齐普通局 DelayedStop(i*0.2f)
+                        if (r > maxIdx) maxIdx = r;
+                    }
+                    float needed = t + maxIdx * 0.2f + 1.5f;   // 末列错开停 + 收敛余量
+                    if (needed > endTime) endTime = needed;
+                }
 
                 foreach (int reel in spunReels)
                 {
@@ -170,14 +220,34 @@ namespace com.slot
                     int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
                     if (stripLen <= 0) continue;
 
-                    if (t < stopAt[reel])
+                    // 该列是否已进入减速阶段：
+                    //   自然停(dur 驱动) → 到 stopAt[reel] 才减速（一旦进入保持）；
+                    //   急停(停止键)     → 到错开时刻 stopStart[reel] 才减速（未轮到本列则继续匀速，形成 waterfall）。
+                    bool decelActive = (t >= stopAt[reel]) || (_holdStopRequested && stopStart.ContainsKey(reel) && t >= stopStart[reel]);
+
+                    if (!decelActive)
                     {
-                        float remaining = stopAt[reel] - t;
-                        float spd = (remaining < 0.35f) ? m_baseSpeed * Mathf.Clamp01(remaining / 0.35f) : m_baseSpeed;
+                        // 匀速推进：自然停临近 stopAt 时轻微减速更顺；急停尚未轮到本列则保持全速（与普通局一致）。
+                        float spd = m_baseSpeed;
+                        if (!_holdStopRequested)
+                        {
+                            float remaining = stopAt[reel] - t;
+                            if (remaining < 0.35f) spd = m_baseSpeed * Mathf.Clamp01(remaining / 0.35f);
+                        }
                         offset[reel] += spd * dt;
                     }
                     else
                     {
+                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"当前位置附近"（仅此刻改，避免减速中途火球回跳），
+                        //   像普通局 FindAlignedStopPos 就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（像"没停"）。
+                        if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
+                        {
+                            quickStopped.Add(reel);
+                            int extra = 1 + RandInt(0, 1);   // 小余量，给一点滚动再停（手感同普通局急停）
+                            int land = Mathf.FloorToInt(offset[reel]) + extra;
+                            PlaceRespinResult(reel, land);
+                        }
+
                         float target = scrollCells[reel];
                         float diff = target - offset[reel];
                         if (Mathf.Abs(diff) < 0.01f)
@@ -191,7 +261,19 @@ namespace com.slot
                                     FMODSoundMgr.Instance.PlaySound("event:/Sounds/1");
                             }
                         }
-                        else offset[reel] += diff * Mathf.Clamp01(dt * m_normalDecel);
+                        else
+                        {
+                            // ★ 收敛：急停落点已就近 → 直接 ease-out（m_quickDecel，无 maxStep 限幅，手感同普通局急停）；
+                            //   自然停目标远 → 保留 maxStep 限幅防"突然前冲"的突兀感。
+                            float decel = _holdStopRequested ? m_quickDecel : m_normalDecel;
+                            float step = diff * Mathf.Clamp01(dt * decel);
+                            if (!_holdStopRequested)
+                            {
+                                float maxStep = m_baseSpeed * dt;
+                                if (Mathf.Abs(step) > maxStep) step = Mathf.Sign(diff) * maxStep;
+                            }
+                            offset[reel] += step;
+                        }
                     }
 
                     int basePos = Mathf.FloorToInt(offset[reel]);
@@ -207,7 +289,7 @@ namespace com.slot
                         int symIdx = (topIdx + k) % stripLen;
                         if (symIdx < 0) symIdx += stripLen;
                         int sym = st.displayStrip[symIdx];
-                        if (sym == m_symbolMax && (reel == 0 || (k - m_buf) == st.rows - 1))
+                        if (sym == m_wildId && (reel == 0 || (k - m_buf) == st.rows - 1))
                             sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
                         if (sym == m_fireballSymbolId)
                         {
@@ -229,6 +311,12 @@ namespace com.slot
                     }
                 }
 
+                // ★ 所有参与列都已停稳（自然停或停止键急停后收敛完成）→ 立即退出循环，
+                //   不再空等到 endTime，避免急停后还延迟约 1 秒才结算。
+                bool allStopped = true;
+                foreach (int r in participating) if (!stoppedReels.Contains(r)) { allStopped = false; break; }
+                if (allStopped) break;
+
                 if (_releaseReels.Count > 0) MoveReleasingOverlays(offset);
 
                 yield return null;
@@ -249,10 +337,11 @@ namespace com.slot
                     var rt = st.cells[k].transform as RectTransform;
                     if (rt != null) rt.anchoredPosition = new Vector2(0f, RowToY(row));
 
+                    int symIdx = 0;
                     int sym;
                     if (stripLen > 0)
                     {
-                        int symIdx = (topIdx + k) % stripLen;
+                        symIdx = (topIdx + k) % stripLen;
                         if (symIdx < 0) symIdx += stripLen;
                         sym = st.displayStrip[symIdx];
                     }
@@ -264,10 +353,15 @@ namespace com.slot
                         var mult = FindFireballCell(reel, k, ((stripLen > 0) ? ((topIdx + k) % stripLen) : 0));
                         if (mult != null) SetCellFireballMult(st, k, mult);
                     }
-                    else if (sym == m_symbolMax)
+                    else if (sym == m_wildId)
                     {
-                        if (reel == 0 || row == st.rows - 1) sym = RandNormalSymbol();
-                        else { landWild++; if (landWild > 1) sym = RandNormalSymbol(); }
+                        // ★ 与逐帧渲染保持一致：仅 reel0 / 最后一行 的百搭做确定性替换（m_symbolMin + symIdx%...），
+                        //   其余百搭原样保留、不再在此做 landWild>1 的随机替换。
+                        //   原因：逐帧渲染时多张百搭都正常显示，若此处用 RandNormalSymbol() 随机换掉第 2 张，
+                        //   会造成"滚动时明明有百搭、停好之后却莫名变成别的图案"（用户反馈的 BUG）。
+                        //   真正的限百搭由停稳后的 LimitWildsOnBoard() 统一处理（GameManager.Flow.cs:215），那里才是权威且一致的入口。
+                        if (reel == 0 || row == st.rows - 1)
+                            sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
                     }
                     SetCell(st, k, sym);
                     if (sym == m_fireballSymbolId)
@@ -287,6 +381,8 @@ namespace com.slot
             DestroyReleasingOverlays();
 
             _releaseReels.Clear();
+
+            _holdSpinning = false;
         }
 
         int PredictScrollCells(float stopAtReel, float settleTime)
@@ -351,7 +447,7 @@ namespace com.slot
 
         public void LimitWildsOnBoard()
         {
-            int wildId = m_symbolMax;
+            int wildId = m_wildId;
             var wilds = new List<ReelState>();
             var wildKs = new List<int>();
             for (int ri = 0; ri < _reels.Count; ri++)

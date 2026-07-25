@@ -54,11 +54,28 @@ namespace com.slot
             //   与基础局的唯一区别只是"转的内容"：respin 只转空格、已锁火球保留；而非"是否新局"。
             //   计数器层面两者已完全统一——上方滚动前都已 CheckEngagedAll + HideAllCounters（先清），
             //   本分支 AdvanceHoldSpin 内 ApplyRespinStep 会 ActivateCounters 重算（后亮），即"每轮先清后重算"。
-            //   不在此处拦截 IsRolling——Hold&Spin 连续多轮，上一轮 credit roll 不应阻塞下一轮 Start。
+            //   不在此处拦截 IsRolling；但 AdvanceHoldSpin 续轮分支会在 yield break 前等到 m_player.IsRolling（本轮赢分滚动）
+            //   结束才放行下一轮 Start（2026-07-25 拍板"急停+结算完才推进"）——即信用滚动播完前连按不会连开下一轮 respin。
             if (_activeHold != null)
             {
-                if (!_holdRolling)                       // 上一轮还在滚动时忽略（防狂按）
+                // ★ 正在 respin 视觉滚动（_holdSpinning，已纳入 IsSpinning）→ 像普通局一样：按确认 = 急停。
+                //   普通局 OnStartKey 下方也是"IsSpinning 时 StopNow"，这里把 Hold 模式统一到同一条路，不再分两套。
+                //   之前 Hold 分支在滚动时直接 return（no-op），导致"按确认停下"在 Hold 无效——已修。
+                if (m_reelView != null && m_reelView.IsSpinning())
+                {
+                    m_reelView.StopNow();
+                    return;
+                }
+                // 否则（等确认 / 满列掉落动画等静默期）：不在协程内才启动 AdvanceHoldSpin，
+                // 否则交给 WaitForConfirmKey 内部推进下一轮（原逻辑不变，防重入）。
+                // ★ 防重入关键：_holdRolling 必须在 StartCoroutine【之前】同步置位——Unity 的 StartCoroutine 只是注册，
+                //   协程首行(_holdRolling=true)要下一帧才执行，若不提前置位，同一帧狂按会继续/确认键会注册多个
+                //   AdvanceHoldSpin 协程同时跑（多 SpinHoldRound 并发）→ 表现「疯狂」。提前置位即可堵死这一帧窗口。
+                if (!_holdRolling)                       // 完全不在协程内才启动（防重入）
+                {
+                    _holdRolling = true;                 // 同步置位，挡同一帧狂按导致的多协程
                     StartCoroutine(AdvanceHoldSpin());   // ★ 每轮 respin 的扣压分已移进 AdvanceHoldSpin 的 while 循环内（每轮各扣一次）
+                }
                 return;
             }
 

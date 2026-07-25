@@ -51,7 +51,9 @@ namespace com.slot
         public float m_minSpinTime = 0.6f; // 每列最少滚动时长(避免第1列瞬间停)
         public int m_buf = 2;              // 上下缓冲格数
         public int m_symbolMin = 1;     // 滚动随机符号范围（1-based，含Wild=10，不含Scatter=11/Fireball=12）
-        public int m_symbolMax = 10;    // 上限（id10=Wild 百搭）
+        public int m_symbolMax = 10;    // 随机普通符号范围上限（= WildId，由 SyncReelConfig 对齐）
+        public int m_wildId = 10;       // ★ 百搭(Wild)判定专用 id（= config.WildId()），与 m_symbolMax 解耦：
+                                        //   所有"第一列/顶行禁百搭"拦截都用它，不再依赖 m_symbolMax，杜绝场景序列化把 m_symbolMax 写错导致拦截整体失效。
         public int m_fireballSymbolId = 12;
 
         [Header("符号渲染（通用，非 Mini 专属）")]
@@ -240,11 +242,14 @@ namespace com.slot
             _wasSpinning = spinning;
         }
 
-        /// <summary>是否有列仍在转（GameManager 用于判断 Start 是"转"还是"停"）。</summary>
+        /// <summary>是否有列仍在转（GameManager 用于判断 Start 是"转"还是"停"、autoPlay 门等）。
+        /// ★ 单一真相源：基础局看 _reels[i].spinning/stopping；Hold&amp;Spin 视觉滚动看 _holdSpinning。
+        ///   两种模式统一从这里查，避免"功能做两次"（之前 Hold 的忙碌判断散落在 _holdRolling 各处）。</summary>
         public bool IsSpinning()
         {
             for (int i = 0; i < _reels.Count; i++)
                 if (_reels[i].spinning || _reels[i].stopping) return true;
+            if (_holdSpinning) return true;   // ★ Hold&amp;Spin 视觉 respin 滚动也算"在转"
             return false;
         }
 

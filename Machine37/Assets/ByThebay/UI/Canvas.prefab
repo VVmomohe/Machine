@@ -196,6 +196,7 @@ MonoBehaviour:
   m_buf: 2
   m_symbolMin: 1
   m_symbolMax: 11
+  m_wildId: 10
   m_fireballSymbolId: 12
   m_symbolAlpha: 1
   m_winFps: 10
@@ -582,6 +583,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6efe12802df80c74bbd0a73332c8deab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_active: 0
+  m_engaged: 0
+  m_num: 0
   m_rate: 0
   m_text: {fileID: 1513544876211561454}
   m_items: []
@@ -618,7 +622,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -128, y: -360}
+  m_AnchoredPosition: {x: -128, y: -370}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2115375871104332121
@@ -730,7 +734,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 125.99999, y: -360}
+  m_AnchoredPosition: {x: 125.99999, y: -370}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2415693045452361717
@@ -828,7 +832,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -257.99997, y: -360}
+  m_AnchoredPosition: {x: -257.99997, y: -370}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &3020160640482580737
@@ -1464,7 +1468,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.9999926, y: -360}
+  m_AnchoredPosition: {x: -1.9999926, y: -370}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6199349846912966752
@@ -3105,7 +3109,7 @@ MonoBehaviour:
   - {fileID: 576159508}
   m_symbolPrefab: {fileID: 166654104788604924, guid: e742015205b1acb40ba869541ac32890, type: 3}
   m_reelRows: 0400000004000000060000000600000008000000
-  m_cellSize: 106
+  m_cellSize: 108
   m_rowBaseY: 0
   m_baseSpeed: 22
   m_autoStagger: 0.8
@@ -3115,6 +3119,7 @@ MonoBehaviour:
   m_buf: 2
   m_symbolMin: 1
   m_symbolMax: 11
+  m_wildId: 10
   m_fireballSymbolId: 12
   m_symbolAlpha: 1
   m_winFps: 10
@@ -3153,7 +3158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 257.99994, y: -360}
+  m_AnchoredPosition: {x: 257.99994, y: -370}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &9110261060815376552
