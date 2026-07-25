@@ -146,11 +146,12 @@ namespace SlotMachine.Core
                 fullReels = new List<FullReelInfo>(),
             };
 
-            // 符号池（与 OutcomeGenerator 一致，但不含 Scatter=11）：
+            // 符号池（与 OutcomeGenerator 一致，但不含 Scatter=11、不含 Wild=10）：
             // Hold&Spin 期间 Scatter 无意义（不触发免费转、特性内也未接免费转重转），
             // 若散落进非锁定格会每轮重转、出现「免费游戏突然变普通符号」的错觉，故排除。
+            // Wild(10) 同样不进 specialPool——改由下方 DecideWildPlanRespin 生成前定点（写一次，不事后替换）。
             var normalPool = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
-            var specialPool = new List<int> { 9, 10 };
+            var specialPool = new List<int> { 9 };
             int wildId = cfg.WildId();
 
             // 初始化聚类显示网格
@@ -168,6 +169,34 @@ namespace SlotMachine.Core
                     var col = state.cells[r];
                     for (int row = 0; row < col.Length; row++)
                         col[row].filled = false;
+                }
+            }
+
+            // ★ 百搭预先决定（写一次，不事后替换）：最多 maxWildsPerSpin 颗，排除第一列/顶行/已锁定(火球)格。
+            //   旧逻辑把 wild 放进 specialPool 每格 12% 随机、再靠 LimitWildsOnBoard 事后砍到 1（"中途换"）。
+            //   现改为生成前定点，与基础旋转 DecideWildPlan 同源。respin 不应用 wildSpawnChance 门控
+            //   （旧行为几乎每轮必有 1 颗百搭，门控会降低出现率），只要有合法空格就放满 maxWilds 颗。
+            var wildTargets = new HashSet<int>();
+            {
+                int wId = cfg.WildId();
+                if (wId >= 0 && cfg.maxWildsPerSpin > 0)
+                {
+                    var cells = new List<(int col, int row)>();
+                    for (int c = 0; c < state.reels; c++)
+                    {
+                        if (!cfg.wildAllowedInFirstReel && c == 0) continue;
+                        int rows = state.cells[c].Length;
+                        for (int row = 1; row < rows; row++)   // 排除顶行(data row0)，与视图 toprow 拦截一致
+                            if (!state.cells[c][row].filled)   // 不落在已锁定(火球)格
+                                cells.Add((c, row));
+                    }
+                    if (cells.Count > 0)
+                    {
+                        Shuffle(cells, rng);
+                        int place = Math.Min(cfg.maxWildsPerSpin, cells.Count);
+                        for (int i = 0; i < place; i++)
+                            wildTargets.Add(cells[i].col * 100 + cells[i].row);
+                    }
                 }
             }
 
@@ -223,8 +252,9 @@ namespace SlotMachine.Core
                     if (locked[row]) { step.respinGrid[r][row] = fbId; continue; }
 
                     int sym = colSyms[row];
-                    if (sym == wildId && (r == 0 || row == 0))
-                        sym = normalPool[rng.Next(normalPool.Count)];
+                    // ★ 预先决定的百搭落点：直接定值，不事后替换（解决"中途换 ICON"）。
+                    if (wildTargets.Contains(r * 100 + row))
+                        sym = wildId;
 
                     if (!atCounterZero && rng.NextDouble() < fbProb)
                     {
@@ -283,6 +313,16 @@ namespace SlotMachine.Core
             step.counters = (int[])state.counter.Clone();
             step.active = state.active;
             return step;
+        }
+
+        /// <summary> Fisher–Yates 洗牌（respin 百搭定点用）。</summary>
+        static void Shuffle<T>(List<T> list, ISlotRng rng)
+        {
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = rng.Next(i + 1);
+                var tmp = list[i]; list[i] = list[j]; list[j] = tmp;
+            }
         }
 
         /// <summary>

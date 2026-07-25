@@ -363,7 +363,7 @@ namespace com.slot
                         if (reel == 0 || row == st.rows - 1)
                             sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
                     }
-                    SetCell(st, k, sym);
+                    SetCell(st, k, sym, true);
                     if (sym == m_fireballSymbolId)
                     {
                         var mult = FindFireballCell(reel, k, ((stripLen > 0) ? ((topIdx + k) % stripLen) : 0));

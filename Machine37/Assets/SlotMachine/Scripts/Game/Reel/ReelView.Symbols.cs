@@ -10,6 +10,7 @@ namespace com.slot
     {
         Dictionary<int, Sprite> _symCache = new Dictionary<int, Sprite>();
         uint _rngState = 0x9E3779B9u;
+        static int s_cellSerial = 0;   // ★ 格子克隆全局自增编号（创建时定值，用于追踪/调试）
 
         /// <summary>行号 -> 局部 Y（底部对齐，row 0 在最下面）。</summary>
         float RowToY(int row) => row * m_cellSize + m_rowBaseY;
@@ -30,6 +31,8 @@ namespace com.slot
             var rt = go.transform as RectTransform;
             if (rt != null) rt.anchoredPosition = new Vector2(0f, RowToY(visualRow));
             SetCellSprite(go, symbolId);
+            var citem = go.GetComponent<ReelItem>();
+            if (citem != null) citem.m_serial = s_cellSerial++;
             return go;
         }
 
@@ -109,7 +112,7 @@ namespace com.slot
         /// <summary>滚动/定格时设置第 k 格：走缓存，符号未变则跳过（避免每帧重复赋值）。
         /// 火球：显示 m_fire、隐藏 m_image；非火球：隐藏 m_fire、显示 m_image 并设图标。
         /// 非火球符号会顺带隐藏该格的倍率文字（m_text），避免滚动中残留上一轮 x1.5。</summary>
-        void SetCell(ReelState st, int k, int id)
+        void SetCell(ReelState st, int k, int id, bool syncId = false)
         {
             if (k < 0 || k >= st.cellItems.Count) return;
 
@@ -142,7 +145,8 @@ namespace com.slot
                     var sit = st.cellItems[k];
                     if (sit != null)
                     {
-                        // ★ m_id 仅在创建时赋值（SetCellSprite），此处不再中途改写（用户要求：中途变值的都不给值）。
+                        // 老火球：本格被持久 overlay 接管（图隐、真实火球在 overlay 上），m_id 保持创建时的火球值(12)即可，
+                        // 不在此回显显示值（本格无可见图标）；新火球走下方正常分支，m_id 同样保持创建定值、不再中途回写。
                         sit.ShowFire(false);
                         if (sit.m_image != null) sit.m_image.enabled = false;
                         if (sit.m_text != null) sit.m_text.gameObject.SetActive(false);
@@ -152,12 +156,24 @@ namespace com.slot
                 // 新火球：不 return，落到下面正常渲染分支（随卷轴滚入）
             }
 
+            // ★ 定格同步 m_id：仅 syncId=true（结果 List 算定、定格时）才把 id 写回 m_id，
+            //   确保 Hold&Spin 每轮换数据后 m_id 对齐到本轮 List 结果；滚动中(syncId=false)不碰
+            //   （用户拍板"中途不变"）。置于 shownSym 提前返回之前：即便符号未变也能把 m_id 对齐。
+            if (syncId)
+            {
+                var it0 = st.cellItems[k];
+                if (it0 != null) it0.m_id = id;
+            }
+
             if (st.shownSym[k] == id) return;        // 没变，跳过
             st.shownSym[k] = id;
             var item = st.cellItems[k];
             if (item != null)
             {
-                // ★ m_id 仅在创建时赋值（SetCellSprite），此处不再中途改写（用户要求：中途变值的都不给值）。
+                // ★ m_id 定值点：① 创建时（SetCellSprite，ShowGrid 用该格最终符号 grid[reel][rowForK]）；
+                //   ② 定格时（syncId=true：SnapFinal 基础旋转 / SpinHoldRound 收尾 每轮 respin）。
+                //   滚动中 SetCell(syncId=false) 不碰 m_id → 严格贯彻"创建/定格定值、中途不变"。
+                //   数据网格 finalSyms 同样只在 OutcomeGenerator 生成层一次算定，永不被此处改写。
                 if (id == m_fireballSymbolId)
                 {
                     // 火球是否亮 m_freeFire：FreeSpins 免费游戏(m_inFreeSpins) 或 该火球自身为 FreeSpins 类型（主游戏生成的免费模式火球）。

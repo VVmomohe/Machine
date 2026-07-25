@@ -80,7 +80,17 @@ namespace com.slot
                 st.shownSym = new int[count];
                 for (int k = 0; k < count; k++)
                 {
-                    var cell = CreateCell(go.transform, RandSymbol(), 0);
+                    // ★ m_id 改为「创建前就决定」：该格(k)对应的静止行号 rowForK=k-m_buf，
+                    //   直接用最终数据网格 grid[reel][rowForK] 当创建符号（顶/底缓冲延伸首/尾符号，
+                    //   与 LayoutFinalReel 的 edgeSym 规则一致），保证停稳后 m_id==屏幕图标。
+                    //   不再传 RandSymbol()（旧逻辑传随机占位值 → m_id 永远停在 2/6/4 这类垃圾值，
+                    //   与图标脱钩，导致"图上鱼、ID 2/6/4"的误读）。
+                    int rowForK = k - m_buf;
+                    int createId;
+                    if (rowForK >= 0 && rowForK < rows) createId = grid[reel][rowForK];
+                    else if (rowForK < 0) createId = grid[reel][0];            // 顶缓冲：延伸首行
+                    else createId = grid[reel][rows - 1];                      // 底缓冲：延伸尾行
+                    var cell = CreateCell(go.transform, createId, 0);
                     st.cells.Add(cell);
                     st.cellImgs.Add(cell.GetComponent<Image>());      // 无 prefab 时的回退
                     st.cellItems.Add(cell.GetComponent<ReelItem>());  // prefab 上的 ReelItem（m_image/m_text）
@@ -330,7 +340,7 @@ namespace com.slot
                 // ★ 百搭约束：不能在第一列(reel0)、不能在顶行(row=rows-1，即屏幕第一行；row0 是底行)——与数据层拦截一致的双保险
                 if (sym == m_wildId && (st.reelIdx == 0 || row == st.rows - 1))
                     sym = RandNormalSymbol();
-                SetCell(st, k, sym);
+                SetCell(st, k, sym, true);
                 // ★ 火球：定格时也挂倍率（与减速阶段衔接，无跳变；停稳后 ShowFeatureState 的 overlay 在最上层盖住、视觉一致）。
                 //   Mini 持久 overlay 模式也挂——位置/文字与 overlay 完全一致，无重影。
                 if (sym == m_fireballSymbolId)

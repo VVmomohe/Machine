@@ -24,6 +24,11 @@ namespace SlotMachine.Core
         public int totalWays = 1;                             // 变行模式 = product(reelRows)
         public int lines = 0;                                 // 连线模式活跃线数
 
+        // ===== 百搭(Wild)生成控制（数据驱动，缺省保守）=====
+        public int maxWildsPerSpin = 1;               // 整盘百搭上限（0=禁用百搭；默认 1=「只生成一个」）
+        public bool wildAllowedInFirstReel = false;   // 百搭是否允许出现在第一列(reel0)；默认 false（不在第一列生成）
+        public float wildSpawnChance = 0.5f;          // 单次旋转实际投放百搭的概率（整体出现率；1=必出，0.5=约半数出）
+
         // ===== 火球 / Fire Link / 奖池 / 免费转 特性（数据驱动，缺省=关闭）=====
         public int fireballSymbolId = -1;                    // 火球符号 id（-1=不启用）
         public int fireLinkSymbolId = -1;                    // FireLink 大奖符 id（-1=不启用）
