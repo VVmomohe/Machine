@@ -58,13 +58,22 @@ namespace com.slot
                 SetColumnEffect(reel, false);
         }
 
-        /// <summary>100% 同步 engaged：每列调 ReelFireNum.CheckEngaged（m_num&lt;=0 即清 engaged）。
-        /// OnStartKey 最顶部调用，保证每次按确认都先跑（任何分支提前 return 都拦不住）。</summary>
+        /// <summary>100% 同步 engaged：每列调 ReelFireNum.CheckEngaged。统计模式下为兼容调用保留（无害）。</summary>
         public void CheckEngagedAll()
         {
             if (m_numObjs == null) return;
             for (int i = 0; i < m_numObjs.Length; i++)
                 if (m_numObjs[i] != null) m_numObjs[i].CheckEngaged();
+        }
+
+        /// <summary>基础旋转火球落地即结算后：显示本局火球总倍率（统计）。只让第0列组件显示汇总，其余隐藏。</summary>
+        public void ShowFireballStats(float totalMultiplier, int fireballCount = 0)
+        {
+            if (m_numObjs == null) return;
+            for (int i = 0; i < m_numObjs.Length; i++)
+                if (m_numObjs[i] != null) m_numObjs[i].ResetAll();   // 先全部隐藏
+            if (m_numObjs.Length > 0 && m_numObjs[0] != null)
+                m_numObjs[0].ShowStats(totalMultiplier, fireballCount);
         }
     }
 }
