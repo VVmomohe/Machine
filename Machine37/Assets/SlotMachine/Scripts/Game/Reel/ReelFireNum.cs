@@ -110,6 +110,7 @@ namespace com.slot
         /// OnStartKey 每次按确认都在最顶部先调它，保证 100% 执行（任何分支提前 return 都拦不住）。</summary>
         public void CheckEngaged()
         {
+            m_rate = 0;
             if (m_num <= 0)
                 m_engaged = false;
             Refresh();

@@ -234,15 +234,16 @@ namespace SlotMachine.Core
                     state.counter[r] = rc;
                     state.released[r] = false;
                 }
-                else
-                {
-                    int prevCounter = state.counter[r];
-                    if (state.counter[r] > 0)
-                        state.counter[r] = Math.Max(0, state.counter[r] - 1);
-                    // ★ 释放延迟一轮：counter 减到 0 的当轮，火球仍锁定、圈圈显示 0（静止帧可见），
-                    //   避免"圈圈还停在 1 火球就滚走"的观感；下一轮 counter 仍为 0（prevCounter==0）
-                    //   才把火球放回滚动队列。倒计时时间线：3→2→1→0(锁定)→回归滚动。
-                    if (state.counter[r] == 0 && prevCounter == 0 && !state.released[r])
+                    else
+                    {
+                        int prevCounter = state.counter[r];
+                        if (state.counter[r] > 0)
+                            state.counter[r] = Math.Max(0, state.counter[r] - 1);
+                        // ★ counter 减到 0 当轮立即释放（不再延迟一轮）。
+                        //   倒计时时间线：3→2→1→0(当轮释放，火球回归滚动队列)。
+                        //   旧逻辑要求 prevCounter==0（即"已经为 0 的下一轮"才释放），导致圈圈显示 0 但火球仍锁一整轮，
+                        //   用户反馈"圈圈数为零但火球没有回归队列滚动"——已改为当场释放。
+                        if (state.counter[r] == 0 && !state.released[r])
                     {
                         state.released[r] = true;
                         if (step.reelSpun == null) step.reelSpun = new List<int>();

@@ -141,7 +141,9 @@ namespace com.slot
         }
 
         /// <summary>构建单列显示条带：空格(0)替换为稳定随机替身（构建时算一次，滚动中不再变 → 不闪烁）。
-        /// 火球(12)不再替换——火球像普通 icon 一样在卷轴里自然滚动。</summary>
+        /// 火球(12)不再替换——火球像普通 icon 一样在卷轴里自然滚动。
+        /// ★ reel0 过滤 Wild(m_symbolMax)：条带数据可能含 Wild，此处是显示层第一道关卡，
+        ///   配合 SnapFinal/LimitWildsOnBoard/Symbols.cs 三道后续拦截，确保 reel0 永不显示百搭。</summary>
         List<int> BuildDisplayStrip(int reel)
         {
             if (m_reelStrips == null || reel >= m_reelStrips.Count) return null;
@@ -151,6 +153,9 @@ namespace com.slot
             {
                 int s = src[i];
                 if (s == 0) s = RandSymbol();  // 仅空格替换；火球(12)保留原样
+                // ★ reel0 永不显示 Wild（即使条带数据含 Wild 符号）
+                if (s == m_symbolMax && reel == 0)
+                    s = m_symbolMin + (i % (m_symbolMax - m_symbolMin));
                 dst.Add(s);
             }
             return dst;
