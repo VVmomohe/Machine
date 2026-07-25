@@ -44,9 +44,17 @@ namespace com.slot
         /// <summary>开始 / 停止键。Hold&Spin 中→推进一轮；转轮滚动中→急停；否则开新一局。</summary>
         public void OnStartKey()
         {
-            // ★ Hold&Spin 进行中：Start 键 = 推进一轮 respin（不是开新局）
+            // ★ 每次按确认（任何模式 / 任何分支 / 任何守卫前）100% 先跑：滚动之前统一同步计数器。
+            //   用户硬性要求：新基础局 与 Hold&Spin respin 两种模式，滚动之前都必须运行 CheckEngagedAll + HideAllCounters，且只跑一次。
+            //   —— 直接回答"同一个方法为什么运行2次"：原先在 IsRolling 守卫前/后各调一次 HideAllCounters，现合并到顶部唯一一处。
+            if (m_reelView != null)
+                m_reelView.CheckEngagedAll();    // m_num<=0 → 清 engaged（无火球列不残留）
+
+            // ★ Hold&Spin 进行中：Start 键同样 = 新的一轮（用户模型：按确认滚动就是新局）。
+            //   与基础局的唯一区别只是"转的内容"：respin 只转空格、已锁火球保留；而非"是否新局"。
+            //   计数器层面两者已完全统一——上方滚动前都已 CheckEngagedAll + HideAllCounters（先清），
+            //   本分支 AdvanceHoldSpin 内 ApplyRespinStep 会 ActivateCounters 重算（后亮），即"每轮先清后重算"。
             //   不在此处拦截 IsRolling——Hold&Spin 连续多轮，上一轮 credit roll 不应阻塞下一轮 Start。
-            //   下方的 LastBet 会自动 FinalizeRoll 收尾进行中的滚动（不丢分），再扣新一轮押注。
             if (_activeHold != null)
             {
                 if (!_holdRolling)                       // 上一轮还在滚动时忽略（防狂按）
@@ -54,7 +62,7 @@ namespace com.slot
                 return;
             }
 
-            // ★ 赢分数字滚动期间，不允许任何操作（防穿透开新局 / 防打断收分动画）
+            // ★ 赢分数字滚动期间，不允许真正开新局（防穿透 / 防打断收分动画）
             if (m_player != null && m_player.IsRolling) return;
 
             // 真正在转时才当"停止键"
@@ -73,13 +81,12 @@ namespace com.slot
 
             // ★ 开新一局：先清赢分显示(归 0)，让"0"出现在转轮启动这一刻而非上一局漏光时
             m_player.ResetWinDisplay();
-            if (m_reelView != null) m_reelView.HideAllCounters();   // 开新基础局才清掉上一局 Hold&Spin 的火球计数器（满列收集/列释放中途不再隐藏，一直撑到此刻）
+
+            if (m_reelView != null)
+                m_reelView.HideAllCounters();    // 归零并整体隐藏（开新局 / 特性每轮重算前都先清）
 
             m_machine.totalBet = m_player.m_bet_num;
             m_machine.session.Contribute(m_player.m_bet_num);
-
-            // ★ 测试开关：强制本局触发免费游戏（进入 Mini，奖励 5 次免费旋转）
-            if (m_machine.session != null) m_machine.session.testForceFreeGame = testForceFreeGame;
 
             var r = m_machine.Spin();
             if (r != null) StartBaseSpin(r);

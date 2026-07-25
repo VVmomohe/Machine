@@ -26,10 +26,6 @@ namespace com.slot
         /// <summary>转轮滚动 / 火球掉落 / 结算期间为 true，防止重复触发新一局（狂按 Start 不会穿透）。</summary>
         private bool _spinPending;
 
-        /// <summary>【测试开关】开启后在 Hold&Spin 中火球的 FreeSpins(免费模式)概率从 0.6% 提高到 50%，
-        /// 方便积累 FREE 火球进 Mini 免费游戏（Inspector 勾选即可）。</summary>
-        public bool testForceFreeGame = false;
-
         /// <summary>【自动游玩】Inspector 勾选（或运行时按 F1）后，系统自动按 Start 键：
         /// 自动开新局、自动推进 Hold&amp;Spin 每轮 respin、结算确认点自动过、Mini 免费游戏自动续轮。
         /// 转轮正在滚动时不触发（避免把正在转的卷轴急停），等其自然停稳后下一帧自动继续。取消勾选立即回手动。</summary>

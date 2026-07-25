@@ -495,17 +495,9 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1821490503}
-    - target: {fileID: 3631373661657589992, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
-      propertyPath: m_ShowMaskGraphic
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6853531068556854816, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
       propertyPath: m_Name
       value: GamePlanel
-      objectReference: {fileID: 0}
-    - target: {fileID: 6853531068556854816, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6853531068556854828, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
       propertyPath: m_Pivot.x

@@ -20,7 +20,9 @@ namespace com.slot
         public virtual void ShowFeatureState(HoldSpinState s)
         {
             HideAllCounters();
+            ActivateCounters();   // ★ 激活计数器（开 _active 标志），之后 SetCount 才能正常显示
             ClearFireballOverlays();
+            Debug.Log($"[DIAG-ShowFeatureState] 进入 Hold&Spin 显示（计数器可见性由 ReelFireNum 自管）");
 
             for (int r = 0; r < s.reels && r < _reels.Count; r++)
             {
@@ -34,7 +36,8 @@ namespace com.slot
             }
             if (s.counter != null)
                 for (int r = 0; r < s.counter.Length; r++)
-                    SetRespinCounterRow(r, (s.released != null && r < s.released.Length && s.released[r]) ? -1 : s.counter[r]);
+                    // 可见性由 ReelFireNum 自管：active 且 (有圈 或 有倍率) 才显示；开新局(active=false)才整体隐藏。
+                    SetRespinCounterRow(r, s.counter[r]);
 
             RefreshColumnEffects(s, s.counter);   // 近满列(差1火球)→亮整列 m_effect；已释放/集满列不亮
 
@@ -217,7 +220,8 @@ namespace com.slot
                             var cell = FindFireballCell(reel, k, symIdx);
                             if (cell != null)
                             {
-                                bool freeFire = m_inFreeSpins || cell.kind == FireballKind.FreeSpins;
+                                // ★ freeFire 严格按火球自身 kind：FreeSpins 类型才显免费火球外观（m_inFreeSpins 是死代码，已移除）
+                                bool freeFire = cell.kind == FireballKind.FreeSpins;
                                 var it = st.cellItems[k];
                                 if (it != null) it.ShowFire(true, freeFire);
                             }
@@ -271,7 +275,8 @@ namespace com.slot
                         var mult = FindFireballCell(reel, k, ((stripLen > 0) ? ((topIdx + k) % stripLen) : 0));
                         if (mult != null)
                         {
-                            bool freeFire = m_inFreeSpins || mult.kind == FireballKind.FreeSpins;
+                            // ★ freeFire 严格按火球自身 kind：FreeSpins 类型才显免费火球外观（m_inFreeSpins 是死代码，已移除）
+                            bool freeFire = mult.kind == FireballKind.FreeSpins;
                             var it = st.cellItems[k];
                             if (it != null) it.ShowFire(true, freeFire);
                         }
@@ -316,6 +321,11 @@ namespace com.slot
         {
             if (step == null) return;
 
+            // ★ 重新激活计数器：OnStartKey 顶部在滚动前会 HideAllCounters（m_active=false 整体隐藏），
+            //   本回合滚动结束后必须重新激活，否则下方 SetRespinCounterRow 只设 count 不置 active → 计数器永久隐藏。
+            //   仅 Hold&Spin 流程会走到这里，故不会影响基础局（基础局无火球，m_active 本就应保持 false）。
+            ActivateCounters();
+
             if (step.newFireballs != null)
             {
                 foreach (var c in step.newFireballs)
@@ -326,14 +336,9 @@ namespace com.slot
             }
 
             if (step.counters != null)
-            {
                 for (int reel = 0; reel < step.counters.Length; reel++)
-                {
-                    // 已释放/集满的列：传 -1 哨兵隐藏计数器；其余按数据层 counter 显示（0..rc）
-                    bool released = (state != null && reel < state.released.Length && state.released[reel]);
-                    SetRespinCounterRow(reel, released ? -1 : step.counters[reel]);
-                }
-            }
+                    // 可见性由 ReelFireNum 自管：active 且 (有圈 或 有倍率) 才显示；开新局(active=false)才整体隐藏。
+                    SetRespinCounterRow(reel, step.counters[reel]);
 
             RefreshColumnEffects(state, step.counters);   // 近满列(差1火球)→亮整列 m_effect；已释放/集满列不亮
 
@@ -373,8 +378,7 @@ namespace com.slot
         {
             if (reel < 0) return;
             _releaseReels.Add(reel);
-            // 火球随本轮回滚回归队列：该列已释放，传 -1 哨兵彻底隐藏 ReelFireNum
-            SetRespinCounterRow(reel, -1);
+            // ★ 不再隐藏该列计数器：保留其累计倍数显示，直到玩家按确认开新基础局(OnStartKey/ShowGrid)统一隐藏。
             // ★ 火球开始回归队列的瞬间立即关闭整列 m_effect 预警特效——
             //   之前只在 SpinHoldRound 结束（滚动停稳）→ DestroyReleasingOverlays→RefreshColumnEffects 才关，
             //   导致 m_effect 要等火球滚回队列并停下才消失。现在在 Release 那一刻即关，与火球回滚同步。
@@ -391,6 +395,21 @@ namespace com.slot
         public void ReleaseCollectedForNextSpin()
         {
             foreach (var r in _collectedReels) _releaseReels.Add(r);
+            // ★ 兜底：直接遍历所有残留火球 overlay，把每个 overlay 的 reel 也并入待释放集合。
+            //   原因：CollectFullReelAnimation 在协程末尾(line 293-294)才把收集列加回 _collectedReels/_releaseReels，
+            //   而每个 respin 回合末 SpinHoldRound 会 _releaseReels.Clear()(line 289)。两者存在时序竞争，
+            //   若回合末 Clear 跑在 CollectFullReelAnimation 收尾之后，该 reel 会从 _releaseReels 被抹掉，
+            //   导致新基础局里该列火球 ghost 不随卷轴滚走、盖住转动的 Q（表现为"某列没转"）。
+            //   改为按 _fbOverlays 实际残留兜底，保证任何残留 ghost 都被释放。
+            //   ※ Mini 持久 overlay(m_persistentFireOverlays=true) 不参与此释放逻辑，必须跳过，否则会误把 Mini 火球当待释放滚走。
+            if (!m_persistentFireOverlays)
+            {
+                foreach (var go in _fbOverlays)
+                {
+                    if (go == null) continue;
+                    if (ParseReelRow(go.name, out int reel, out _)) _releaseReels.Add(reel);
+                }
+            }
             _collectedReels.Clear();
         }
 

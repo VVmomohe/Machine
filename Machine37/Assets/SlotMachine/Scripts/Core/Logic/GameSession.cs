@@ -19,10 +19,6 @@ namespace SlotMachine.Core
         private Dictionary<string,float> _seeds = new Dictionary<string,float>();
         private bool _potsInit;
 
-        /// <summary>【测试开关】开启后在 Hold&Spin 中火球的 FreeSpins(免费模式)概率从 0.6% 提高到 50%，
-        /// 方便积累 FREE 火球 → 按 FreeballAwardFor 规则叠加赠送次数进入 Mini 免费游戏。</summary>
-        public bool testForceFreeGame = false;
-
         public GameSession(ReelConfig cfg, ISlotRng rng)
         {
             _cfg = cfg;
@@ -132,7 +128,7 @@ namespace SlotMachine.Core
             int minTrigger = (_cfg.holdSpin.triggerMin > 0) ? _cfg.holdSpin.triggerMin : 1;
             if (initial.Count < minTrigger) return;
 
-            res.holdSpinState = HoldSpinState.Start(_cfg, _rng, bet, initial, _pots, allowFreeMode: true, testForceFreeGame: testForceFreeGame);
+            res.holdSpinState = HoldSpinState.Start(_cfg, _rng, bet, initial, _pots, allowFreeMode: true);
         }
 
         /// <summary>
@@ -140,7 +136,7 @@ namespace SlotMachine.Core
         /// 返回本步增量（新火球/满列/计数器更新）。
         /// </summary>
         public static HoldSpinStep RespinHoldSpin(HoldSpinState state, ReelConfig cfg, ISlotRng rng,
-            float bet, IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false, bool testForceFreeGame = false)
+            float bet, IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false)
         {
             int fbId = cfg.fireballSymbolId;
             int rc = (cfg.holdSpin != null) ? cfg.holdSpin.respinCount : 3;
@@ -220,7 +216,7 @@ namespace SlotMachine.Core
                     if (rng.NextDouble() < fbProb)
                     {
                         sym = fbId;
-                        var c = HoldSpinState.RollFireball(cfg, rng, bet, pots, allowFreeMode, testForceFreeGame);
+                        var c = HoldSpinState.RollFireball(cfg, rng, bet, pots, allowFreeMode);
                         c.reel = r; c.row = row; c.filled = true;
                         state.cells[r][row] = c;
                         step.newFireballs.Add(c);

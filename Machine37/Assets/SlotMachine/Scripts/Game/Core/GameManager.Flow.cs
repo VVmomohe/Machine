@@ -102,6 +102,7 @@ namespace com.slot
                     m_player.ShowWinValue(tw);
                     yield return StartCoroutine(WaitForConfirmKey()); // auto 1s 或手动确认
                     m_player.ApplySpinResult(r);
+                    // ★ 计数器不在确认时隐藏（同正常收尾口径）：保留显示到玩家开新基础局才清。
                 }
 
                 if (WillEnterMini(r)) { EnterMiniNow(r); yield break; }
@@ -172,8 +173,7 @@ namespace com.slot
 
                 // 1) 推进一轮逻辑（落火球/减计数器/释放列/满列派彩）
                 var step = GameSession.RespinHoldSpin(hs, m_machine.config, m_machine.rng,
-                    m_machine.totalBet, m_machine.session.Pots, allowFreeMode: true,
-                    testForceFreeGame: m_machine.session.testForceFreeGame);
+                    m_machine.totalBet, m_machine.session.Pots, allowFreeMode: true);
 
                 // 2) 滚动列 = 未集满列 + 收集满列后"释放滚走"中的幽灵列
                 var spun = new List<int>();
@@ -304,9 +304,8 @@ namespace com.slot
                         if (m_reelView != null)
                         {
                             m_reelView.ReleaseCollectedReel(rr);
-                            // ★ 满列收集后立即隐藏计数器（-1 哨兵）：既清掉 CollectFullReelAnimation
-                            //    里 AddFireballToCounter 累积的 X3.75 残留文本，又让该列火球滚走后不再挂计数器
-                            m_reelView.SetRespinCounterRow(rr, -1);
+                            // ★ 满列收集后火球已随 CollectFullReelAnimation 滚走；该列累计倍率 X 已通过 AddMultiplier 显示在计数器中。
+                            //   不再单独 Freeze——可见性由 ReelFireNum 自管（active 且 rate>0 即显示 X），撑到结算清零/开新局。
                         }
                     }
                     // ★ 满列收集后刷新特效——收集后该列不再差1个火球，m_effect 应关闭
@@ -381,6 +380,9 @@ namespace com.slot
                 // === IsOver → 正常收尾（调 FinishHoldSpin） ===
                 if (hs.IsOver()) AwardFreeballSpinsFromMain(hs, holdR);
                 FinishHoldSpin();
+                // ★ 特性结束、结算完成：num 与 rate 【不清零】——保留显示到玩家按确认开新局。
+                //   隐藏时机：开新基础局（OnStartKey / ShowGrid → HideAllCounters → ResetAll），
+                //   届时每列 num、rate 归 0，(num==0 && rate==0) 成立即隐藏（含满列 X 倍列）。
                 LogSettle("特性结束", m_machine.totalBet, holdR != null ? holdR.featureWin : 0f);
 
                 if (m_player != null && holdR != null)
@@ -389,6 +391,8 @@ namespace com.slot
                     m_player.ShowWinValue(tw);
                     yield return StartCoroutine(WaitForConfirmKey());
                     m_player.ApplySpinResult(holdR);
+                    // ★ 计数器不在确认时隐藏：保留"收集到多少倍"的显示，直到玩家按确认开新基础局
+                    //   (OnStartKey → Spin → ShowGrid 入口的 HideAllCounters) 才统一消失。
                 }
 
                 if (WillEnterMini(holdR)) { EnterMiniNow(holdR); yield break; }
@@ -409,9 +413,11 @@ namespace com.slot
             _holdRolling = false;
             _spinPending = false;
 
-            // ★ 特性结束立即隐藏火球计数器：Hold&Spin 收尾即清，不再等到开新基础局，
-            //   避免"赢分展示/等确认期间计数器还挂着上一局"的观感。开新基础局(OnStartKey)与进 Mini 仍会再清一遍(幂等)。
-            if (m_reelView != null) m_reelView.HideAllCounters();
+            // ★ FinishHoldSpin 本身不直接清火球计数器；清的时机在玩家"按确认开新一局"那一刻：
+            //   ① OnStartKey（GameManager.Input.cs:60，IsRolling 守卫前）→ HideAllCounters，按下 Start 开新局瞬间即清；
+            //   ② ShowGrid 入口（ReelView.Reels.cs:45，ReleaseCollectedForNextSpin 之后）兜底再清一遍（幂等）。
+            //   ★ 结算/确认(respin 收尾)时一律不清——计数器(含 0 圈静止帧、满列 X 文本)撑到开新局才隐藏（用户要求）。
+            //   两者都不在 respin 每轮触发（每轮走 AdvanceHoldSpin，计数器须常显）。进 Mini 路径 Flow.cs:368 也会清。
 
             if (r != null && hs != null)
             {

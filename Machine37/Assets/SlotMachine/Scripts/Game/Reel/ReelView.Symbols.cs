@@ -84,6 +84,9 @@ namespace com.slot
                         var col = item.m_image.color;
                         item.m_image.color = new Color(col.r, col.g, col.b, m_symbolAlpha);
                     }
+                    // ★ 确保 UIImageAnimator 正在播放（同 SetCell 兜底）
+                    var anim = item.GetComponent<UIImageAnimator>();
+                    if (anim != null && !anim.IsPlaying) anim.Restart();
                 }
                 if (item.m_text != null && id != m_fireballSymbolId)
                     item.m_text.gameObject.SetActive(false);
@@ -183,6 +186,11 @@ namespace com.slot
                             item.m_image.color = new Color(col.r, col.g, col.b, m_symbolAlpha);
                         }
                     }
+                    // ★ 确保 UIImageAnimator 正在播放：ShowFire(false) 恢复了 m_image 显示，
+                    //   但如果该格之前因 overlay 接管/SetActive 时序等原因导致 animator 停滞，
+                    //   此处兜底重启动画（避免"符号显示了但不呼吸/不浮动"）。
+                    var anim = item.GetComponent<UIImageAnimator>();
+                    if (anim != null && !anim.IsPlaying) anim.Restart();
                 }
                 // 非火球：隐藏倍率文字（火球倍率文字由 ShowFireballOverlay 在最上层 overlay 上单独设置）
                 if (item.m_text != null && id != m_fireballSymbolId)

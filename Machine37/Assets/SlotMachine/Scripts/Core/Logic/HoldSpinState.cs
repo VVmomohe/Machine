@@ -34,7 +34,7 @@ namespace SlotMachine.Core
 
         /// <summary>从基础旋转落下的初始火球创建特性态。无火球的列直接标记 released。</summary>
         public static HoldSpinState Start(ReelConfig cfg, ISlotRng rng, float bet, List<FireballCell> initial,
-            IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false, bool testForceFreeGame = false)
+            IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false)
         {
             var st = new HoldSpinState
             {
@@ -64,7 +64,7 @@ namespace SlotMachine.Core
                         f.filled = true;
                         if (f.kind == FireballKind.Multiplier && f.multiplier <= 0f)
                         {
-                            var rolled = RollFireball(cfg, rng, bet, pots, allowFreeMode, testForceFreeGame);
+                            var rolled = RollFireball(cfg, rng, bet, pots, allowFreeMode);
                             f.kind = rolled.kind;
                             f.multiplier = rolled.multiplier;
                         }
@@ -168,15 +168,14 @@ namespace SlotMachine.Core
         /// <summary>随机生成一颗火球：按 jackpotRatio 决定是彩金火球（再按 jackpotWeights 选档）还是倍数火球（按 multiplierWeights 选倍率）。
         /// 彩金火球的 multiplier 优先取渐进池 pots[tier] / bet（信用→倍率统一），无池时回退 jackpotMultipliers。</summary>
         public static FireballCell RollFireball(ReelConfig cfg, ISlotRng rng, float bet,
-            IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false, bool testForceFreeGame = false)
+            IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false)
         {
             var hc = cfg.holdSpin;
             double r = rng.NextDouble();
 
             // ① 免费模式火球（仅在主游戏 Hold&Spin 内 allowFreeMode=true 时启用；Mini 不生成）：不派彩，multiplier=0。
             //   分区：r ∈ [0, freeModeRatio) → 免费模式；[freeModeRatio, freeModeRatio+jackpotRatio) → 彩金；其余 → 倍数。
-            //   ★ testForceFreeGame 时概率提到 50%（平时 0.6%），方便测试 FreeSpins 火球积累进 Mini 免费游戏。
-            float effFreeRatio = (testForceFreeGame && allowFreeMode) ? 0.5f : (hc != null ? hc.freeModeRatio : 0f);
+            float effFreeRatio = (hc != null ? hc.freeModeRatio : 0f);
             bool isFree = allowFreeMode && effFreeRatio > 0f && r < effFreeRatio;
             if (isFree)
                 return new FireballCell { filled = true, kind = FireballKind.FreeSpins, multiplier = 0f };

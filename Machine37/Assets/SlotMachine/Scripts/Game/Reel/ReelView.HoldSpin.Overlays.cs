@@ -40,14 +40,19 @@ namespace com.slot
             go.transform.SetAsLastSibling();
 
             if (rt != null)
-                Debug.Log($"[FBOverlay] {go.name} Y={rt.anchoredPosition.y:F1} parent={parent.name} active={go.activeSelf} (reel{reel} row{row})");
+                // ★ 诊断：每次创建火球 overlay 都打印其 kind+multiplier，便于确认"固定后 kind 是否真由 Multiplier 变 FreeSpins"。
+                //   复现后请在 Editor.log 按 [FBOverlay] 过滤，看同一 FBOverlay_{reel}_{row} 是否先 Multiplier 后 FreeSpins（若仅出现一次且为 FreeSpins，则为合法免费火球，非突变）。
+                Debug.Log($"[FBOverlay] {go.name} kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} Y={rt.anchoredPosition.y:F1} parent={parent.name} active={go.activeSelf} (reel{reel} row{row})");
 
             var item = go.GetComponent<ReelItem>();
             if (item != null)
             {
                 item.m_type = cell.kind;
                 item.m_rate = cell.multiplier;
-                bool freeFire = m_inFreeSpins || (cell != null && cell.kind == FireballKind.FreeSpins);
+                // ★ 免费外观严格按火球自身 kind 决定：FreeSpins 类型才显示免费火球(m_freeFire)，
+                //   倍数/彩金火球一律显示普通火球(m_fire)。不再参考 m_inFreeSpins（该字段全工程从未被置 true，是死代码，
+                //   且会错误地让倍数火球在"免费游戏"全局开关下变成免费火球外观）。
+                bool freeFire = (cell != null && cell.kind == FireballKind.FreeSpins);
                 item.ShowFire(true, freeFire);
                 // ★ overlay 的 m_effect 必须关闭——m_effect 只在 ReelItem(卷轴格)上由 SetColumnEffect 管理，
                 //   overlay 是克隆体，如果 prefab 上 m_effect 默认 active，ghost 会带着 m_effect 停在原位
