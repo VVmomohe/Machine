@@ -63,52 +63,48 @@ namespace com.slot
             if (m_player != null)
                 LogSettle("基础", m_machine.totalBet, r.baseWin + r.scatterPayout + r.respinLineWin);
 
-            // ★ 火球落地即结算（Hold&Spin 已去除）：基础旋转落火球 → 扫描火球格立即派彩，不再多轮 respin。
+            // ★ Hold & Spin 入口：基础旋转落了火球 → 收集/推进火球特性 → 统一结算
             if (r.holdSpinState != null)
             {
-                var hs = r.holdSpinState;
+                EnterHoldSpin(r, r.holdSpinState);
 
-                // 1) 统计 FREE 火球（基础旋转阶段无 Hold&Spin 循环，这里统一累加 freeSpinsAwarded）
-                AwardFreeballSpinsFromMain(hs, r);
-
-                // 2) 计算 featureWin = 压分 × 全部火球倍率之和（含满列，已落定的火球都算）
-                float totalMult = 0f;
-                int fireballCount = 0;
-                for (int reel = 0; reel < hs.reels; reel++)
+                if (r.holdSpinState.IsOver())
                 {
-                    totalMult += HoldSpinState.ReelSum(hs, reel);
-                    for (int row = 0; row < hs.cells[reel].Length; row++)
-                        if (hs.cells[reel][row].filled) fireballCount++;
+                    // 初始即满列：播掉落动画
+                    _holdRolling = true;
+                    if (m_reelView != null)
+                        for (int reel = 0; reel < r.holdSpinState.reels; reel++)
+                            if (r.holdSpinState.isFull[reel])
+                            {
+                                yield return StartCoroutine(m_reelView.CollectFullReelAnimation(reel));
+                                if (m_bonus != null) ShowJackpotEffectsForReel(r.holdSpinState, reel);
+                                // 火球收集成功：按本列总倍数分支播放音效（>8→18，否则→110）
+                                if (FMODSoundMgr.Instance != null)
+                                    FMODSoundMgr.Instance.PlaySound(HoldSpinState.ReelSum(r.holdSpinState, reel) > 8f ? "event:/Sounds/18" : "event:/Sounds/110");
+                            }
+                    _holdRolling = false;
+                    // 统计 FREE 火球 + 完成结算（FinishHoldSpin 设 totalPayout + 日志/奖池 + 清理）
+                    AwardFreeballSpinsFromMain(r.holdSpinState, r);
+                    FinishHoldSpin();
                 }
-                r.featureWin = hs.bet * totalMult;
-                r.totalPayout = r.baseWin + r.scatterPayout + r.featureWin + r.respinLineWin;
-                LogSettle("火球落地", m_machine.totalBet, r.featureWin);
-
-                // 3) 满列掉落动画 + 彩金特效
-                for (int reel = 0; reel < hs.reels; reel++)
+                else
                 {
-                    if (hs.isFull[reel])
-                    {
-                        yield return StartCoroutine(m_reelView.CollectFullReelAnimation(reel));
-                        if (m_bonus != null) ShowJackpotEffectsForReel(hs, reel);
-                        if (FMODSoundMgr.Instance != null)
-                            FMODSoundMgr.Instance.PlaySound(totalMult > 8f ? "event:/Sounds/18" : "event:/Sounds/110");
-                    }
+                    // 初始火球已展示（EnterHoldSpin 显示了火球格/计数器）。
+                    // 每轮 respin 由 Start 键通过 OnStartKey → AdvanceHoldSpin 触发。
+                    // 这里直接结束，等玩家按 Start 开始第一轮收集。
+                    yield break;
                 }
 
-                // 4) 统计显示（本局火球总倍率）
-                if (m_reelView != null) m_reelView.ShowFireballStats(totalMult, fireballCount);
-
-                // 5) 结算派彩
+                // ★ 仅初始即满列（IsOver）走这里：统一结算
                 if (m_player != null)
                 {
                     long tw = (long)System.Math.Round(r.totalPayout);
                     m_player.ShowWinValue(tw);
-                    yield return StartCoroutine(WaitForConfirmKey());
+                    yield return StartCoroutine(WaitForConfirmKey()); // auto 1s 或手动确认
                     m_player.ApplySpinResult(r);
+                    // ★ 计数器不在确认时隐藏（同正常收尾口径）：保留显示到玩家开新基础局才清。
                 }
 
-                // 6) Mini 触发（FREE 火球）
                 if (WillEnterMini(r)) { EnterMiniNow(r); yield break; }
                 _spinPending = false;
                 yield break;

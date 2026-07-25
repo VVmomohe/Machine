@@ -41,13 +41,26 @@ namespace com.slot
         #endregion
 
         #region 输入处理
-        /// <summary>开始 / 停止键。每次按确认都是新的一局（基础旋转）：火球已改为"落地即结算"，不再有 Hold&Spin 多轮 respin。</summary>
+        /// <summary>开始 / 停止键。Hold&Spin 中→推进一轮；转轮滚动中→急停；否则开新一局。</summary>
         public void OnStartKey()
         {
-            // ★ 每次按确认（任何守卫前）100% 先跑：滚动之前统一同步计数器（用户硬性要求）。
-            //   现 Hold&Spin 已去除，每次按确认都是新基础局，计数器在滚动前先清、结算后由统计显示。
+            // ★ 每次按确认（任何模式 / 任何分支 / 任何守卫前）100% 先跑：滚动之前统一同步计数器。
+            //   用户硬性要求：新基础局 与 Hold&Spin respin 两种模式，滚动之前都必须运行 CheckEngagedAll + HideAllCounters，且只跑一次。
+            //   —— 直接回答"同一个方法为什么运行2次"：原先在 IsRolling 守卫前/后各调一次 HideAllCounters，现合并到顶部唯一一处。
             if (m_reelView != null)
-                m_reelView.CheckEngagedAll();    // 统计模式下为兼容调用保留（无害）
+                m_reelView.CheckEngagedAll();    // m_num<=0 → 清 engaged（无火球列不残留）
+
+            // ★ Hold&Spin 进行中：Start 键同样 = 新的一轮（用户模型：按确认滚动就是新局）。
+            //   与基础局的唯一区别只是"转的内容"：respin 只转空格、已锁火球保留；而非"是否新局"。
+            //   计数器层面两者已完全统一——上方滚动前都已 CheckEngagedAll + HideAllCounters（先清），
+            //   本分支 AdvanceHoldSpin 内 ApplyRespinStep 会 ActivateCounters 重算（后亮），即"每轮先清后重算"。
+            //   不在此处拦截 IsRolling——Hold&Spin 连续多轮，上一轮 credit roll 不应阻塞下一轮 Start。
+            if (_activeHold != null)
+            {
+                if (!_holdRolling)                       // 上一轮还在滚动时忽略（防狂按）
+                    StartCoroutine(AdvanceHoldSpin());   // ★ 每轮 respin 的扣压分已移进 AdvanceHoldSpin 的 while 循环内（每轮各扣一次）
+                return;
+            }
 
             // ★ 赢分数字滚动期间，不允许真正开新局（防穿透 / 防打断收分动画）
             if (m_player != null && m_player.IsRolling) return;
