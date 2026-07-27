@@ -249,17 +249,21 @@ namespace com.slot
                     }
                     else
                     {
-                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"当前显示窗口起点(行数倍数)"（仅此刻改，避免减速中途火球回跳），
+                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"下一个窗口起点(= Floor(offset/rows)*rows + rows)"（仅此刻改），
                         //   像普通局 FindAlignedStopPos 对齐格线就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（像"没停"）。
-                        //   ★ 落点必须对齐到窗口起点(= Floor(offset/rows)*rows)：displayStrip 已建成 respinGrid 周期循环带(周期=rows)，
+                        //   ★ 落点必须是窗口起点(行数倍数) + 「前进一个窗口」：displayStrip 已建成 respinGrid 周期循环带(周期=rows)，
                         //     只有落点=窗口起点时该窗口才是 respinGrid 原序；否则是周期带的旋转序。PlaceRespinResult 把 respinGrid 写到落点窗口，
                         //     若落点非窗口起点会与周期带不一致 → 急停瞬间"普通符→百搭"突变。对齐窗口起点后落点窗口即 respinGrid 原序，
-                        //     与周期带幂等，卷轴平滑收敛、符号不突变（与基础局同构）。
+                        //     与周期带幂等；且取「+rows(下一窗口起点)」方向使急停相对按停位置总是前进(不再回退1格)，卷轴平滑收敛、符号不突变。
                         if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
                         {
                             quickStopped.Add(reel);
-                            int land = Mathf.FloorToInt(offset[reel] / st.rows) * st.rows;   // 对齐窗口起点(行数倍数) → 周期带该窗口即 respinGrid 原序，急停顿点幂等不突变
+                            // ★ 落点方向改「下一个窗口起点」(窗口起点+rows)，相对按停位置总是「前进」(消除向下取整的回退感)；
+                            //   落点仍是窗口起点(行数倍数) → displayStrip 周期带在该窗口即 respinGrid 原序，与周期带幂等、符号不突变(不回退普通符变百搭)。
+                            int winStart = Mathf.FloorToInt(offset[reel] / st.rows) * st.rows;
+                            int land = winStart + st.rows;
                             PlaceRespinResult(reel, land);
+                            scrollCells[reel] = land;   // ★ 收敛目标也落到此就近窗口 → 急停即快速收敛到该窗口(而非继续滚向远处预测停位)
                         }
 
                         float target = scrollCells[reel];
