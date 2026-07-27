@@ -218,7 +218,7 @@ namespace com.slot
                 // 5) 本轮普通线奖（★ 与基础旋转共用 SettleRoundWins：评估/高亮/音效/诊断同一套口径）
                 if (m_machine != null && m_machine.session != null)
                 {
-                    int[][] grid = BuildRespinGrid(hs, step.respinGrid);
+                    int[][] grid = BuildRespinGrid(hs);
                     int sc;
                     float win = SettleRoundWins(grid, m_machine.totalBet, out sc);
                     if (win > 0)
@@ -464,9 +464,15 @@ namespace com.slot
         ///   displayStrip→shownSym 的多层偏移映射可能导致与权威数据不一致，
         ///   表现为"屏幕有连号符号但赢分=0"）。
         /// </summary>
-        int[][] BuildRespinGrid(HoldSpinState hs, int[][] respinGrid = null)
+        /// <summary>
+        /// 构建 Hold&amp;Spin respin 结算网格（★ 从视图层 shownSym 读取，保证与屏幕显示 100% 一致）。
+        ///   旧版用 hs.cells[r][row].filled / respinGrid 猜测格内容，但逻辑层数据与视图层 displayStrip 可能
+        ///   不同步（如 hs.cells 标了 filled 但该格 displayStrip 并非 fireballSymbolId），
+        ///   导致 [WIN-Grid] 日志与截图矛盾（例：r0 显示 10/ID=2 但日志打 12）。
+        ///   修复后直接读 GetVisibleSymbol → shownSym → SetCell 定格值 = 玩家所见即所算。
+        /// </summary>
+        int[][] BuildRespinGrid(HoldSpinState hs)
         {
-            int fbId = (m_machine != null && m_machine.config != null) ? m_machine.config.fireballSymbolId : 12;
             int n = hs.reels;
             int[][] grid = new int[n][];
             for (int r = 0; r < n; r++)
@@ -475,22 +481,7 @@ namespace com.slot
                 grid[r] = new int[rows];
                 for (int row = 0; row < rows; row++)
                 {
-                    // 火球格：始终为火球 ID（以 HoldSpinState.cells 为准）
-                    if (hs.cells[r][row].filled)
-                    {
-                        grid[r][row] = fbId;
-                        continue;
-                    }
-
-                    // 非火球格：优先用权威数据 respinGrid
-                    if (respinGrid != null && r < respinGrid.Length && respinGrid[r] != null
-                        && row < respinGrid[r].Length && respinGrid[r][row] > 0)
-                    {
-                        grid[r][row] = respinGrid[r][row];
-                        continue;
-                    }
-
-                    // Fallback：无 respinGrid 时从视图层读取（基础旋转路径等）
+                    // ★ 统一从视图层读取实际显示符号（shownSym = SetCell 定格时写入的权威值）
                     grid[r][row] = (m_reelView != null) ? m_reelView.GetVisibleSymbol(r, row) : 0;
                 }
             }
