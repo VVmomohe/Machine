@@ -85,7 +85,9 @@ namespace com.slot
                 if (reel < 0 || reel >= _reels.Count) continue;
                 var st = _reels[reel];
                 int raw = PredictScrollCells(stopAt[reel], settleTime);
-                scrollCells[reel] = Mathf.FloorToInt(raw / st.rows) * st.rows;   // 落点对齐窗口起点(行数倍数)，与下方周期带一致 → 自然停窗口即 respinGrid 原序
+                // ★ 落点显示索引必须 ≡ m_buf (mod rows)（窗口起点相位）：逻辑行0 在 stripBase+m_buf 处，
+                //   显示顶部 basePos=Floor(offset) 需 ≡ m_buf 才等于 respinGrid[0]（与下方周期带原序对齐，否则重写窗口错位→普通符变百搭）。
+                scrollCells[reel] = m_buf + st.rows * Mathf.FloorToInt((raw - m_buf) / (float)st.rows);
             }
 
             var fbStripMult = new Dictionary<int, FireballCell>();
@@ -167,12 +169,12 @@ namespace com.slot
                     }
                 }
 
-                scrollCells[reel] = landOffset;
+                scrollCells[reel] = landOffset + m_buf;   // ★ 显示索引 = landOffset(偏移) + m_buf（与 行88 自然停相位一致）；offset 收敛目标即此
             }
 
             // 初始：把结果放到自然预测停位 scrollCells（未按停止键时的落点）
             foreach (int reel in spunReels)
-                if (scrollCells.ContainsKey(reel)) PlaceRespinResult(reel, scrollCells[reel]);
+                if (scrollCells.ContainsKey(reel)) PlaceRespinResult(reel, scrollCells[reel] - m_buf);
 
             FireballCell FindFireballCell(int reel, int k, int symIdx)
             {
@@ -249,21 +251,22 @@ namespace com.slot
                     }
                     else
                     {
-                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"下一个窗口起点(= Floor(offset/rows)*rows + rows)"（仅此刻改），
+                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"下一个 ≡ m_buf (mod rows) 相位窗口起点"（仅此刻改），
                         //   像普通局 FindAlignedStopPos 对齐格线就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（像"没停"）。
-                        //   ★ 落点必须是窗口起点(行数倍数) + 「前进一个窗口」：displayStrip 已建成 respinGrid 周期循环带(周期=rows)，
-                        //     只有落点=窗口起点时该窗口才是 respinGrid 原序；否则是周期带的旋转序。PlaceRespinResult 把 respinGrid 写到落点窗口，
-                        //     若落点非窗口起点会与周期带不一致 → 急停瞬间"普通符→百搭"突变。对齐窗口起点后落点窗口即 respinGrid 原序，
-                        //     与周期带幂等；且取「+rows(下一窗口起点)」方向使急停相对按停位置总是前进(不再回退1格)，卷轴平滑收敛、符号不突变。
+                        //   ★ 关键相位：displayStrip 逻辑行0 在索引 stripBase+m_buf 处，显示顶部 basePos 需 ≡ m_buf (mod rows) 才是 respinGrid[0]；
+                        //     PlaceRespinResult 把 respinGrid 写到 stripBase+landOffset+m_buf+row，故 landOffset=basePos-m_buf。
+                        //     旧代码 scrollCells 用 Floor(raw/rows)*rows（纯行数倍数、缺 m_buf 相位）→ 重写窗口相对周期带错位 m_buf 格，
+                        //     只有被重写的 Wild 格错配 → 急停瞬间"普通符→百搭"突变(其它格是周期带原值故不动)。现统一 basePos≡m_buf(mod rows)，
+                        //     重写窗口与周期带一致、符号不突变；且取「Ceil 方向」使急停相对按停位置总是前进(不再回退1格)，卷轴平滑收敛。
                         if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
                         {
                             quickStopped.Add(reel);
-                            // ★ 落点方向改「下一个窗口起点」(窗口起点+rows)，相对按停位置总是「前进」(消除向下取整的回退感)；
-                            //   落点仍是窗口起点(行数倍数) → displayStrip 周期带在该窗口即 respinGrid 原序，与周期带幂等、符号不突变(不回退普通符变百搭)。
-                            int winStart = Mathf.FloorToInt(offset[reel] / st.rows) * st.rows;
-                            int land = winStart + st.rows;
-                            PlaceRespinResult(reel, land);
-                            scrollCells[reel] = land;   // ★ 收敛目标也落到此就近窗口 → 急停即快速收敛到该窗口(而非继续滚向远处预测停位)
+                            // ★ 落点显示索引 = 下一个「≡ m_buf (mod rows)」相位（前进方向），landOffset=显示索引-m_buf 传 PlaceRespinResult；
+                            //   相位对齐 → 重写窗口与周期带一致、符号不突变(不回退普通符变百搭)，且相对按停位置总是前进。
+                            int baseTarget = m_buf + st.rows * Mathf.CeilToInt((offset[reel] - m_buf) / (float)st.rows);
+                            int landOffset = baseTarget - m_buf;
+                            PlaceRespinResult(reel, landOffset);
+                            scrollCells[reel] = baseTarget;   // ★ 收敛目标=显示索引(含 m_buf 相位) → 急停即快速收敛到该窗口(而非继续滚向远处预测停位)
                         }
 
                         float target = scrollCells[reel];
