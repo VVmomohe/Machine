@@ -27,9 +27,6 @@ namespace com.slot
             if (GameController.Instance.m_keys[(int)InputAction.Start] == (int)InputPhase.Down || autoStart)
             {
                 if (_waitingConfirm) { _waitingConfirm = false; return; }
-                // ★ 结算确认演出期间（含 minShow 停留等待）：即便 autoPlay 已把 _waitingConfirm 置 false，
-                //   也禁止此刻开新局——否则 minShow 停留会被立即冲掉（用户实测"勾 autoPlay 结算没等"的根因）。
-                if (_confirmBusy) return;
                 OnStartKey();
             }
 

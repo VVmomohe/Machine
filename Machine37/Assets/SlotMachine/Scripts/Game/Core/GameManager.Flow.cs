@@ -279,9 +279,18 @@ namespace com.slot
         IEnumerator WaitForConfirmKey(bool allowAuto = true)
         {
             _waitingConfirm = true;
-            _confirmBusy = true;   // ★ 整个确认+停留期间锁定，autoPlay 不会提前开新局冲掉 minShow 停留
             try
             {
+                // ★ F1 autoPlay（自动连转）：直接按可调时长停留，不依赖 _waitingConfirm 轮询。
+                //   否则 autoStart 每帧把 _waitingConfirm 置 false，会让下方 while(_waitingConfirm) 立即退出、remain≈0 → 跳过 minShow 等待。
+                //   等待期间 _waitingConfirm 仍为真 → Update 的 autoStart 每帧走「置 false+return」分支，不会调 OnStartKey 开新局，天然安全。
+                if (autoPlay)
+                {
+                    yield return new WaitForSeconds(settleMinShowSeconds);
+                    _waitingConfirm = false;
+                    yield break;
+                }
+
                 // ★ 自动结算：allowAuto==true 且 auto==1 时延时后自动继续（不再等确认键）。
                 //   基础时长用可调 settleAutoShowSeconds（原 0.9s），并以 settleMinShowSeconds 为下限（取较大者）。
                 if (allowAuto && DataManager.Instance != null &&
@@ -295,7 +304,7 @@ namespace com.slot
                     yield break;
                 }
 
-                // 手动确认 / F1 自动连转 / 连续按确认：等确认键，但保证最短显示时间。
+                // 手动确认 / 连续按确认：等确认键，但保证最短显示时间。
                 // ★ 即便玩家在赢分/选中高亮刚出现的瞬间就按确认，也至少停留 settleMinShowSeconds 秒，
                 //   让赢分滚动和连线高亮播完，避免「秒过」看不清结算。时间可在 Inspector 调。
                 float enterT = Time.time;
@@ -308,7 +317,7 @@ namespace com.slot
             }
             finally
             {
-                _confirmBusy = false;
+                _waitingConfirm = false;
             }
         }
         #endregion
