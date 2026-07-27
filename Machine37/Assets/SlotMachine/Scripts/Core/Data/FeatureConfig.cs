@@ -69,7 +69,7 @@ namespace SlotMachine.Core
         public int triggerScatter = 3;             // 几颗 Scatter 触发
         public float multiplier = 1f;              // 免费转内全部赢分的倍率
         public bool retrigger = true;              // 免费转内再凑齐 Scatter 是否追加次数
-        public int awardSpins = 10;                // 触发即奖励的免费转次数（3/4/5 个 Scatter 都给相同次数，与"收集免费游戏"3个档次一致）
+        public int awardSpins = 2;                 // 触发即奖励的免费转次数（3 个 Scatter → 2 次免费；Scatter 本身不派彩，仅触发免费转）
         public int maxSpins = 10;                  // 免费转次数上限（防极端值，正常情况下不封顶）
 
         // ===== 方式 A：免费局内 Scatter(icon 11) 连消追加次数 =====
@@ -82,7 +82,7 @@ namespace SlotMachine.Core
 
         public int miniCap = 50;                   // 免费局(Mini)轮数硬上限：转够该轮数即强制结束（防止 Scatter 重触发无限续命）；0=不封顶（退化为 300 轮绝对安全网）
 
-        /// <summary>按 Scatter 数量给免费转次数：达到 triggerScatter(默认3) 即奖励 awardSpins(默认10) 次。
+        /// <summary>按 Scatter 数量给免费转次数：达到 triggerScatter(默认3) 即奖励 awardSpins(默认2) 次。
         /// 3/4/5 个 Scatter 全部给相同次数（平直），这是进入 Mini 的总开关。
         /// 免费转压注沿用触发那次 bet（GameSession.Play 内统一用同一 bet）。</summary>
         public int SpinsFor(int count)
