@@ -95,24 +95,36 @@ namespace com.slot
             var quickStopped = new HashSet<int>();
             var naturalAssigned = new HashSet<int>();   // 自然停目标是否已按「当前位置向前」赋值（避免每帧重锚导致永不停止）
 
-            // 干净循环：残留火球替换成普通符号，建成 respinGrid 周期循环带（火球格用普通符占位，由 overlay 显示）
+            // 干净循环：残留火球替换成普通符号，建成 respinGrid 周期循环带（火球格用普通符占位，由 overlay 显示）。
+            // ★ 关键修复(自然停跳 1-2 格)：displayStrip 长度必须是 rows 的整数倍，否则卷轴滚过条带末端折返处
+            //   会出现 (stripLen%rows) 格的逻辑错位（base 旋转靠 finalSyms 落地规避，Hold 只用周期带 → 必现）。
+            //   此处把条带补齐到 rows 整数倍（按周期公式续写占位符），整圈无缝。
             foreach (int reel in spunReels)
             {
                 if (reel < 0 || reel >= _reels.Count) continue;
                 var st = _reels[reel];
-                int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
-                if (stripLen <= 0) continue;
+                int oldLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
+                if (oldLen <= 0) continue;
                 // ★ 方案A：displayStrip 建成 respinGrid 的周期循环带（对齐基础局「整条带即结果」）。
-                //   周期 = 该列行数(rows)，逻辑行 row 对应索引 (stripBase + m_buf + row)；火球格由 overlay 显示，符号带火球格用普通符占位。
+                //   周期 = 该列行数(rows)，逻辑行 row 对应索引 (stripBase + m_buf + row)。
+                //   ★ 本轮「新落」火球(respinGrid=12 且属 newFireMults)保留为真实条带符号(id12)随卷轴滚入；
+                //     历史已锁定火球(respinGrid=12 但非本轮新落)用普通符占位，由已存在的 pinned overlay 显示、保持锁定不动。
                 //   任意 basePos 显示均为 respinGrid 周期序列 → 急停就近不突变（与基础局同构）。
                 int rowsN = st.rows;
-                for (int i = 0; i < stripLen; i++)
+                int newLen = Mathf.CeilToInt(oldLen / (float)rowsN) * rowsN;   // ★ 补齐到 rows 整数倍（无缝循环）
+                var newStrip = new List<int>(newLen);
+                for (int i = 0; i < newLen; i++)
                 {
                     int row2 = (((i - st.stripBase - m_buf) % rowsN) + rowsN) % rowsN;
                     int sym2 = (respinGrid != null && reel < respinGrid.Length && respinGrid[reel] != null && row2 < respinGrid[reel].Length)
                         ? respinGrid[reel][row2] : 0;
-                    st.displayStrip[i] = (sym2 <= 0 || sym2 == m_fireballSymbolId) ? RandNormalSymbol() : sym2;
+                    // ★ 用户要求"火球像普通ICON一样滚进来"：本轮「新落」火球(respinGrid=12 且属于 step.newFireballs)保留为真实条带符号(id12)，
+                    //   随卷轴自然滚入；停稳后由 ApplyRespinStep 在 m_fireNode 顶层生成锁定 overlay（固定不滚、压最上）。
+                    //   非本轮新落(历史已锁定)火球 → 仍用普通符占位(由已存在的 pinned overlay 显示，保持锁定不动)。
+                    bool isNewFireball = (sym2 == m_fireballSymbolId) && (newFireMults != null) && newFireMults.ContainsKey(reel * 100 + row2);
+                    newStrip.Add(isNewFireball ? m_fireballSymbolId : ((sym2 <= 0 || sym2 == m_fireballSymbolId) ? RandNormalSymbol() : sym2));
                 }
+                st.displayStrip = newStrip;
             }
 
             // 初始：displayStrip 已是 respinGrid 周期循环带（行108-115 初始化写入），任意 basePos 显示均为 respinGrid 周期序列，
@@ -398,9 +410,14 @@ namespace com.slot
 
             if (step.newFireballs != null)
             {
-                // ★ overlay 已在 AdvanceHoldSpin 滚动「前」预创建(随卷轴滚动，不再停稳后冒出)；此处仅存火球数据供结算/查询，避免重复创建。
+                // ★ 本轮新落火球：滚动时已作为真实条带符号(id12)随卷轴滚入并停稳；此处(停稳后)在 m_fireNode 顶层生成锁定 overlay
+                //   —— 固定不滚、压最上层，供后续轮次保持锁定 + 结算/特效/满列统计查询(HasFireballOverlay/CountFireballsInColumn)。
+                //   （不再在 AdvanceHoldSpin 滚动「前」预创建 → 避免"一开局就出现、没滚动进来"的突兀感，符合用户要求。）
                 foreach (var c in step.newFireballs)
+                {
                     _baseFireMults[c.reel * 100 + c.row] = c;
+                    ShowFireballOverlay(c.reel, c.row, c, playSound: true);
+                }
             }
 
             if (step.counters != null)

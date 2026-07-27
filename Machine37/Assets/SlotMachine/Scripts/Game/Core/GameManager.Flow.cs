@@ -209,11 +209,12 @@ namespace com.slot
                     if (step.newFireballs != null)
                         foreach (var c in step.newFireballs) newFireMults[c.reel * 100 + c.row] = c;
 
-                    // ★ 火球 overlay 在滚动「前」就建好 → 随卷轴一起滚下来（TrackFireballOverlays 每帧定位），
-                    //   不再像之前那样滚动结束后才在固定位置钉上(表现为"停稳后突然冒出")。火球本就在旋转前算好(respinGrid)。
+                    // ★ 把本轮新火球并入 _baseFireMults，使滚动中(SetCell)能按 kind 显示免费火球外观(freeFire)，与基础旋转 ShowGrid 行为一致。
                     if (step.newFireballs != null)
-                        foreach (var c in step.newFireballs)
-                            m_reelView.ShowFireballOverlay(c.reel, c.row, c);
+                        foreach (var c in step.newFireballs) _baseFireMults[c.reel * 100 + c.row] = c;
+
+                    // ★ 本轮新火球「不再」在滚动前预建 overlay：改为作为真实条带符号(id12)随卷轴滚入(像普通ICON)，
+                    //   停稳后由 ApplyRespinStep 在 m_fireNode 顶层生成锁定 overlay（避免"一开局就出现、没滚动进来"的突兀感）。
 
                     yield return StartCoroutine(m_reelView.SpinHoldRound(spun, 0.75f, newFireMults, step.respinGrid));
                 }

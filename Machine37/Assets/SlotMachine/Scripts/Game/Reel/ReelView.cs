@@ -30,6 +30,7 @@ namespace com.slot
     public partial class ReelView : MonoBehaviour
     {
         [Header("5 列容器")]
+        public GameObject m_fireNode;
         public GameObject[] m_node;
         public ReelFireNum[] m_numObjs;
         public ReelTong[] m_tongs;
