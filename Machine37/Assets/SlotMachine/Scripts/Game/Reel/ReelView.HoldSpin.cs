@@ -93,6 +93,7 @@ namespace com.slot
             var fbStripMult = new Dictionary<int, FireballCell>();
             // ★ 干净循环：displayStrip 建成 respinGrid 周期循环带（方案A，对齐基础局「整条带即结果」），落点只选窗口、滚动中不再重写符号。
             var quickStopped = new HashSet<int>();
+            var naturalAssigned = new HashSet<int>();   // 自然停目标是否已按「当前位置向前」赋值（避免每帧重锚导致永不停止）
 
             // 干净循环：残留火球替换成普通符号，建成 respinGrid 周期循环带（火球格用普通符占位，由 overlay 显示）
             foreach (int reel in spunReels)
@@ -193,19 +194,28 @@ namespace com.slot
                     }
                     else
                     {
-                        // ★ 急停、且该列仍在匀速段时：把收敛目标从远处预测停位改到"前方就近格线"（仅此刻改 scrollCells），
-                        //   像普通局 FindAlignedStopPos 对齐格线就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（像"没停"）。
-                        //   ★ 不再重写 displayStrip：方案A 已把 displayStrip 建成 respinGrid 周期循环带（行108-115），任意 basePos 显示均为 respinGrid 周期序列，
-                        //     与 FindFireballCell(row=k-m_buf) 火球/百搭定位语义在任意 basePos 下自洽 → 符号永不突变。
-                        //     之前 PlaceRespinResult 把 respinGrid 写到 stripBase+landOffset+m_buf+row，landOffset 相位无法同时让"重写幂等"与"显示/火球语义一致"
-                        //     （m_buf 偏移冲突）→ 重写窗口相对周期带错位 → 只有被重写的 Wild/火球格错配("普通符→百搭"或"火球突然出现")。删重写后该 bug 根除。
-                        //     急停落点取 Ceil(offset) 前方整数格线 → 相对按停位置总是前进(不回退1格)，卷轴平滑收敛、符号不突变。
+                        // ★ 自然停：减速开始这一刻，从「当前位置」向前取最近窗口起点作为收敛目标。
+                        //   与基础局 FindAlignedStopPos(st, Floor(pos)+extra) 思路一致——目标永远在前方，杜绝「退格」：
+                        //   旧版 scrollCells 在循环前用 PredictScrollCells 预测远停位，预测值可能落在减速开始时的当前 offset 之后
+                        //   （例 raw=27.3→floor(27.3/4)*4=24，而减速开始时 offset≈25.3）→ diff<0 → 卷轴倒退。
+                        //   落点 ≡ 0 (mod rows)（窗口起点）→ basePos 使 cell k 显示 respinGrid[逻辑行]，火球 overlay(按逻辑行定位)精确对齐、
+                        //   不抖动不「突然出现」；周期带周期=rows，任意窗口起点显示序列相同，故取哪个窗口不影响最终符号、只决定滚多远。
+                        if (!_holdStopRequested && !naturalAssigned.Contains(reel))
+                        {
+                            naturalAssigned.Add(reel);
+                            int cur = Mathf.FloorToInt(offset[reel]);
+                            int extra = 3 + RandInt(0, 5);   // 与基础局 BeginStop 自然停一致：减速段再滚几格
+                            int window = st.rows * Mathf.CeilToInt((cur + extra) / (float)st.rows);  // 前方最近窗口起点(≡0 mod rows)
+                            if (window <= cur) window += st.rows;   // 兜底：严格在前方
+                            scrollCells[reel] = window;
+                        }
+
+                        // ★ 急停、且该列仍在匀速段时：把收敛目标设为「前方就近整数格线」（前进、不回退），周期带平滑收敛、符号不突变。
+                        //   急停保持原行为（用户确认急停正常，不动）：落点取 Ceil(offset) 前方整数格线（非窗口起点，但周期带任意位置显示均自洽）。
                         if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
                         {
                             quickStopped.Add(reel);
-                            // ★ 周期带已保证任意 basePos 显示 respinGrid 周期序列，故急停只把收敛目标设为「前方就近格线」(前进、不回退)，
-                            //   不再重写 displayStrip（重写会引入 landOffset 相位错位 → 普通符变百搭/火球错位）。火球由 overlay 显示。
-                            scrollCells[reel] = Mathf.CeilToInt(offset[reel]);   // 前方就近整数格线（前进方向），周期带平滑收敛、符号不突变
+                            scrollCells[reel] = Mathf.CeilToInt(offset[reel]);   // 前方就近整数格线（前进方向）
                         }
 
                         float target = scrollCells[reel];
