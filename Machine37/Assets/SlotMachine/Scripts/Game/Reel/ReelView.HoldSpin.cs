@@ -66,6 +66,11 @@ namespace com.slot
             _holdSpinning = true;
             _holdStopRequested = false;
 
+            // ★ 本轮新落火球并入 _baseFireMults，使滚动中(SetCell)能按 kind 显示免费火球外观(freeFire)，与基础旋转 ShowGrid 行为一致。
+            //   （GameManager 不可直接访问此私有字段，故在此(ReelView 内)并入；ApplyRespinStep 停稳后也会再写一遍，幂等。）
+            if (newFireMults != null)
+                foreach (var kv in newFireMults) _baseFireMults[kv.Key] = kv.Value;
+
             var offset = new Dictionary<int, float>();
             var stopAt = new Dictionary<int, float>();
             for (int i = 0; i < spunReels.Count; i++)

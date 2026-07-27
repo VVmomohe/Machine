@@ -209,10 +209,6 @@ namespace com.slot
                     if (step.newFireballs != null)
                         foreach (var c in step.newFireballs) newFireMults[c.reel * 100 + c.row] = c;
 
-                    // ★ 把本轮新火球并入 _baseFireMults，使滚动中(SetCell)能按 kind 显示免费火球外观(freeFire)，与基础旋转 ShowGrid 行为一致。
-                    if (step.newFireballs != null)
-                        foreach (var c in step.newFireballs) _baseFireMults[c.reel * 100 + c.row] = c;
-
                     // ★ 本轮新火球「不再」在滚动前预建 overlay：改为作为真实条带符号(id12)随卷轴滚入(像普通ICON)，
                     //   停稳后由 ApplyRespinStep 在 m_fireNode 顶层生成锁定 overlay（避免"一开局就出现、没滚动进来"的突兀感）。
 
