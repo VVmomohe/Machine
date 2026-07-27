@@ -284,13 +284,13 @@ namespace com.slot
                         int symIdx = (topIdx + k) % stripLen;
                         if (symIdx < 0) symIdx += stripLen;
                         int sym = st.displayStrip[symIdx];
-                        // ★ 百搭拦截按"band 逻辑行"而非"视图行"：滚动中视图行 k-m_buf 对应 band 逻辑行
-                        //   (basePos + k - m_buf)%rows，仅停稳(offset≡0)时二者相等。按视图行拦截会与停轮结果不一致
-                        //   （顶行逻辑行的百搭在滚动中途该格误显/误隐），造成"普通图标突然变百搭/变普通"的跳变。
+                        // ★ 百搭拦截统一用"屏幕行"(k - m_buf)，与 SetCell(Symbols.cs:129) 和收尾定格(376行) 完全一致。
+                        //   之前误用 band 逻辑行(basePos+k-m_buf)%rows 导致：滚动中百搭被过度拦截(看起来像普通ICON)，
+                        //   收尾定格用屏幕行未拦截→百搭"停后才突然出现"+"观感跳格"(符号突变被感知为位置跳)。
                         if (sym == m_wildId)
                         {
-                            int lr = ((basePos + k - m_buf) % st.rows + st.rows) % st.rows;
-                            if (st.reelIdx == 0 || lr == st.rows - 1)
+                            int row = k - m_buf;
+                            if (st.reelIdx == 0 || row == st.rows - 1)
                                 sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
                         }
                         if (sym == m_fireballSymbolId)
