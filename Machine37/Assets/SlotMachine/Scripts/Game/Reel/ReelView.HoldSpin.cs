@@ -339,9 +339,8 @@ namespace com.slot
                 if (stripLen > 0) st.stripBase = ((topIdx % stripLen) + stripLen) % stripLen;
                 for (int k = 0; k < st.cells.Count; k++)
                 {
-                    int row = k - m_buf;
                     var rt = st.cells[k].transform as RectTransform;
-                    if (rt != null) rt.anchoredPosition = new Vector2(0f, RowToY(row));
+                    if (rt != null) rt.anchoredPosition = new Vector2(0f, RowToY(k - m_buf));
 
                     int symIdx = 0;
                     int sym;
@@ -359,17 +358,9 @@ namespace com.slot
                         var mult = FindFireballCell(reel, k, ((stripLen > 0) ? ((topIdx + k) % stripLen) : 0));
                         if (mult != null) SetCellFireballMult(st, k, mult);
                     }
-                    else if (sym == m_wildId)
-                    {
-                        // ★ 与逐帧渲染保持一致：仅 reel0 / 最后一行 的百搭做确定性替换（m_symbolMin + symIdx%...），
-                        //   其余百搭原样保留、不再在此做 landWild>1 的随机替换。
-                        //   原因：逐帧渲染时多张百搭都正常显示，若此处用 RandNormalSymbol() 随机换掉第 2 张，
-                        //   会造成"滚动时明明有百搭、停好之后却莫名变成别的图案"（用户反馈的 BUG）。
-                        //   百搭总量/列位已由生成层 DecideWildPlan/DecideWildPlanRespin 提前定点（写一次不事后替换），
-                        //   此处仅做 reel0/顶行显示拦截兜底（与 SetCell 的百搭统一拦截点一致），不再依赖 LimitWildsOnBoard。
-                        if (reel == 0 || row == st.rows - 1)
-                            sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
-                    }
+                    // ★ 用户原则：Hold 期间所有 ICON（普通 + 特殊/百搭/火球）只在开始(band-build 用 respinGrid 决定)决定，
+                    //   定格段不再做任何符号替换。sym 直接来自 displayStrip(=respinGrid 周期带)，原样写入——
+                    //   与滚动循环(已不拦截百搭)完全一致，根除"滚动是百搭、停下变普通ICON"的"中途修改"。
                     SetCell(st, k, sym, true);
                     if (sym == m_fireballSymbolId)
                     {
