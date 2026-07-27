@@ -85,19 +85,16 @@ namespace com.slot
                 if (reel < 0 || reel >= _reels.Count) continue;
                 var st = _reels[reel];
                 int raw = PredictScrollCells(stopAt[reel], settleTime);
-                // ★ 落点显示索引必须 ≡ m_buf (mod rows)（窗口起点相位）：逻辑行0 在 stripBase+m_buf 处，
-                //   显示顶部 basePos=Floor(offset) 需 ≡ m_buf 才等于 respinGrid[0]（与下方周期带原序对齐，否则重写窗口错位→普通符变百搭）。
-                scrollCells[reel] = m_buf + st.rows * Mathf.FloorToInt((raw - m_buf) / (float)st.rows);
+                // ★ 自然停落点(=offset 收敛目标)取纯行数倍数(≡0 mod rows)：displayStrip 已是 respinGrid 周期循环带，任意 basePos 显示均为
+                //   周期序列，与 FindFireballCell(row=k-m_buf) 火球/百搭定位语义自洽 → 符号不突变（不再重写落点）。
+                scrollCells[reel] = st.rows * Mathf.FloorToInt(raw / (float)st.rows);
             }
 
             var fbStripMult = new Dictionary<int, FireballCell>();
-            // ★ 干净循环副本 + 落点追踪：用于"停止键急停时把落点从远处预测停位改到当前附近"，
-            //   像普通局 StopNow(FindAlignedStopPos) 就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（看起来像"没停"）。
-            var displayStripOriginal = new Dictionary<int, List<int>>();
-            var placedIndices = new Dictionary<int, List<int>>();
+            // ★ 干净循环：displayStrip 建成 respinGrid 周期循环带（方案A，对齐基础局「整条带即结果」），落点只选窗口、滚动中不再重写符号。
             var quickStopped = new HashSet<int>();
 
-            // 干净循环：残留火球替换成普通符号，并备份为 displayStripOriginal（停止时还原落点用）
+            // 干净循环：残留火球替换成普通符号，建成 respinGrid 周期循环带（火球格用普通符占位，由 overlay 显示）
             foreach (int reel in spunReels)
             {
                 if (reel < 0 || reel >= _reels.Count) continue;
@@ -106,7 +103,7 @@ namespace com.slot
                 if (stripLen <= 0) continue;
                 // ★ 方案A：displayStrip 建成 respinGrid 的周期循环带（对齐基础局「整条带即结果」）。
                 //   周期 = 该列行数(rows)，逻辑行 row 对应索引 (stripBase + m_buf + row)；火球格由 overlay 显示，符号带火球格用普通符占位。
-                //   落点只选窗口、滚动中不再重写符号 → 急停就近不突变（与基础局同构）。
+                //   任意 basePos 显示均为 respinGrid 周期序列 → 急停就近不突变（与基础局同构）。
                 int rowsN = st.rows;
                 for (int i = 0; i < stripLen; i++)
                 {
@@ -115,66 +112,11 @@ namespace com.slot
                         ? respinGrid[reel][row2] : 0;
                     st.displayStrip[i] = (sym2 <= 0 || sym2 == m_fireballSymbolId) ? RandNormalSymbol() : sym2;
                 }
-                displayStripOriginal[reel] = new List<int>(st.displayStrip);  // respinGrid 周期带副本（还原用）
             }
 
-            // ★ 把本轮 respin 结果（newFireMults 火球 + respinGrid 符号）写入 displayStrip 的 landOffset 落点，并同步 fbStripMult。
-            //   重复调用会先按 placedIndices 还原到 displayStripOriginal（干净循环），再写新落点——
-            //   这是"停止键就近重算落点"的关键：停止时把落点从远处预测位挪到当前附近，火球/符号随之平移，卷轴快速收敛停下。
-            void PlaceRespinResult(int reel, int landOffset)
-            {
-                if (reel < 0 || reel >= _reels.Count) return;
-                var st = _reels[reel];
-                int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
-                if (stripLen <= 0) return;
-
-                // 1) 还原上一次落点（恢复成干净循环符号）
-                if (placedIndices.ContainsKey(reel))
-                    foreach (int idx in placedIndices[reel])
-                        st.displayStrip[idx] = displayStripOriginal[reel][idx];
-                placedIndices[reel] = new List<int>();
-
-                // 2) 清本列旧 fbStripMult
-                int prefix = reel * 100000;
-                var stale = new List<int>();
-                foreach (var kv in fbStripMult)
-                    if (kv.Key >= prefix && kv.Key < prefix + 100000) stale.Add(kv.Key);
-                foreach (var key in stale) fbStripMult.Remove(key);
-
-                // 3) 火球落点
-                if (newFireMults != null)
-                {
-                    foreach (var kv in newFireMults)
-                    {
-                        int rk = kv.Key / 100;
-                        if (rk != reel) continue;
-                        int row = kv.Key % 100;
-                        int fbIdx = ((st.stripBase + landOffset + m_buf + row) % stripLen + stripLen) % stripLen;
-                        st.displayStrip[fbIdx] = m_fireballSymbolId;
-                        placedIndices[reel].Add(fbIdx);
-                        fbStripMult[reel * 100000 + fbIdx] = kv.Value;
-                    }
-                }
-
-                // 4) respinGrid 符号落点（火球格跳过）
-                if (respinGrid != null && reel < respinGrid.Length && respinGrid[reel] != null)
-                {
-                    for (int row2 = 0; row2 < respinGrid[reel].Length; row2++)
-                    {
-                        int sym2 = respinGrid[reel][row2];
-                        if (sym2 <= 0 || sym2 == m_fireballSymbolId) continue;
-                        int landIdx2 = ((st.stripBase + landOffset + m_buf + row2) % stripLen + stripLen) % stripLen;
-                        st.displayStrip[landIdx2] = sym2;
-                        placedIndices[reel].Add(landIdx2);
-                    }
-                }
-
-                scrollCells[reel] = landOffset + m_buf;   // ★ 显示索引 = landOffset(偏移) + m_buf（与 行88 自然停相位一致）；offset 收敛目标即此
-            }
-
-            // 初始：把结果放到自然预测停位 scrollCells（未按停止键时的落点）
-            foreach (int reel in spunReels)
-                if (scrollCells.ContainsKey(reel)) PlaceRespinResult(reel, scrollCells[reel] - m_buf);
+            // 初始：displayStrip 已是 respinGrid 周期循环带（行108-115 初始化写入），任意 basePos 显示均为 respinGrid 周期序列，
+            //   故无需 PlaceRespinResult 重写落点（重写会引入 landOffset 相位错位 → 普通符变百搭/火球错位）。火球由 overlay 显示。
+            // （PlaceRespinResult 已删除：方案A 周期带直接驱动，重写反成突变源。）
 
             FireballCell FindFireballCell(int reel, int k, int symIdx)
             {
@@ -251,22 +193,19 @@ namespace com.slot
                     }
                     else
                     {
-                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"下一个 ≡ m_buf (mod rows) 相位窗口起点"（仅此刻改），
+                        // ★ 急停、且该列仍在匀速段时：把收敛目标从远处预测停位改到"前方就近格线"（仅此刻改 scrollCells），
                         //   像普通局 FindAlignedStopPos 对齐格线就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（像"没停"）。
-                        //   ★ 关键相位：displayStrip 逻辑行0 在索引 stripBase+m_buf 处，显示顶部 basePos 需 ≡ m_buf (mod rows) 才是 respinGrid[0]；
-                        //     PlaceRespinResult 把 respinGrid 写到 stripBase+landOffset+m_buf+row，故 landOffset=basePos-m_buf。
-                        //     旧代码 scrollCells 用 Floor(raw/rows)*rows（纯行数倍数、缺 m_buf 相位）→ 重写窗口相对周期带错位 m_buf 格，
-                        //     只有被重写的 Wild 格错配 → 急停瞬间"普通符→百搭"突变(其它格是周期带原值故不动)。现统一 basePos≡m_buf(mod rows)，
-                        //     重写窗口与周期带一致、符号不突变；且取「Ceil 方向」使急停相对按停位置总是前进(不再回退1格)，卷轴平滑收敛。
+                        //   ★ 不再重写 displayStrip：方案A 已把 displayStrip 建成 respinGrid 周期循环带（行108-115），任意 basePos 显示均为 respinGrid 周期序列，
+                        //     与 FindFireballCell(row=k-m_buf) 火球/百搭定位语义在任意 basePos 下自洽 → 符号永不突变。
+                        //     之前 PlaceRespinResult 把 respinGrid 写到 stripBase+landOffset+m_buf+row，landOffset 相位无法同时让"重写幂等"与"显示/火球语义一致"
+                        //     （m_buf 偏移冲突）→ 重写窗口相对周期带错位 → 只有被重写的 Wild/火球格错配("普通符→百搭"或"火球突然出现")。删重写后该 bug 根除。
+                        //     急停落点取 Ceil(offset) 前方整数格线 → 相对按停位置总是前进(不回退1格)，卷轴平滑收敛、符号不突变。
                         if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
                         {
                             quickStopped.Add(reel);
-                            // ★ 落点显示索引 = 下一个「≡ m_buf (mod rows)」相位（前进方向），landOffset=显示索引-m_buf 传 PlaceRespinResult；
-                            //   相位对齐 → 重写窗口与周期带一致、符号不突变(不回退普通符变百搭)，且相对按停位置总是前进。
-                            int baseTarget = m_buf + st.rows * Mathf.CeilToInt((offset[reel] - m_buf) / (float)st.rows);
-                            int landOffset = baseTarget - m_buf;
-                            PlaceRespinResult(reel, landOffset);
-                            scrollCells[reel] = baseTarget;   // ★ 收敛目标=显示索引(含 m_buf 相位) → 急停即快速收敛到该窗口(而非继续滚向远处预测停位)
+                            // ★ 周期带已保证任意 basePos 显示 respinGrid 周期序列，故急停只把收敛目标设为「前方就近格线」(前进、不回退)，
+                            //   不再重写 displayStrip（重写会引入 landOffset 相位错位 → 普通符变百搭/火球错位）。火球由 overlay 显示。
+                            scrollCells[reel] = Mathf.CeilToInt(offset[reel]);   // 前方就近整数格线（前进方向），周期带平滑收敛、符号不突变
                         }
 
                         float target = scrollCells[reel];
