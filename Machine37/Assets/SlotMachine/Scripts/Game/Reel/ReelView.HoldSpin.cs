@@ -85,16 +85,7 @@ namespace com.slot
             float endTime = maxStop + settleTime;
             float endTimeInitial = endTime;   // ★ 用于极端兜底上限判断（见下方循环尾）
 
-            var scrollCells = new Dictionary<int, int>();
-            foreach (int reel in spunReels)
-            {
-                if (reel < 0 || reel >= _reels.Count) continue;
-                var st = _reels[reel];
-                int raw = PredictScrollCells(stopAt[reel], settleTime);
-                // ★ 自然停落点(=offset 收敛目标)取纯行数倍数(≡0 mod rows)：displayStrip 已是 respinGrid 周期循环带，任意 basePos 显示均为
-                //   周期序列，与 FindFireballCell(row=k-m_buf) 火球/百搭定位语义自洽 → 符号不突变（不再重写落点）。
-                scrollCells[reel] = st.rows * Mathf.FloorToInt(raw / (float)st.rows);
-            }
+            var scrollCells = new Dictionary<int, int>();   // 落点由减速段进入减速时按当前 offset 向前取窗口起点写入（见下方 decelStartOffset 分支），无需预预测
 
             var fbStripMult = new Dictionary<int, FireballCell>();
             // ★ 干净循环：displayStrip 建成 respinGrid 周期循环带（方案A，对齐基础局「整条带即结果」），落点只选窗口、滚动中不再重写符号。
@@ -247,7 +238,6 @@ namespace com.slot
                             decelTarget[reel] = tgt;
                             decelDur[reel] = decelTime;
                             scrollCells[reel] = tgt;   // 落点固定，settle 直接采用，无跳格
-                            if (!_holdStopRequested) Debug.Log($"[DIAG-Decel] 自然停 reel{reel} t={t:F2} cur={cur} tgt={tgt} dur={decelTime:F2}");
                             float need = t + decelTime + 0.15f;   // ★ 延长 endTime 兜底，确保该列减速完成前循环不退出
                             if (need > endTime) endTime = need;
                         }
@@ -383,13 +373,6 @@ namespace com.slot
                         }
                     }
                 }
-                // ★ 诊断：若某列落点与减速目标偏差>0.5，说明发生了 snap（自然停跳格），抓 adb logcat | grep DIAG 发我定位。
-                if (decelTarget.ContainsKey(reel))
-                {
-                    float d = offset[reel] - decelTarget[reel];
-                    if (Mathf.Abs(d) > 0.5f)
-                        Debug.LogWarning($"[DIAG-Snap] reel{reel} 落点偏差 {d:F2} (offset={offset[reel]:F2} tgt={decelTarget[reel]}) —— 自然停跳格!");
-                }
             }
 
             DestroyReleasingOverlays();
@@ -399,31 +382,6 @@ namespace com.slot
             _holdSpinning = false;
         }
 
-        int PredictScrollCells(float stopAtReel, float settleTime)
-        {
-            float simOffset = 0f;
-            float simT = 0f;
-            float simEnd = stopAtReel + settleTime;
-            const float dt = 1f / 60f;
-            while (simT < simEnd)
-            {
-                simT += dt;
-                if (simT < stopAtReel)
-                {
-                    float remaining = stopAtReel - simT;
-                    float spd = (remaining < 0.35f) ? m_baseSpeed * Mathf.Clamp01(remaining / 0.35f) : m_baseSpeed;
-                    simOffset += spd * dt;
-                }
-                else
-                {
-                    float target = Mathf.Round(simOffset);
-                    float diff = target - simOffset;
-                    if (Mathf.Abs(diff) < 0.01f) simOffset = target;
-                    else simOffset += diff * Mathf.Clamp01(dt * m_normalDecel);
-                }
-            }
-            return Mathf.RoundToInt(simOffset);
-        }
 
         // ===== 滚动结束后结算 =====
 
