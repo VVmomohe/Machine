@@ -138,6 +138,15 @@ namespace com.slot
             return true;
         }
 
+        /// <summary>查询 (reel,row) 位置是否有火球 overlay（用于结算网格构建：有 overlay → 该格视为火球）。</summary>
+        public bool HasFireballOverlay(int reel, int row)
+        {
+            string target = $"FBOverlay_{reel}_{row}";
+            foreach (var go in _fbOverlays)
+                if (go != null && go.name == target) return true;
+            return false;
+        }
+
         /// <summary>销毁全部火球 overlay（含 Mini 持久 overlay）。供 Mini 结束回收时调用，避免跨会话残留。</summary>
         public void ClearFireballOverlays()
         {

@@ -465,14 +465,15 @@ namespace com.slot
         ///   表现为"屏幕有连号符号但赢分=0"）。
         /// </summary>
         /// <summary>
-        /// 构建 Hold&amp;Spin respin 结算网格（★ 从视图层 shownSym 读取，保证与屏幕显示 100% 一致）。
-        ///   旧版用 hs.cells[r][row].filled / respinGrid 猜测格内容，但逻辑层数据与视图层 displayStrip 可能
-        ///   不同步（如 hs.cells 标了 filled 但该格 displayStrip 并非 fireballSymbolId），
-        ///   导致 [WIN-Grid] 日志与截图矛盾（例：r0 显示 10/ID=2 但日志打 12）。
-        ///   修复后直接读 GetVisibleSymbol → shownSym → SetCell 定格值 = 玩家所见即所算。
+        /// 构建 Hold&amp;Spin respin 结算网格（★ 从视图层读取，保证与屏幕显示 100% 一致）。
+        ///   优先级：火球 overlay（玩家最上层看到的）&gt; shownSym（卷轴格定格值）。
+        ///   火球 overlay 与 shownSym 是两套独立系统：overlay 由 ApplyRespinStep→ShowFireballOverlay 在格上方
+        ///   盖一个独立 GameObject，而 shownSym 记录的是 displayStrip 的原始符号（可能被 overlay 盖住）。
+        ///   若只读 shownSym，会出现"屏幕显示火球但结算按 Wild/普通符算"的矛盾。
         /// </summary>
         int[][] BuildRespinGrid(HoldSpinState hs)
         {
+            int fbId = (m_machine != null && m_machine.config != null) ? m_machine.config.fireballSymbolId : 12;
             int n = hs.reels;
             int[][] grid = new int[n][];
             for (int r = 0; r < n; r++)
@@ -481,7 +482,13 @@ namespace com.slot
                 grid[r] = new int[rows];
                 for (int row = 0; row < rows; row++)
                 {
-                    // ★ 统一从视图层读取实际显示符号（shownSym = SetCell 定格时写入的权威值）
+                    // ★ 有火球 overlay → 玩家看到的是火球（overlay 盖在卷轴格上面）
+                    if (m_reelView != null && m_reelView.HasFireballOverlay(r, row))
+                    {
+                        grid[r][row] = fbId;
+                        continue;
+                    }
+                    // ★ 无 overlay → 读卷轴格 shownSym（SetCell 定格值）
                     grid[r][row] = (m_reelView != null) ? m_reelView.GetVisibleSymbol(r, row) : 0;
                 }
             }
