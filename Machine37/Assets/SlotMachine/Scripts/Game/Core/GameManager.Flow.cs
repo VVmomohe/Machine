@@ -292,8 +292,16 @@ namespace com.slot
                 yield break;
             }
 
+            // 手动确认：等玩家按确认键，但保证最短显示时间。
+            // ★ 即便玩家在赢分/选中高亮刚出现的瞬间就按确认，也至少停留 minShow 秒，
+            //   让赢分滚动和连线高亮播完，避免「秒过」看不清结算。
+            float enterT = Time.time;
+            const float minShow = 0.5f;
             while (_waitingConfirm)
                 yield return null;
+            float remain = minShow - (Time.time - enterT);
+            if (remain > 0f)
+                yield return new WaitForSeconds(remain);
         }
         #endregion
     }
