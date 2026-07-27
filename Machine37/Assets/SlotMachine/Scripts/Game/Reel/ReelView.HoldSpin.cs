@@ -7,7 +7,7 @@ using SlotMachine.Core;
 
 namespace com.slot
 {
-    /// <summary>ReelView 火球 Hold &amp; Spin 核心流程：ShowFeatureState、SpinHoldRound、ApplyRespinStep、LimitWildsOnBoard、Release列。</summary>
+    /// <summary>ReelView 火球 Hold &amp; Spin 核心流程：ShowFeatureState、SpinHoldRound、ApplyRespinStep、Release列。</summary>
     public partial class ReelView
     {
         List<GameObject> _fbOverlays = new List<GameObject>();
@@ -359,7 +359,8 @@ namespace com.slot
                         //   其余百搭原样保留、不再在此做 landWild>1 的随机替换。
                         //   原因：逐帧渲染时多张百搭都正常显示，若此处用 RandNormalSymbol() 随机换掉第 2 张，
                         //   会造成"滚动时明明有百搭、停好之后却莫名变成别的图案"（用户反馈的 BUG）。
-                        //   真正的限百搭由停稳后的 LimitWildsOnBoard() 统一处理（GameManager.Flow.cs:215），那里才是权威且一致的入口。
+                        //   百搭总量/列位已由生成层 DecideWildPlan/DecideWildPlanRespin 提前定点（写一次不事后替换），
+                        //   此处仅做 reel0/顶行显示拦截兜底（与 SetCell 的百搭统一拦截点一致），不再依赖 LimitWildsOnBoard。
                         if (reel == 0 || row == st.rows - 1)
                             sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
                     }
@@ -443,29 +444,6 @@ namespace com.slot
                 foreach (var o in _fbOverlays) if (o != null && o.name.StartsWith("FBOverlay_0_")) cnt0++;
                 Debug.Log($"[ApplyRespinStep] 后 reel0 火球overlay数={cnt0}（本轮新火球={((step.newFireballs!=null)?step.newFireballs.Count:0)}）");
             }
-        }
-
-        public void LimitWildsOnBoard()
-        {
-            int wildId = m_wildId;
-            var wilds = new List<ReelState>();
-            var wildKs = new List<int>();
-            for (int ri = 0; ri < _reels.Count; ri++)
-            {
-                var st = _reels[ri];
-                int rows = st.rows;
-                for (int row = 0; row < rows; row++)
-                {
-                    int k = m_buf + row;
-                    if (k < 0 || k >= st.shownSym.Length) continue;
-                    if (st.shownSym[k] != wildId) continue;
-                    if (ri == 0) { SetCell(st, k, RandNormalSymbol()); continue; }
-                    wilds.Add(st); wildKs.Add(k);
-                }
-            }
-            if (wilds.Count <= 1) return;
-            for (int i = 1; i < wilds.Count; i++)
-                SetCell(wilds[i], wildKs[i], RandNormalSymbol());
         }
 
         // ===== 释放列 =====

@@ -48,13 +48,15 @@ namespace com.slot
             while (m_reelView != null && m_reelView.IsSpinning())
                 yield return null;
 
-            // 2) 基础旋转的中奖高亮
-            if (m_reelView != null)
+            // 2) 基础旋转结算（★ 与 Hold&Spin 每轮 respin 共用 SettleRoundWins：同一套评估/高亮/音效/Scatter 统计口径）
             {
-                m_reelView.HighlightWins(r.baseWins);
-                // 普通 ICON 有赢分：播放 event:/Sounds/111
-                if (r.baseWin > 0 && FMODSoundMgr.Instance != null)
-                    FMODSoundMgr.Instance.PlaySound("event:/Sounds/111");
+                int sc;
+                float bw = SettleRoundWins(r.baseGrid, m_machine.totalBet, out sc);
+                r.baseWin = bw;
+                r.scatterCount = sc;
+                if (m_machine.config != null && m_machine.config.freeSpins != null)
+                    r.freeSpinsAwarded = m_machine.config.freeSpins.SpinsFor(sc);
+                // 注：r.scatterPayout 仍由 GameSession.Play 按 ScatterUtil.Payout 计算（与历史一致），此处不重复折算。
             }
 
             // ★ 停轮即结算 LOG：全部滚动停下 = 本局物理结果已确定，立即输出 压分/总分/赢分，
@@ -213,67 +215,19 @@ namespace com.slot
                 if (m_reelView != null)
                     m_reelView.ApplyRespinStep(step, hs);
 
-                // 4.5) 限百搭
-                if (m_reelView != null)
-                    m_reelView.LimitWildsOnBoard();
-
-                // 5) 本轮普通线奖（★ 用 step.respinGrid 权威数据构建结算网格，
-                //    避免读 shownSym 缓存与滚动后实际不一致导致"有符号但不赔"）
+                // 5) 本轮普通线奖（★ 与基础旋转共用 SettleRoundWins：评估/高亮/音效/诊断同一套口径）
                 if (m_machine != null && m_machine.session != null)
                 {
                     int[][] grid = BuildRespinGrid(hs, step.respinGrid);
-                    // ★ 诊断：输出 respin 结算网格（定位"屏幕有符号但不赔"）
-                    //   grid 现在优先用 step.respinGrid（权威数据），不再依赖 shownSym 缓存
-                    {
-                        var sb = new System.Text.StringBuilder("[DIAG-RespinGrid]");
-                        for (int ri = 0; ri < grid.Length; ri++)
-                        {
-                            sb.Append($" reel{ri}:[");
-                            for (int k = 0; k < grid[ri].Length; k++) sb.Append(grid[ri][k]).Append(k < grid[ri].Length - 1 ? "," : "");
-                            sb.Append("]");
-                        }
-                        UnityEngine.Debug.Log(sb.ToString());
-                        // 对比：shownSym 旧路径读到的值（若与 respinGrid 不同则证明之前确实是 shownSync 不同步导致的）
-                        if (m_reelView != null)
-                        {
-                            var sbShown = new System.Text.StringBuilder("[DIAG-ShownSym]");
-                            for (int ri2 = 0; ri2 < hs.reels; ri2++)
-                            {
-                                sbShown.Append($" reel{ri2}:[");
-                                for (int r2 = 0; r2 < hs.cells[ri2].Length; r2++)
-                                {
-                                    if (!hs.cells[ri2][r2].filled)
-                                        sbShown.Append(m_reelView.GetVisibleSymbol(ri2, r2));
-                                    else
-                                        sbShown.Append("F");  // F=火球格
-                                    if (r2 < hs.cells[ri2].Length - 1) sbShown.Append(",");
-                                }
-                                sbShown.Append("]");
-                            }
-                            UnityEngine.Debug.Log(sbShown.ToString());
-                        }
-                    }
-
-                    var wins = m_machine.session.EvaluateGrid(grid, m_machine.totalBet);
-
-                    // ★ 诊断：输出评估结果
-                    var sb2 = new System.Text.StringBuilder("[DIAG-RespinWins] count=").Append(wins.Count);
-                    foreach (var w in wins)
-                        sb2.Append($" id{w.symbolId}={w.count}连 pay={w.payout:F2}");
-                    UnityEngine.Debug.Log(sb2.ToString());
-
-                    float win = 0f;
-                    foreach (var w in wins) win += w.payout;
-                    if (wins.Count > 0 && m_reelView != null) m_reelView.HighlightWins(wins);
+                    int sc;
+                    float win = SettleRoundWins(grid, m_machine.totalBet, out sc);
                     if (win > 0)
                     {
-                        if (m_player != null) m_player.ShowWinValue((long)System.Math.Round(win));
                         if (_holdResult != null) _holdResult.respinLineWin += win;
                         roundWin += win;
-                        // 普通 ICON 有赢分：播放 event:/Sounds/111
-                        if (FMODSoundMgr.Instance != null)
-                            FMODSoundMgr.Instance.PlaySound("event:/Sounds/111");
                     }
+                    // 注：respin 符号池不含 Scatter，sc 恒为 0，不折算免费次数；
+                    //     Hold&Spin 的免费次数由 FreeSpins 火球（满列）统一负责（CountFreeFireballs/AwardFreeballSpinsFromMain）。
                 }
 
                 // 6) 满列派彩 + FREE 火球统计 + 列清理
@@ -543,6 +497,60 @@ namespace com.slot
                 }
             }
             return grid;
+        }
+
+        /// <summary>
+        /// 统一结算「一轮」的普通符号连线赢分 + Scatter 统计。基础旋转与 Hold&amp;Spin 每轮 respin 共用此函数，
+        /// 保证两类"一局"的结算口径完全一致（评估/高亮/音效/Scatter 统计/诊断日志）。
+        /// grid：权威数据网格（基础旋转传 r.baseGrid；respin 传 BuildRespinGrid 结果）。
+        /// 返回 lineWin（普通连线赢分）；scatterCount 通过 out 回传（respin 池不含 Scatter，自然为 0）。
+        /// 调用方负责把 lineWin 累加进本局赢分、把 scatterCount 折算成免费次数（仅基础旋转需要）。
+        /// </summary>
+        float SettleRoundWins(int[][] grid, float bet, out int scatterCount)
+        {
+            scatterCount = 0;
+            float lineWin = 0f;
+            if (m_machine == null || m_machine.session == null || grid == null) return 0f;
+
+            // 诊断：输出结算网格（定位"屏幕有符号但不赔"）
+            {
+                var sb = new System.Text.StringBuilder("[DIAG-Grid]");
+                for (int ri = 0; ri < grid.Length; ri++)
+                {
+                    sb.Append($" reel{ri}:[");
+                    for (int k = 0; k < grid[ri].Length; k++) sb.Append(grid[ri][k]).Append(k < grid[ri].Length - 1 ? "," : "");
+                    sb.Append("]");
+                }
+                UnityEngine.Debug.Log(sb.ToString());
+            }
+
+            // 1) 普通连线赢分（连线/Ways/逐列，由 winEval 决定）
+            var wins = m_machine.session.EvaluateGrid(grid, bet);
+            foreach (var w in wins) lineWin += w.payout;
+
+            if (wins.Count > 0 && m_reelView != null) m_reelView.HighlightWins(wins);
+            if (lineWin > 0)
+            {
+                if (m_player != null) m_player.ShowWinValue((long)System.Math.Round(lineWin));
+                if (FMODSoundMgr.Instance != null) FMODSoundMgr.Instance.PlaySound("event:/Sounds/111");
+            }
+
+            // 诊断：评估结果
+            var sb2 = new System.Text.StringBuilder("[DIAG-Wins] count=").Append(wins.Count);
+            foreach (var w in wins) sb2.Append($" id{w.symbolId}={w.count}连 pay={w.payout:F2}");
+            UnityEngine.Debug.Log(sb2.ToString());
+
+            // 2) Scatter 统计（respin 池不含 Scatter，自然为 0；基础旋转据此折算免费次数）
+            int scId = (m_machine.config != null) ? m_machine.config.ScatterId() : -1;
+            if (scId > 0)
+            {
+                int sc = 0;
+                for (int ri = 0; ri < grid.Length; ri++)
+                    for (int k = 0; k < grid[ri].Length; k++)
+                        if (grid[ri][k] == scId) sc++;
+                scatterCount = sc;
+            }
+            return lineWin;
         }
 
         /// <summary>结算：收分滚动 / 彩金脉冲 / 奖池刷新 / 中奖高亮。</summary>
