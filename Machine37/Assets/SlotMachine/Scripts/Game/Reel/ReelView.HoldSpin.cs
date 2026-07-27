@@ -97,8 +97,12 @@ namespace com.slot
 
             var fbStripMult = new Dictionary<int, FireballCell>();
             // ★ 干净循环：displayStrip 建成 respinGrid 周期循环带（方案A，对齐基础局「整条带即结果」），落点只选窗口、滚动中不再重写符号。
-            var quickStopped = new HashSet<int>();
-            var naturalAssigned = new HashSet<int>();   // 自然停目标是否已按「当前位置向前」赋值（避免每帧重锚导致永不停止）
+            // ★ 确定性减速 tween 状态：进入减速时记录起点/时间/目标/时长，之后按归一化进度插值，
+            //   保证精确落点、绝不 snap 跳格（根治"不按暂停自然停跳 1~4 格"）。
+            var decelStartOffset = new Dictionary<int, float>();
+            var decelStartTime = new Dictionary<int, float>();
+            var decelTarget = new Dictionary<int, int>();
+            var decelDur = new Dictionary<int, float>();
 
             // 干净循环：残留火球替换成普通符号，建成 respinGrid 周期循环带（火球格用普通符占位，由 overlay 显示）。
             // ★ 关键修复(自然停跳 1-2 格)：displayStrip 长度必须是 rows 的整数倍，否则卷轴滚过条带末端折返处
@@ -218,56 +222,50 @@ namespace com.slot
                     }
                     else
                     {
-                        // ★ 自然停：减速开始这一刻，从「当前位置」向前取最近窗口起点作为收敛目标。
-                        //   与基础局 FindAlignedStopPos(st, Floor(pos)+extra) 思路一致——目标永远在前方，杜绝「退格」：
-                        //   旧版 scrollCells 在循环前用 PredictScrollCells 预测远停位，预测值可能落在减速开始时的当前 offset 之后
-                        //   （例 raw=27.3→floor(27.3/4)*4=24，而减速开始时 offset≈25.3）→ diff<0 → 卷轴倒退。
-                        //   落点 ≡ 0 (mod rows)（窗口起点）→ basePos 使 cell k 显示 respinGrid[逻辑行]，火球 overlay(按逻辑行定位)精确对齐、
-                        //   不抖动不「突然出现」；周期带周期=rows，任意窗口起点显示序列相同，故取哪个窗口不影响最终符号、只决定滚多远。
-                        if (!_holdStopRequested && !naturalAssigned.Contains(reel))
+                        // ★ 减速段：确定性 tween（ease-out quad），保证精确落点、绝不 snap 跳格。
+                        //   首次进入减速时记录起点/时间/目标/时长，之后按 (t-startTime)/dur 缓出到目标；
+                        //   自然停与急停统一走此路径，彻底消除"不按暂停自然停跳 1~4 格"（旧版 ease-out 渐近 + maxStep 限幅，
+                        //   在条带末端/折返处可能未在 endTime 前收敛，settle 直接 snap offset=scrollCells 造成跳位）。
+                        if (!decelStartOffset.ContainsKey(reel))
                         {
-                            naturalAssigned.Add(reel);
                             int cur = Mathf.FloorToInt(offset[reel]);
-                            int extra = 3 + RandInt(0, 5);   // 与基础局 BeginStop 自然停一致：减速段再滚几格
-                            int window = st.rows * Mathf.CeilToInt((cur + extra) / (float)st.rows);  // 前方最近窗口起点(≡0 mod rows)
-                            if (window <= cur) window += st.rows;   // 兜底：严格在前方
-                            scrollCells[reel] = window;
+                            int tgt;
+                            float dd;
+                            if (_holdStopRequested)
+                            {
+                                // 急停：前方就近窗口起点(行数倍数)，相对按停位置总是前进、不回退。
+                                tgt = st.rows * Mathf.CeilToInt(offset[reel] / (float)st.rows);
+                                dd = 0.45f;
+                            }
+                            else
+                            {
+                                // 自然停：从当前位置向前取最近窗口起点(≡0 mod rows)，与基础局 BeginStop 自然停一致。
+                                int extra = 3 + RandInt(0, 5);
+                                int window = st.rows * Mathf.CeilToInt((cur + extra) / (float)st.rows);
+                                if (window <= cur) window += st.rows;   // 兜底：严格在前方
+                                tgt = window;
+                                dd = 0.6f;
+                            }
+                            decelStartOffset[reel] = offset[reel];
+                            decelStartTime[reel] = t;
+                            decelTarget[reel] = tgt;
+                            decelDur[reel] = dd;
+                            scrollCells[reel] = tgt;   // 落点固定，settle 直接采用，无跳格
+                            float need = t + dd + 0.15f;   // ★ 延长 endTime 兜底，确保该列 tween 完成前循环不退出
+                            if (need > endTime) endTime = need;
                         }
-
-                        // ★ 急停、且该列仍在匀速段时：把收敛目标设为「前方就近窗口起点(行数倍数)」（前进、不回退），周期带平滑收敛、符号不突变。
-                        //   落点 = rows*Ceil(offset/rows)：既是窗口起点(行数倍数)使火球 overlay 停稳精确归位，又相对按停位置总是前进。
-                        if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
+                        float p = Mathf.Clamp01((t - decelStartTime[reel]) / decelDur[reel]);
+                        float e = 1f - (1f - p) * (1f - p);   // ease-out quad
+                        offset[reel] = decelStartOffset[reel] + (decelTarget[reel] - decelStartOffset[reel]) * e;
+                        if (p >= 1f)
                         {
-                            quickStopped.Add(reel);
-                            // ★ 急停落点取「下一个窗口起点」(行数倍数)：与循环带同周期，火球 overlay 停稳时 off%rows==0 → 精确归位 RowToY(row)，不抖动不偏格；相对按停位置总是前进。
-                            scrollCells[reel] = st.rows * Mathf.CeilToInt(offset[reel] / (float)st.rows);
-                        }
-
-                        float target = scrollCells[reel];
-                        float diff = target - offset[reel];
-                        if (Mathf.Abs(diff) < 0.01f)
-                        {
-                            offset[reel] = target;
+                            offset[reel] = decelTarget[reel];
                             if (!stoppedReels.Contains(reel))
                             {
                                 stoppedReels.Add(reel);
-                                // 当前列滚动停后：播放 event:/Sounds/1
                                 if (FMODSoundMgr.Instance != null)
                                     FMODSoundMgr.Instance.PlaySound("event:/Sounds/1");
                             }
-                        }
-                        else
-                        {
-                            // ★ 收敛：急停落点已就近 → 直接 ease-out（m_quickDecel，无 maxStep 限幅，手感同普通局急停）；
-                            //   自然停目标远 → 保留 maxStep 限幅防"突然前冲"的突兀感。
-                            float decel = _holdStopRequested ? m_quickDecel : m_normalDecel;
-                            float step = diff * Mathf.Clamp01(dt * decel);
-                            if (!_holdStopRequested)
-                            {
-                                float maxStep = m_baseSpeed * dt;
-                                if (Mathf.Abs(step) > maxStep) step = Mathf.Sign(diff) * maxStep;
-                            }
-                            offset[reel] += step;
                         }
                     }
 
