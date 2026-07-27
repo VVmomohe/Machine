@@ -210,12 +210,13 @@ namespace com.slot
                             scrollCells[reel] = window;
                         }
 
-                        // ★ 急停、且该列仍在匀速段时：把收敛目标设为「前方就近整数格线」（前进、不回退），周期带平滑收敛、符号不突变。
-                        //   急停保持原行为（用户确认急停正常，不动）：落点取 Ceil(offset) 前方整数格线（非窗口起点，但周期带任意位置显示均自洽）。
+                        // ★ 急停、且该列仍在匀速段时：把收敛目标设为「前方就近窗口起点(行数倍数)」（前进、不回退），周期带平滑收敛、符号不突变。
+                        //   落点 = rows*Ceil(offset/rows)：既是窗口起点(行数倍数)使火球 overlay 停稳精确归位，又相对按停位置总是前进。
                         if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
                         {
                             quickStopped.Add(reel);
-                            scrollCells[reel] = Mathf.CeilToInt(offset[reel]);   // 前方就近整数格线（前进方向）
+                            // ★ 急停落点取「下一个窗口起点」(行数倍数)：与循环带同周期，火球 overlay 停稳时 off%rows==0 → 精确归位 RowToY(row)，不抖动不偏格；相对按停位置总是前进。
+                            scrollCells[reel] = st.rows * Mathf.CeilToInt(offset[reel] / (float)st.rows);
                         }
 
                         float target = scrollCells[reel];
@@ -287,7 +288,9 @@ namespace com.slot
                 foreach (int r in participating) if (!stoppedReels.Contains(r)) { allStopped = false; break; }
                 if (allStopped) break;
 
-                if (_releaseReels.Count > 0) MoveReleasingOverlays(offset);
+                // ★ 火球 overlay 随卷轴滚动（与循环带同公式，停稳精确归位）；释放列交给 MoveReleasingOverlays 滚走销毁。
+                MoveReleasingOverlays(offset);
+                TrackFireballOverlays(offset);
 
                 yield return null;
             }
@@ -395,11 +398,9 @@ namespace com.slot
 
             if (step.newFireballs != null)
             {
+                // ★ overlay 已在 AdvanceHoldSpin 滚动「前」预创建(随卷轴滚动，不再停稳后冒出)；此处仅存火球数据供结算/查询，避免重复创建。
                 foreach (var c in step.newFireballs)
-                {
-                    ShowFireballOverlay(c.reel, c.row, c);
                     _baseFireMults[c.reel * 100 + c.row] = c;
-                }
             }
 
             if (step.counters != null)

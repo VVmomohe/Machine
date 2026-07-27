@@ -208,6 +208,13 @@ namespace com.slot
                     var newFireMults = new Dictionary<int, FireballCell>();
                     if (step.newFireballs != null)
                         foreach (var c in step.newFireballs) newFireMults[c.reel * 100 + c.row] = c;
+
+                    // ★ 火球 overlay 在滚动「前」就建好 → 随卷轴一起滚下来（TrackFireballOverlays 每帧定位），
+                    //   不再像之前那样滚动结束后才在固定位置钉上(表现为"停稳后突然冒出")。火球本就在旋转前算好(respinGrid)。
+                    if (step.newFireballs != null)
+                        foreach (var c in step.newFireballs)
+                            m_reelView.ShowFireballOverlay(c.reel, c.row, c);
+
                     yield return StartCoroutine(m_reelView.SpinHoldRound(spun, 0.75f, newFireMults, step.respinGrid));
                 }
 

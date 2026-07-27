@@ -103,6 +103,29 @@ namespace com.slot
             }
         }
 
+        /// <summary>每帧移动「非释放列」火球 overlay，使其随卷轴滚动（与底层 displayStrip 循环带同步），停稳时精确归位到逻辑行 RowToY(row)。
+        /// 火球本就在旋转前算好(respinGrid)，应像普通符号一样滚下来，而非停稳后才在固定位置冒出。
+        /// 关键：落点 scrollCells 必为行数倍数 → 停稳时 off%rows==0 → y==RowToY(row) 精确归位；滚动中 off%rows 周期性折返，火球随带下移+循环。</summary>
+        void TrackFireballOverlays(Dictionary<int, float> offset)
+        {
+            for (int i = 0; i < _fbOverlays.Count; i++)
+            {
+                var go = _fbOverlays[i];
+                if (go == null) continue;
+                int reel, row;
+                if (!ParseReelRow(go.name, out reel, out row)) continue;
+                if (_releaseReels.Contains(reel)) continue;   // 释放列交给 MoveReleasingOverlays 滚走销毁
+                if (reel < 0 || reel >= _reels.Count) continue;
+                var st = _reels[reel];
+                var rt = go.transform as RectTransform;
+                if (rt == null) continue;
+                float off = offset.ContainsKey(reel) ? offset[reel] : 0f;
+                float eff = ((off % st.rows) + st.rows) % st.rows;   // 卷轴滚动的"周期内位移"，与 respinGrid 周期带同周期
+                float y = RowToY(row) - eff * m_cellSize;
+                rt.anchoredPosition = new Vector2(0f, y);
+            }
+        }
+
         /// <summary>销毁已随卷轴滚走的待释放 overlay（回合末调用）。</summary>
         void DestroyReleasingOverlays()
         {
