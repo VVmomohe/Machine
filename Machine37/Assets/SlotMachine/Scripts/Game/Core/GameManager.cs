@@ -26,6 +26,11 @@ namespace com.slot
         /// <summary>转轮滚动 / 火球掉落 / 结算期间为 true，防止重复触发新一局（狂按 Start 不会穿透）。</summary>
         private bool _spinPending;
 
+        /// <summary>【结算确认演出忙碌】WaitForConfirmKey 协程存活期间为 true（含 minShow 停留等待）。
+        /// autoPlay 模式下 _waitingConfirm 被自动置 false 后，等待期间仍要靠本标志挡住 Update 的 autoStart 反复调 OnStartKey，
+        /// 否则 0.5s 停留会被立即开新一局冲掉（用户实测"勾 autoplay 结算没等"的根因）。</summary>
+        private bool _confirmBusy;
+
         /// <summary>【自动游玩】Inspector 勾选（或运行时按 F1）后，系统自动按 Start 键：
         /// 自动开新局、自动推进 Hold&amp;Spin 每轮 respin、结算确认点自动过、Mini 免费游戏自动续轮。
         /// 转轮正在滚动时不触发（避免把正在转的卷轴急停），等其自然停稳后下一帧自动继续。取消勾选立即回手动。</summary>
