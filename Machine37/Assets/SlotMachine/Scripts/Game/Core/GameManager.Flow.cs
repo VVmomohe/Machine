@@ -281,13 +281,14 @@ namespace com.slot
             _waitingConfirm = true;
 
             // ★ 自动结算：allowAuto==true 且 auto==1 时延时后自动继续（不再等确认键）。
-            //   保留原 0.9s 手感；若可调下限 settleMinShowSeconds 更高则以下限为准。
+            //   基础时长用可调 settleAutoShowSeconds（原 0.9s），并以 settleMinShowSeconds 为下限（取较大者）。
             if (allowAuto && DataManager.Instance != null &&
                 DataManager.Instance.Setting != null &&
                 DataManager.Instance.Setting.TryGetValue(1, out var sd) &&
                 sd.auto == 1)
             {
-                yield return new WaitForSeconds(Mathf.Max(0.9f, settleMinShowSeconds));
+                float autoShow = Mathf.Max(settleAutoShowSeconds, settleMinShowSeconds);
+                yield return new WaitForSeconds(autoShow);
                 _waitingConfirm = false;
                 yield break;
             }

@@ -33,8 +33,12 @@ namespace com.slot
 
         /// <summary>【结算最小显示时长(秒)·可调】即便玩家立即按确认 / F1 自动连转 / sd.auto==1 自动结算，
         /// 赢分数字与连线高亮也至少显示这么久（防「秒过」看不清）。默认 0.5s，可在 Inspector 改。
-        /// 自动结算分支(sd.auto==1)保留原 0.9s 手感，但若本值更高则以下限为准。</summary>
+        /// 自动结算分支(sd.auto==1)用 settleAutoShowSeconds 作为基础时长，并以本值为下限（取较大者）。</summary>
         public float settleMinShowSeconds = 0.5f;
+
+        /// <summary>【自动结算显示时长(秒)·可调】仅 sd.auto==1（设置项自动结算开关）生效时采用的基础时长，
+        /// 替代原硬编码 0.9s。默认 0.9s，可在 Inspector 改；实际停留 = max(本值, settleMinShowSeconds)。</summary>
+        public float settleAutoShowSeconds = 0.9f;
 
         /// <summary>Hold&amp;Spin 特性进行中的状态（非 null=正在 Hold&Spin，Start 键=推进一轮而非开新局）。</summary>
         private HoldSpinState _activeHold;
