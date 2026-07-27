@@ -138,8 +138,13 @@ namespace com.slot
 
             FireballCell FindFireballCell(int reel, int k, int symIdx)
             {
-                int row = k - m_buf;
-                int mkey = reel * 100 + row;
+                // ★ 关键修复：火球在条带里按周期(rowsN)重复出现，滚动途中常落在缓冲格(k-m_buf 超出逻辑行范围)，
+                //   故必须按"逻辑行"(k-m_buf) mod rowsN 查 newFireMults，而非用原始 (k-m_buf) 当 key——
+                //   否则只有火球停在最终格(k-m_buf==c.row)那一瞬才命中，滚动中途倍数文字不显示→"倍数停下才出"。
+                //   改用逻辑行后，火球滚过的每个格都命中对应倍数→倍数随火球一起滚入(完全对齐正常局)。
+                int rowsN = (reel >= 0 && reel < _reels.Count) ? _reels[reel].rows : 5;
+                int logicalRow = ((k - m_buf) % rowsN + rowsN) % rowsN;
+                int mkey = reel * 100 + logicalRow;
                 FireballCell cell = null;
                 if (newFireMults != null && newFireMults.TryGetValue(mkey, out cell)) { }
                 if (cell == null)
