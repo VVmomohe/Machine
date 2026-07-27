@@ -83,6 +83,7 @@ namespace com.slot
             float maxStop = 0f;
             foreach (var v in stopAt.Values) if (v > maxStop) maxStop = v;
             float endTime = maxStop + settleTime;
+            float endTimeInitial = endTime;   // ★ 用于极端兜底上限判断（见下方循环尾）
 
             var scrollCells = new Dictionary<int, int>();
             foreach (int reel in spunReels)
@@ -251,6 +252,7 @@ namespace com.slot
                             decelTarget[reel] = tgt;
                             decelDur[reel] = dd;
                             scrollCells[reel] = tgt;   // 落点固定，settle 直接采用，无跳格
+                            if (!_holdStopRequested) Debug.Log($"[DIAG-Decel] 自然停 reel{reel} t={t:F2} cur={cur} tgt={tgt} dur={dd}");
                             float need = t + dd + 0.15f;   // ★ 延长 endTime 兜底，确保该列 tween 完成前循环不退出
                             if (need > endTime) endTime = need;
                         }
@@ -315,8 +317,10 @@ namespace com.slot
                 //   （"普通图标突然变百搭"等观感）。最多续 2.5s 兜底，仍不收敛才允许 snap（极端兜底，正常不会到）。
                 if (t >= endTime)
                 {
-                    if (t < endTime + 2.5f) endTime = t + 0.5f;
-                    else break;
+                    // ★ 未收敛完 → 继续平滑滚动直到全列停稳(allStopped)，绝不 snap（根治自然停跳格）。
+                    //   仅保留极端兜底：超过初始 endTime + 6s 仍不收敛才强制退出（tween 0.6s 必完成，正常永不触发）。
+                    if (t > endTimeInitial + 6f) break;
+                    endTime = t + 0.5f;
                 }
 
                 // ★ 火球 overlay 随卷轴滚动（与循环带同公式，停稳精确归位）；释放列交给 MoveReleasingOverlays 滚走销毁。
@@ -331,7 +335,10 @@ namespace com.slot
                 if (reel < 0 || reel >= _reels.Count) continue;
                 var st = _reels[reel];
                 int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
-                offset[reel] = scrollCells[reel];
+                // ★ 落点归正：优先用减速分支精确整数目标 decelTarget（tween 已完成，offset 应已等于此值），
+                //   防御浮点 floor 误差导致的 frac≈1 视觉跳格；否则 fallback scrollCells。
+                if (decelTarget.ContainsKey(reel)) offset[reel] = decelTarget[reel];
+                else if (scrollCells.ContainsKey(reel)) offset[reel] = scrollCells[reel];
                 int basePos = Mathf.FloorToInt(offset[reel]);
                 int topIdx = st.stripBase + basePos;
                 if (stripLen > 0) st.stripBase = ((topIdx % stripLen) + stripLen) % stripLen;
@@ -371,6 +378,13 @@ namespace com.slot
                             if (it != null) it.ShowFire(true, freeFire);
                         }
                     }
+                }
+                // ★ 诊断：若某列落点与减速目标偏差>0.5，说明发生了 snap（自然停跳格），抓 adb logcat | grep DIAG 发我定位。
+                if (decelTarget.ContainsKey(reel))
+                {
+                    float d = offset[reel] - decelTarget[reel];
+                    if (Mathf.Abs(d) > 0.5f)
+                        Debug.LogWarning($"[DIAG-Snap] reel{reel} 落点偏差 {d:F2} (offset={offset[reel]:F2} tgt={decelTarget[reel]}) —— 自然停跳格!");
                 }
             }
 
