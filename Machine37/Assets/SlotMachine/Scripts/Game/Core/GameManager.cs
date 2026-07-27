@@ -31,6 +31,11 @@ namespace com.slot
         /// 转轮正在滚动时不触发（避免把正在转的卷轴急停），等其自然停稳后下一帧自动继续。取消勾选立即回手动。</summary>
         public bool autoPlay = false;
 
+        /// <summary>【结算最小显示时长(秒)·可调】即便玩家立即按确认 / F1 自动连转 / sd.auto==1 自动结算，
+        /// 赢分数字与连线高亮也至少显示这么久（防「秒过」看不清）。默认 0.5s，可在 Inspector 改。
+        /// 自动结算分支(sd.auto==1)保留原 0.9s 手感，但若本值更高则以下限为准。</summary>
+        public float settleMinShowSeconds = 0.5f;
+
         /// <summary>Hold&amp;Spin 特性进行中的状态（非 null=正在 Hold&Spin，Start 键=推进一轮而非开新局）。</summary>
         private HoldSpinState _activeHold;
         private GameResult _holdResult;      // 挂起的本局结果，Hold&Spin 结束后才最终结算

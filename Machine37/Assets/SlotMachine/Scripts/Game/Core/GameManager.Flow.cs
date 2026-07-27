@@ -281,22 +281,22 @@ namespace com.slot
             _waitingConfirm = true;
 
             // ★ 自动结算：allowAuto==true 且 auto==1 时延时后自动继续（不再等确认键）。
-            //   0.9s 延时给玩家看清赢分/高亮后自动推进。
+            //   保留原 0.9s 手感；若可调下限 settleMinShowSeconds 更高则以下限为准。
             if (allowAuto && DataManager.Instance != null &&
                 DataManager.Instance.Setting != null &&
                 DataManager.Instance.Setting.TryGetValue(1, out var sd) &&
                 sd.auto == 1)
             {
-                yield return new WaitForSeconds(0.9f);   // 给玩家看清赢分/高亮
+                yield return new WaitForSeconds(Mathf.Max(0.9f, settleMinShowSeconds));
                 _waitingConfirm = false;
                 yield break;
             }
 
-            // 手动确认：等玩家按确认键，但保证最短显示时间。
-            // ★ 即便玩家在赢分/选中高亮刚出现的瞬间就按确认，也至少停留 minShow 秒，
-            //   让赢分滚动和连线高亮播完，避免「秒过」看不清结算。
+            // 手动确认 / F1 自动连转 / 连续按确认：等确认键，但保证最短显示时间。
+            // ★ 即便玩家在赢分/选中高亮刚出现的瞬间就按确认，也至少停留 settleMinShowSeconds 秒，
+            //   让赢分滚动和连线高亮播完，避免「秒过」看不清结算。时间可在 Inspector 调。
             float enterT = Time.time;
-            const float minShow = 0.5f;
+            float minShow = Mathf.Max(0f, settleMinShowSeconds);
             while (_waitingConfirm)
                 yield return null;
             float remain = minShow - (Time.time - enterT);
