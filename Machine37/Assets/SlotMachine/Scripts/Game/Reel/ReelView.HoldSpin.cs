@@ -212,31 +212,25 @@ namespace com.slot
 
                     if (!decelActive)
                     {
-                        // 匀速推进：自然停临近 stopAt 时轻微减速更顺；急停尚未轮到本列则保持全速（与普通局一致）。
-                        float spd = m_baseSpeed;
-                        if (!_holdStopRequested)
-                        {
-                            float remaining = stopAt[reel] - t;
-                            if (remaining < 0.35f) spd = m_baseSpeed * Mathf.Clamp01(remaining / 0.35f);
-                        }
-                        offset[reel] += spd * dt;
+                        // 匀速推进：进入减速前保持全速 m_baseSpeed，与减速段初速度严格连续，
+                        // 避免"先被降到近0速、再突然加速前冲"造成的自然停向前跳格观感。
+                        offset[reel] += m_baseSpeed * dt;
                     }
                     else
                     {
-                        // ★ 减速段：确定性 tween（ease-out quad），保证精确落点、绝不 snap 跳格。
-                        //   首次进入减速时记录起点/时间/目标/时长，之后按 (t-startTime)/dur 缓出到目标；
-                        //   自然停与急停统一走此路径，彻底消除"不按暂停自然停跳 1~4 格"（旧版 ease-out 渐近 + maxStep 限幅，
-                        //   在条带末端/折返处可能未在 endTime 前收敛，settle 直接 snap offset=scrollCells 造成跳位）。
+                        // ★ 减速段：匀减速（恒定减速度，初速度=v0=m_baseSpeed、末速度=0），速度连续、落点精确、绝无跳格。
+                        //   旧版 ease-out quad 在起点处速度最大(=2*dist/dur)，且进入减速前又把速度降到近0，
+                        //   形成"先停一下→猛地前冲→再减速"的观感（用户描述的"自然停向前跳 3~4 格"）。
+                        //   现 offset = start + v0*τ - ½(v0/dd)τ²，dd=2*dist/v0 反解保证恰好停在 tgt 且速度连续。
                         if (!decelStartOffset.ContainsKey(reel))
                         {
                             int cur = Mathf.FloorToInt(offset[reel]);
                             int tgt;
-                            float dd;
                             if (_holdStopRequested)
                             {
-                                // 急停：前方就近窗口起点(行数倍数)，相对按停位置总是前进、不回退。
+                                // 急停：前方就近窗口起点(≡0 mod rows)，相对按停位置总是前进、不回退。
                                 tgt = st.rows * Mathf.CeilToInt(offset[reel] / (float)st.rows);
-                                dd = 0.45f;
+                                if (tgt <= Mathf.FloorToInt(offset[reel])) tgt += st.rows;
                             }
                             else
                             {
@@ -245,29 +239,39 @@ namespace com.slot
                                 int window = st.rows * Mathf.CeilToInt((cur + extra) / (float)st.rows);
                                 if (window <= cur) window += st.rows;   // 兜底：严格在前方
                                 tgt = window;
-                                dd = 0.6f;
                             }
+                            float dist = tgt - offset[reel];            // 必为正（前方窗口）
+                            float dd = (m_baseSpeed > 1f) ? (2f * dist / m_baseSpeed) : 0.6f;
                             decelStartOffset[reel] = offset[reel];
                             decelStartTime[reel] = t;
                             decelTarget[reel] = tgt;
                             decelDur[reel] = dd;
                             scrollCells[reel] = tgt;   // 落点固定，settle 直接采用，无跳格
-                            if (!_holdStopRequested) Debug.Log($"[DIAG-Decel] 自然停 reel{reel} t={t:F2} cur={cur} tgt={tgt} dur={dd}");
-                            float need = t + dd + 0.15f;   // ★ 延长 endTime 兜底，确保该列 tween 完成前循环不退出
+                            if (!_holdStopRequested) Debug.Log($"[DIAG-Decel] 自然停 reel{reel} t={t:F2} cur={cur} tgt={tgt} dur={dd:F2}");
+                            float need = t + dd + 0.15f;   // ★ 延长 endTime 兜底，确保该列减速完成前循环不退出
                             if (need > endTime) endTime = need;
                         }
-                        float p = Mathf.Clamp01((t - decelStartTime[reel]) / decelDur[reel]);
-                        float e = 1f - (1f - p) * (1f - p);   // ease-out quad
-                        offset[reel] = decelStartOffset[reel] + (decelTarget[reel] - decelStartOffset[reel]) * e;
-                        if (p >= 1f)
+                        float v0 = m_baseSpeed;
+                        float dd = decelDur[reel];
+                        float tau = t - decelStartTime[reel];
+                        if (v0 > 1f)
                         {
-                            offset[reel] = decelTarget[reel];
-                            if (!stoppedReels.Contains(reel))
-                            {
-                                stoppedReels.Add(reel);
-                                if (FMODSoundMgr.Instance != null)
-                                    FMODSoundMgr.Instance.PlaySound("event:/Sounds/1");
-                            }
+                            // 匀减速：速度由 v0 线性降到 0，偏移量精确收敛到 decelTarget（无 overshoot/回退）。
+                            offset[reel] = decelStartOffset[reel] + v0 * tau - 0.5f * (v0 / dd) * tau * tau;
+                            if (tau >= dd || offset[reel] >= decelTarget[reel]) offset[reel] = decelTarget[reel];
+                        }
+                        else
+                        {
+                            // 极端兜底（m_baseSpeed 过低）：用 ease-out 收敛，避免除零/异常。
+                            float p = Mathf.Clamp01(tau / dd);
+                            float e = 1f - (1f - p) * (1f - p);
+                            offset[reel] = decelStartOffset[reel] + (decelTarget[reel] - decelStartOffset[reel]) * e;
+                        }
+                        if (offset[reel] >= decelTarget[reel] - 1e-4f && !stoppedReels.Contains(reel))
+                        {
+                            stoppedReels.Add(reel);
+                            if (FMODSoundMgr.Instance != null)
+                                FMODSoundMgr.Instance.PlaySound("event:/Sounds/1");
                         }
                     }
 
