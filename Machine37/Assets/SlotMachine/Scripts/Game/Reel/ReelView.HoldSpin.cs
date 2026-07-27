@@ -238,13 +238,16 @@ namespace com.slot
                     }
                     else
                     {
-                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"当前位置附近"（仅此刻改，避免减速中途火球回跳），
+                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"当前显示的整数格"（仅此刻改，避免减速中途火球回跳），
                         //   像普通局 FindAlignedStopPos 就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（像"没停"）。
+                        //   ★ 落点必须 = Floor(offset)（精确对齐"按停瞬间显示的当前格"），不可加随机余量：
+                        //     旧版 land = Floor(offset)+1+RandInt(0,1) 把结果符号写到当前显示位置 +1~2 格处，
+                        //     Cell 定格时显示"旁边格的符"而非按停瞬间所见 → 用户感觉 ID 跳动（基础局因符号已固在循环带故不跳）。
+                        //     改为 Floor(offset)：PlaceRespinResult 同帧把结果符号写到当前显示位置，Cell 立即显示、卷轴平滑收敛到该格，符号不突变。
                         if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
                         {
                             quickStopped.Add(reel);
-                            int extra = 1 + RandInt(0, 1);   // 小余量，给一点滚动再停（手感同普通局急停）
-                            int land = Mathf.FloorToInt(offset[reel]) + extra;
+                            int land = Mathf.FloorToInt(offset[reel]);   // 精确对齐当前显示格（无随机偏移 → 不跳动）
                             PlaceRespinResult(reel, land);
                         }
 
