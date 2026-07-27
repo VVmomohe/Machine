@@ -241,14 +241,14 @@ namespace com.slot
                                 tgt = window;
                             }
                             float dist = tgt - offset[reel];            // 必为正（前方窗口）
-                            float dd = (m_baseSpeed > 1f) ? (2f * dist / m_baseSpeed) : 0.6f;
+                            float decelTime = (m_baseSpeed > 1f) ? (2f * dist / m_baseSpeed) : 0.6f;
                             decelStartOffset[reel] = offset[reel];
                             decelStartTime[reel] = t;
                             decelTarget[reel] = tgt;
-                            decelDur[reel] = dd;
+                            decelDur[reel] = decelTime;
                             scrollCells[reel] = tgt;   // 落点固定，settle 直接采用，无跳格
-                            if (!_holdStopRequested) Debug.Log($"[DIAG-Decel] 自然停 reel{reel} t={t:F2} cur={cur} tgt={tgt} dur={dd:F2}");
-                            float need = t + dd + 0.15f;   // ★ 延长 endTime 兜底，确保该列减速完成前循环不退出
+                            if (!_holdStopRequested) Debug.Log($"[DIAG-Decel] 自然停 reel{reel} t={t:F2} cur={cur} tgt={tgt} dur={decelTime:F2}");
+                            float need = t + decelTime + 0.15f;   // ★ 延长 endTime 兜底，确保该列减速完成前循环不退出
                             if (need > endTime) endTime = need;
                         }
                         float v0 = m_baseSpeed;
