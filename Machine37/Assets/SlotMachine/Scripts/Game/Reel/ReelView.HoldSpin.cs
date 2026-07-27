@@ -138,13 +138,15 @@ namespace com.slot
 
             FireballCell FindFireballCell(int reel, int k, int symIdx)
             {
-                // ★ 关键修复：火球在条带里按周期(rowsN)重复出现，滚动途中常落在缓冲格(k-m_buf 超出逻辑行范围)，
-                //   故必须按"逻辑行"(k-m_buf) mod rowsN 查 newFireMults，而非用原始 (k-m_buf) 当 key——
-                //   否则只有火球停在最终格(k-m_buf==c.row)那一瞬才命中，滚动中途倍数文字不显示→"倍数停下才出"。
-                //   改用逻辑行后，火球滚过的每个格都命中对应倍数→倍数随火球一起滚入(完全对齐正常局)。
-                int rowsN = (reel >= 0 && reel < _reels.Count) ? _reels[reel].rows : 5;
-                int logicalRow = ((k - m_buf) % rowsN + rowsN) % rowsN;
-                int mkey = reel * 100 + logicalRow;
+                // ★ 关键修复(v2)：火球在条带(band)里的"逻辑行"由 band 索引 symIdx 决定（与滚动 offset 无关），
+                //   必须用 symIdx 推逻辑行去 newFireMults 查倍数——之前用 (k - m_buf) 是"视图行"，
+                //   只有停稳(offset≡0 mod rows)那一瞬视图行才等于 band 逻辑行，故滚动中途查不到 → "倍数停下才出"。
+                //   改用 symIdx 推逻辑行：火球滚过的每个格都命中对应倍数 → 倍数随火球一起滚入（与正常局一致）。
+                var rstate = (reel >= 0 && reel < _reels.Count) ? _reels[reel] : null;
+                int rowsN = (rstate != null) ? rstate.rows : 5;
+                int sb = (rstate != null) ? rstate.stripBase : 0;
+                int row2 = ((symIdx - sb - m_buf) % rowsN + rowsN) % rowsN;
+                int mkey = reel * 100 + row2;
                 FireballCell cell = null;
                 if (newFireMults != null && newFireMults.TryGetValue(mkey, out cell)) { }
                 if (cell == null)
@@ -282,8 +284,15 @@ namespace com.slot
                         int symIdx = (topIdx + k) % stripLen;
                         if (symIdx < 0) symIdx += stripLen;
                         int sym = st.displayStrip[symIdx];
-                        if (sym == m_wildId && (reel == 0 || (k - m_buf) == st.rows - 1))
-                            sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
+                        // ★ 百搭拦截按"band 逻辑行"而非"视图行"：滚动中视图行 k-m_buf 对应 band 逻辑行
+                        //   (basePos + k - m_buf)%rows，仅停稳(offset≡0)时二者相等。按视图行拦截会与停轮结果不一致
+                        //   （顶行逻辑行的百搭在滚动中途该格误显/误隐），造成"普通图标突然变百搭/变普通"的跳变。
+                        if (sym == m_wildId)
+                        {
+                            int lr = ((basePos + k - m_buf) % st.rows + st.rows) % st.rows;
+                            if (st.reelIdx == 0 || lr == st.rows - 1)
+                                sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
+                        }
                         if (sym == m_fireballSymbolId)
                         {
                             var cell = FindFireballCell(reel, k, symIdx);
@@ -309,6 +318,14 @@ namespace com.slot
                 bool allStopped = true;
                 foreach (int r in participating) if (!stoppedReels.Contains(r)) { allStopped = false; break; }
                 if (allStopped) break;
+                // ★ 自然停未收敛完（endTime 到但仍有列在滚）→ 延长循环让卷轴平滑收敛到 scrollCells，
+                //   否则 while 退出后 settle 段直接 snap offset=scrollCells，造成 1~2 格跳位、整列符号瞬间重排
+                //   （"普通图标突然变百搭"等观感）。最多续 2.5s 兜底，仍不收敛才允许 snap（极端兜底，正常不会到）。
+                if (t >= endTime)
+                {
+                    if (t < endTime + 2.5f) endTime = t + 0.5f;
+                    else break;
+                }
 
                 // ★ 火球 overlay 随卷轴滚动（与循环带同公式，停稳精确归位）；释放列交给 MoveReleasingOverlays 滚走销毁。
                 MoveReleasingOverlays(offset);
