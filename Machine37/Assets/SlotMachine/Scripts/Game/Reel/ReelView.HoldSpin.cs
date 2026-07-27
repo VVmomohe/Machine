@@ -83,7 +83,9 @@ namespace com.slot
             foreach (int reel in spunReels)
             {
                 if (reel < 0 || reel >= _reels.Count) continue;
-                scrollCells[reel] = PredictScrollCells(stopAt[reel], settleTime);
+                var st = _reels[reel];
+                int raw = PredictScrollCells(stopAt[reel], settleTime);
+                scrollCells[reel] = Mathf.FloorToInt(raw / st.rows) * st.rows;   // 落点对齐窗口起点(行数倍数)，与下方周期带一致 → 自然停窗口即 respinGrid 原序
             }
 
             var fbStripMult = new Dictionary<int, FireballCell>();
@@ -100,9 +102,18 @@ namespace com.slot
                 var st = _reels[reel];
                 int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
                 if (stripLen <= 0) continue;
+                // ★ 方案A：displayStrip 建成 respinGrid 的周期循环带（对齐基础局「整条带即结果」）。
+                //   周期 = 该列行数(rows)，逻辑行 row 对应索引 (stripBase + m_buf + row)；火球格由 overlay 显示，符号带火球格用普通符占位。
+                //   落点只选窗口、滚动中不再重写符号 → 急停就近不突变（与基础局同构）。
+                int rowsN = st.rows;
                 for (int i = 0; i < stripLen; i++)
-                    if (st.displayStrip[i] == m_fireballSymbolId) st.displayStrip[i] = RandNormalSymbol();
-                displayStripOriginal[reel] = new List<int>(st.displayStrip);  // 干净循环副本
+                {
+                    int row2 = (((i - st.stripBase - m_buf) % rowsN) + rowsN) % rowsN;
+                    int sym2 = (respinGrid != null && reel < respinGrid.Length && respinGrid[reel] != null && row2 < respinGrid[reel].Length)
+                        ? respinGrid[reel][row2] : 0;
+                    st.displayStrip[i] = (sym2 <= 0 || sym2 == m_fireballSymbolId) ? RandNormalSymbol() : sym2;
+                }
+                displayStripOriginal[reel] = new List<int>(st.displayStrip);  // respinGrid 周期带副本（还原用）
             }
 
             // ★ 把本轮 respin 结果（newFireMults 火球 + respinGrid 符号）写入 displayStrip 的 landOffset 落点，并同步 fbStripMult。
@@ -238,16 +249,16 @@ namespace com.slot
                     }
                     else
                     {
-                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"当前显示的整数格"（仅此刻改，避免减速中途火球回跳），
-                        //   像普通局 FindAlignedStopPos 就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（像"没停"）。
-                        //   ★ 落点必须 = Floor(offset)（精确对齐"按停瞬间显示的当前格"），不可加随机余量：
-                        //     旧版 land = Floor(offset)+1+RandInt(0,1) 把结果符号写到当前显示位置 +1~2 格处，
-                        //     Cell 定格时显示"旁边格的符"而非按停瞬间所见 → 用户感觉 ID 跳动（基础局因符号已固在循环带故不跳）。
-                        //     改为 Floor(offset)：PlaceRespinResult 同帧把结果符号写到当前显示位置，Cell 立即显示、卷轴平滑收敛到该格，符号不突变。
+                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"当前显示窗口起点(行数倍数)"（仅此刻改，避免减速中途火球回跳），
+                        //   像普通局 FindAlignedStopPos 对齐格线就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（像"没停"）。
+                        //   ★ 落点必须对齐到窗口起点(= Floor(offset/rows)*rows)：displayStrip 已建成 respinGrid 周期循环带(周期=rows)，
+                        //     只有落点=窗口起点时该窗口才是 respinGrid 原序；否则是周期带的旋转序。PlaceRespinResult 把 respinGrid 写到落点窗口，
+                        //     若落点非窗口起点会与周期带不一致 → 急停瞬间"普通符→百搭"突变。对齐窗口起点后落点窗口即 respinGrid 原序，
+                        //     与周期带幂等，卷轴平滑收敛、符号不突变（与基础局同构）。
                         if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
                         {
                             quickStopped.Add(reel);
-                            int land = Mathf.FloorToInt(offset[reel]);   // 精确对齐当前显示格（无随机偏移 → 不跳动）
+                            int land = Mathf.FloorToInt(offset[reel] / st.rows) * st.rows;   // 对齐窗口起点(行数倍数) → 周期带该窗口即 respinGrid 原序，急停顿点幂等不突变
                             PlaceRespinResult(reel, land);
                         }
 
