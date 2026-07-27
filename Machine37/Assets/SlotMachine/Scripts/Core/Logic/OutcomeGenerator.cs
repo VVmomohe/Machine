@@ -70,7 +70,7 @@ namespace SlotMachine.Core
         /// </summary>
         static int[] BuildColumnFromList(int col, int rows, List<int> specialBag, double specialProb, ISlotRng rng)
         {
-            int listLen = Math.Max(rows, rows * StripBaseMultiplier);
+            int listLen = rows * StripBaseMultiplier;
             var queue = BuildRunSequence(listLen, GetReelCap(col), specialBag, specialProb, rng);
 
             // 随机取一段连续窗口（窗口来自已算好的 List，而非滚动中临时决定）

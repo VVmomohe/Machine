@@ -457,8 +457,6 @@ namespace com.slot
             }
         }
 
-        /// <summary>构建当前 respin 网格：火球格(状态里 filled)用 fireball 符号，普通格取 ReelView 当前显示符号。
-        /// 用于每轮 respin 的普通线奖评估（火球不并入连线，只当固定遮挡）。</summary>
         /// <summary>
         /// 构建 Hold&amp;Spin respin 结算用的符号网格。
         /// ★ 优先用 step.respinGrid（RespinHoldSpin 生成的权威数据），
@@ -501,7 +499,7 @@ namespace com.slot
 
         /// <summary>
         /// 统一结算「一轮」的普通符号连线赢分 + Scatter 统计。基础旋转与 Hold&amp;Spin 每轮 respin 共用此函数，
-        /// 保证两类"一局"的结算口径完全一致（评估/高亮/音效/Scatter 统计/诊断日志）。
+        /// 保证两类"一局"的结算口径完全一致（评估/高亮/音效/Scatter 统计）。
         /// grid：权威数据网格（基础旋转传 r.baseGrid；respin 传 BuildRespinGrid 结果）。
         /// 返回 lineWin（普通连线赢分）；scatterCount 通过 out 回传（respin 池不含 Scatter，自然为 0）。
         /// 调用方负责把 lineWin 累加进本局赢分、把 scatterCount 折算成免费次数（仅基础旋转需要）。
@@ -511,18 +509,6 @@ namespace com.slot
             scatterCount = 0;
             float lineWin = 0f;
             if (m_machine == null || m_machine.session == null || grid == null) return 0f;
-
-            // 诊断：输出结算网格（定位"屏幕有符号但不赔"）
-            {
-                var sb = new System.Text.StringBuilder("[DIAG-Grid]");
-                for (int ri = 0; ri < grid.Length; ri++)
-                {
-                    sb.Append($" reel{ri}:[");
-                    for (int k = 0; k < grid[ri].Length; k++) sb.Append(grid[ri][k]).Append(k < grid[ri].Length - 1 ? "," : "");
-                    sb.Append("]");
-                }
-                UnityEngine.Debug.Log(sb.ToString());
-            }
 
             // 1) 普通连线赢分（连线/Ways/逐列，由 winEval 决定）
             var wins = m_machine.session.EvaluateGrid(grid, bet);
@@ -534,11 +520,6 @@ namespace com.slot
                 if (m_player != null) m_player.ShowWinValue((long)System.Math.Round(lineWin));
                 if (FMODSoundMgr.Instance != null) FMODSoundMgr.Instance.PlaySound("event:/Sounds/111");
             }
-
-            // 诊断：评估结果
-            var sb2 = new System.Text.StringBuilder("[DIAG-Wins] count=").Append(wins.Count);
-            foreach (var w in wins) sb2.Append($" id{w.symbolId}={w.count}连 pay={w.payout:F2}");
-            UnityEngine.Debug.Log(sb2.ToString());
 
             // 2) Scatter 统计（respin 池不含 Scatter，自然为 0；基础旋转据此折算免费次数）
             int scId = (m_machine.config != null) ? m_machine.config.ScatterId() : -1;

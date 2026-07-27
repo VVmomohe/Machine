@@ -70,7 +70,7 @@ namespace com.slot
             var item = go.GetComponent<ReelItem>();
             if (item != null)
             {
-                item.m_id = id;   // ★ 唯一创建时赋值点：SetCellSprite 仅由 CreateCell（格子实例化）调用。中途不再改写。
+                item.m_id = id;   // 创建时赋值点（SetCellSprite 仅由 CreateCell 调用）；定格路径 SetCell(syncId=true) 也会写回最终 id。
                 if (id == m_fireballSymbolId)
                 {
                     item.ShowFire(true, m_inFreeSpins);    // 火球：FreeSpins 时亮 m_freeFire，否则 m_fire；隐藏 m_image
@@ -145,8 +145,8 @@ namespace com.slot
                     var sit = st.cellItems[k];
                     if (sit != null)
                     {
-                        // 老火球：本格被持久 overlay 接管（图隐、真实火球在 overlay 上），m_id 保持创建时的火球值(12)即可，
-                        // 不在此回显显示值（本格无可见图标）；新火球走下方正常分支，m_id 同样保持创建定值、不再中途回写。
+                        // 老火球：本格被持久 overlay 接管（图隐、真实火球在 overlay 上），m_id 保持创建时的火球值(12)即可（本格无可见图标）；
+                        // 新火球走下方正常分支，按 syncId 定格时统一写回最终 id。
                         sit.ShowFire(false);
                         if (sit.m_image != null) sit.m_image.enabled = false;
                         if (sit.m_text != null) sit.m_text.gameObject.SetActive(false);

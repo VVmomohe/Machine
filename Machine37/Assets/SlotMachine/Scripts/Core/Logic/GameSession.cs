@@ -149,7 +149,7 @@ namespace SlotMachine.Core
             // 符号池（与 OutcomeGenerator 一致，但不含 Scatter=11、不含 Wild=10）：
             // Hold&Spin 期间 Scatter 无意义（不触发免费转、特性内也未接免费转重转），
             // 若散落进非锁定格会每轮重转、出现「免费游戏突然变普通符号」的错觉，故排除。
-            // Wild(10) 同样不进 specialPool——改由下方 DecideWildPlanRespin 生成前定点（写一次，不事后替换）。
+            // Wild(10) 同样不进 specialPool——改由下方 wildTargets 生成前定点（写一次，不事后替换）。
             var normalPool = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
             var specialPool = new List<int> { 9 };
             int wildId = cfg.WildId();
