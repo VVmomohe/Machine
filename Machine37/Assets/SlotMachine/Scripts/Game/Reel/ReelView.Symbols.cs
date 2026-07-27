@@ -123,7 +123,9 @@ namespace com.slot
             //     故拦截的是 row == st.rows - 1（之前误写成 row==0 拦的是底行，导致顶部百搭漏网）。
             //   只拦 Wild，保留火球(fireballSymbolId)与免费(Scatter)；非顶行/非 reel0 的百搭照常显示。
             //   换成确定性普通符(1..m_symbolMax-1)，不推进 RNG、不闪烁。
-            if (id == m_wildId)
+            // ★ Hold&Spin 滚动/定格期间(_holdSpinning)不做百搭拦截：respinGrid 已保证不在 reel0/顶行放百搭，
+            //   拦截会让百搭随滚动 offset/屏幕行误闪(普通↔百搭)，造成"停后突现/观感跳格"。基础旋转(_holdSpinning=false)仍保留拦截兜底。
+            if (id == m_wildId && !_holdSpinning)
             {
                 int row = k - m_buf;
                 if (st.reelIdx == 0 || row == st.rows - 1)

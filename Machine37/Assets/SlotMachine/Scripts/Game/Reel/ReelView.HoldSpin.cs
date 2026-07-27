@@ -284,15 +284,9 @@ namespace com.slot
                         int symIdx = (topIdx + k) % stripLen;
                         if (symIdx < 0) symIdx += stripLen;
                         int sym = st.displayStrip[symIdx];
-                        // ★ 百搭拦截按"band 逻辑行"而非"视图行"：滚动中视图行 k-m_buf 对应 band 逻辑行
-                        //   (basePos + k - m_buf)%rows，仅停稳(offset≡0)时二者相等。按视图行拦截会与停轮结果不一致
-                        //   （顶行逻辑行的百搭在滚动中途该格误显/误隐），造成"普通图标突然变百搭/变普通"的跳变。
-                        if (sym == m_wildId)
-                        {
-                            int lr = ((basePos + k - m_buf) % st.rows + st.rows) % st.rows;
-                            if (st.reelIdx == 0 || lr == st.rows - 1)
-                                sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
-                        }
+                        // ★ Hold 模式百搭不在此拦截：respinGrid 已由生成层保证不在 reel0/顶行放百搭，
+                        //   故百搭按 respinGrid 原样显示（滚动中/停后一致，不再随 offset 闪烁/突现）。
+                        //   滚动/定格的拦截兜底统一交由 SetCell（_holdSpinning 期间跳过，避免屏幕行误拦）。
                         if (sym == m_fireballSymbolId)
                         {
                             var cell = FindFireballCell(reel, k, symIdx);
