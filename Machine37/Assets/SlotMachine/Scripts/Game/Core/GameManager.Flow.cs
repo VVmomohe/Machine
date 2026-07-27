@@ -514,6 +514,28 @@ namespace com.slot
             var wins = m_machine.session.EvaluateGrid(grid, bet);
             foreach (var w in wins) lineWin += w.payout;
 
+            // ★ 诊断 [WIN]：输出结算网格(逐列坐标) + 每个赢的 符号/连数/参与格子。
+            //   用于定位「屏幕某行有 K(5) 却算成 5 连 10」争议：逐列(Rows)模式下，
+            //   只要 reel3 的 6 行里任意一行有 ID2(数字10) 整列即命中 → 5 连合法；
+            //   若 [WIN-Grid] 显示 reel3 全列无 ID2 却仍 5 连，才是真 bug（K 被错算进 10）。
+            {
+                var sbG = new System.Text.StringBuilder("[WIN-Grid] ");
+                for (int ri = 0; ri < grid.Length; ri++)
+                {
+                    sbG.Append($"r{ri}[");
+                    for (int k = 0; k < grid[ri].Length; k++) sbG.Append(grid[ri][k]).Append(k < grid[ri].Length - 1 ? "," : "");
+                    sbG.Append("] ");
+                }
+                UnityEngine.Debug.Log(sbG.ToString());
+                foreach (var w in wins)
+                {
+                    var sbn = new System.Text.StringBuilder($"[WIN] sym={w.symbolId} count={w.count} pay={w.payout:F2} pos=");
+                    foreach (var p in w.positions) sbn.Append($"({p / 100},{p % 100})");
+                    UnityEngine.Debug.Log(sbn.ToString());
+                }
+                if (wins.Count == 0) UnityEngine.Debug.Log("[WIN] 无普通连线赢分");
+            }
+
             if (wins.Count > 0 && m_reelView != null) m_reelView.HighlightWins(wins);
             if (lineWin > 0)
             {
