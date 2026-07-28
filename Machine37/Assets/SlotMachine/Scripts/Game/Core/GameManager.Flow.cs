@@ -276,12 +276,32 @@ namespace com.slot
         /// 自动结算：DataManager.Instance.Setting[1].auto == 1 时，短暂展示赢分后自动确认，
         /// 无需按确认键（玩家仍可在展示期间按确认键立即跳过等待）。
         /// </summary>
-        IEnumerator WaitForConfirmKey()
+        IEnumerator WaitForConfirmKey(bool allowAuto = true)
         {
             _waitingConfirm = true;
-            while (_waitingConfirm)
-                yield return null;
-            _waitingConfirm = false;
+            try
+            {
+                // ★ 自动模式（F1 autoPlay 或 sd.auto==1）：按可调时长停留，避免「秒过」直接进下一局。
+                //   手动确认 / 连续按确认 不进入此分支，仍纯等确认键（不受影响）。
+                bool autoSettle = autoPlay ||
+                    (allowAuto && DataManager.Instance != null &&
+                     DataManager.Instance.Setting != null &&
+                     DataManager.Instance.Setting.TryGetValue(1, out var sd) &&
+                     sd.auto == 1);
+                if (autoSettle)
+                {
+                    yield return new WaitForSeconds(settleAutoShowSeconds);
+                    yield break;
+                }
+
+                // 手动确认 / 连续按确认：纯等确认键。
+                while (_waitingConfirm)
+                    yield return null;
+            }
+            finally
+            {
+                _waitingConfirm = false;
+            }
         }
         #endregion
     }
