@@ -1,7 +1,5 @@
 using UnityEngine;
 
-[ExecuteAlways] // 允许在非运行状态（编辑模式）下也能实时预览效果
-[RequireComponent(typeof(CanvasGroup))]
 public class RandomUITransparency : MonoBehaviour
 {
     private CanvasGroup canvasGroup;
