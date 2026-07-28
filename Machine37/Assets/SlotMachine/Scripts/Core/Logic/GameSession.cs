@@ -16,7 +16,6 @@ namespace SlotMachine.Core
 
         // 渐进奖池
         private Dictionary<string,float> _pots = new Dictionary<string,float>();
-        private Dictionary<string,float> _seeds = new Dictionary<string,float>();
         private bool _potsInit;
 
         public GameSession(ReelConfig cfg, ISlotRng rng)
@@ -35,7 +34,6 @@ namespace SlotMachine.Core
             foreach (var j in _cfg.jackpots)
             {
                 float seed = j.potSeed > 0 ? j.potSeed : (float)System.Math.Max(j.value, 1f);
-                _seeds[j.tier] = seed;
                 _pots[j.tier] = seed;
             }
         }
@@ -192,7 +190,7 @@ namespace SlotMachine.Core
                     }
                     if (cells.Count > 0)
                     {
-                        Shuffle(cells, rng);
+                        RandomHelper.Shuffle(cells, rng);
                         int place = Math.Min(cfg.maxWildsPerSpin, cells.Count);
                         for (int i = 0; i < place; i++)
                             wildTargets.Add(cells[i].col * 100 + cells[i].row);
@@ -313,16 +311,6 @@ namespace SlotMachine.Core
             step.counters = (int[])state.counter.Clone();
             step.active = state.active;
             return step;
-        }
-
-        /// <summary> Fisher–Yates 洗牌（respin 百搭定点用）。</summary>
-        static void Shuffle<T>(List<T> list, ISlotRng rng)
-        {
-            for (int i = list.Count - 1; i > 0; i--)
-            {
-                int j = rng.Next(i + 1);
-                var tmp = list[i]; list[i] = list[j]; list[j] = tmp;
-            }
         }
 
         /// <summary>
