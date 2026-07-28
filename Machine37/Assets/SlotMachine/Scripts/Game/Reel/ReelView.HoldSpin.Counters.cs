@@ -51,8 +51,6 @@ namespace com.slot
             for (int i = 0; i < m_numObjs.Length; i++)
                 if (m_numObjs[i] != null) m_numObjs[i].ResetAll();
 
-            Debug.Log($"[DIAG-HideAllCounters] 隐藏前活跃计数器数={activeBefore}");
-
             // 关闭所有列的预警特效（新局开始 / Hold&Spin 结束）
             for (int reel = 0; reel < _reels.Count; reel++)
                 SetColumnEffect(reel, false);

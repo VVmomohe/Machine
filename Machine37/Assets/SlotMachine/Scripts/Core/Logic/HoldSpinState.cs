@@ -104,19 +104,6 @@ namespace SlotMachine.Core
             for (int row = 0; row < st.cells[r].Length; row++)
                 if (st.cells[r][row].filled) filled++;
             bool full = filled == st.cells[r].Length;
-            // ★ 诊断：满列触发时打印 cells 长度与已 filled 数，确认是"数据真满列"还是"cells 长度算错导致假满列"。
-            //   若打印 cells长度=4 已filled=4 → 数据正确满列，下落动画逻辑无误，第4颗火球只是被计数器 UI 盖住（视图遮挡）；
-            //   若打印 cells长度=3 已filled=3 → 才是真 bug（cells[r].Length 被错算成 3）。
-            if (full)
-            {
-                var sb = new System.Text.StringBuilder();
-                for (int row = 0; row < st.cells[r].Length; row++)
-                {
-                    var c = st.cells[r][row];
-                    sb.Append($"[row{row}:{(c.filled?"F":"-")} kind={c.kind} x{c.multiplier}] ");
-                }
-                Debug.Log($"[ReelFull] reel{r} 满列触发: cells长度={st.cells[r].Length} 已filled={filled} | {sb} (数据满列→下落动画正确；若视觉只见部分=overlay被销毁/底层格未渲染)");
-            }
             return full;
         }
 

@@ -27,7 +27,6 @@ namespace com.slot
             HideAllCounters();
             ActivateCounters();   // ★ 激活计数器（开 _active 标志），之后 SetCount 才能正常显示
             ClearFireballOverlays();
-            Debug.Log($"[DIAG-ShowFeatureState] 进入 Hold&Spin 显示（计数器可见性由 ReelFireNum 自管）");
 
             for (int r = 0; r < s.reels && r < _reels.Count; r++)
             {
@@ -45,14 +44,6 @@ namespace com.slot
                     SetRespinCounterRow(r, s.counter[r]);
 
             RefreshColumnEffects(s, s.counter);   // 近满列(差1火球)→亮整列 m_effect；已释放/集满列不亮
-
-            if (s.reels > 0 && _reels.Count > 0)
-            {
-                int cnt0 = 0;
-                foreach (var o in _fbOverlays) if (o != null && o.name.StartsWith("FBOverlay_0_")) cnt0++;
-                var s0 = _reels[0];
-                Debug.Log($"[ShowFeatureState] reel0 火球overlay数={cnt0} / cells[0].Length={s.cells[0].Length} | buf={m_buf} rowBaseY={m_rowBaseY} cellSize={m_cellSize} st.rows={s0.rows}");
-            }
         }
 
         // ===== 滚动一轮 =====
@@ -412,12 +403,6 @@ namespace com.slot
                     SetRespinCounterRow(reel, step.counters[reel]);
 
             RefreshColumnEffects(state, step.counters);   // 近满列(差1火球)→亮整列 m_effect；已释放/集满列不亮
-
-            {
-                int cnt0 = 0;
-                foreach (var o in _fbOverlays) if (o != null && o.name.StartsWith("FBOverlay_0_")) cnt0++;
-                Debug.Log($"[ApplyRespinStep] 后 reel0 火球overlay数={cnt0}（本轮新火球={((step.newFireballs!=null)?step.newFireballs.Count:0)}）");
-            }
         }
 
         // ===== 释放列 =====

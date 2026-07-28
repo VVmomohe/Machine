@@ -27,10 +27,11 @@ namespace Com.Back
             m_texts[9].SetStr("版本号");
             m_texts[10].SetStr("设备号");
 
+            var s1 = DataManager.Instance.Setting[1];
             m_titleTexts[0].text = string.Format("{0} 1:{1}", DataManager.Instance.Language[16].GetStr,
-                DataManager.Instance.coin_rate_Arr[DataManager.Instance.Setting[1].coin_rate]);
+                DataManager.Instance.coin_rate_Arr[s1.coin_rate]);
             m_titleTexts[1].text = string.Format("{0} 1:{1}", DataManager.Instance.Language[15].GetStr,
-                DataManager.Instance.ticket_rate_Arr[DataManager.Instance.Setting[1].ticket_rate]);
+                DataManager.Instance.ticket_rate_Arr[s1.ticket_rate]);
         }
 
         // Update is called once per frame
@@ -44,10 +45,11 @@ namespace Com.Back
             textArray[3].text = string.Format("{0}{1}", DataManager.Instance.Account[1].coin, DataManager.Instance.Language[26].GetStr);
             textArray[4].text = string.Format("{0}{1}", DataManager.Instance.Account[1].ticket, DataManager.Instance.Language[25].GetStr);
 
-            textArray[5].text = string.Format("{0}{1}", DataManager.Instance.Setting[1].ClearCount, DataManager.Instance.Language[27].GetStr);
+            var s1 = DataManager.Instance.Setting[1];
+            textArray[5].text = string.Format("{0}{1}", s1.ClearCount, DataManager.Instance.Language[27].GetStr);
 
             // 修改：添加时间戳有效性检查
-            long lastClearDate = DataManager.Instance.Setting[1].LastClearDate;
+            long lastClearDate = s1.LastClearDate;
             DateTime dt;
 
             if (lastClearDate >= 0 && lastClearDate <= 253402300799) // Unix 时间戳有效范围（1970-9999年）
@@ -80,17 +82,18 @@ namespace Com.Back
         public override void SaveDave()
         {
             // 设置
-            DataManager.Instance.Setting[1].ClearCount++;
+            var s1 = DataManager.Instance.Setting[1];
+            s1.ClearCount++;
             if (m_time == null)
                 m_time = FindObjectOfType<TimeView>();
             if (m_time != null && m_time.m_dt >= new DateTime(1970, 1, 1))
             {
                 long timestamp = new DateTimeOffset(m_time.m_dt, TimeZoneInfo.Local.GetUtcOffset(m_time.m_dt)).ToUnixTimeSeconds();
-                DataManager.Instance.Setting[1].LastClearDate = timestamp >= 0 ? timestamp : DateTimeOffset.Now.ToUnixTimeSeconds();
+                s1.LastClearDate = timestamp >= 0 ? timestamp : DateTimeOffset.Now.ToUnixTimeSeconds();
             }
             else
             {
-                DataManager.Instance.Setting[1].LastClearDate = DateTimeOffset.Now.ToUnixTimeSeconds();
+                s1.LastClearDate = DateTimeOffset.Now.ToUnixTimeSeconds();
             }
             DataHelper.Instance.Modify("Data/Setting.xml", DataManager.Instance.Setting, DataManager.Instance.Setting[1]);
 

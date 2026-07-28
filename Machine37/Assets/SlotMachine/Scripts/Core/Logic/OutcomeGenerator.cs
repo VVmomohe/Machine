@@ -173,20 +173,11 @@ namespace SlotMachine.Core
             }
             if (cells.Count == 0) return result;
 
-            Shuffle(cells, rng);
+            RandomHelper.Shuffle(cells, rng);
             int place = Math.Min(cfg.maxWildsPerSpin, cells.Count);
             for (int i = 0; i < place; i++)
                 result.Add(cells[i]);
             return result;
-        }
-
-        static void Shuffle<T>(List<T> list, ISlotRng rng)
-        {
-            for (int i = list.Count - 1; i > 0; i--)
-            {
-                int j = rng.Next(i + 1);
-                (list[i], list[j]) = (list[j], list[i]);
-            }
         }
     }
 }

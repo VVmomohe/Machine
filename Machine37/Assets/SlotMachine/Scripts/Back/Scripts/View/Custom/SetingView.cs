@@ -62,20 +62,21 @@ namespace Com.Back
             textArray[9].text = string.Format("{0}", currentSetting.auto > 0 ? DataManager.Instance.Language[53].GetStr : DataManager.Instance.Language[48].GetStr);
             textArray[10].text = string.Format("{0}", DataManager.Instance.bonus_num_Arr[currentSetting.bonus_num]);
 
-            tagArray[0].text = currentSetting.coin_rate == DataManager.Instance.Setting[1].coin_rate ? "" : "!";
-            tagArray[1].text = currentSetting.ticket_rate == DataManager.Instance.Setting[1].ticket_rate ? "" : "!";
-            tagArray[2].text = currentSetting.bomb_num == DataManager.Instance.Setting[1].bomb_num ? "" : "!";
-            tagArray[3].text = currentSetting.experience_num == DataManager.Instance.Setting[1].experience_num ? "" : "!";
+            var s1 = DataManager.Instance.Setting[1];
+            tagArray[0].text = currentSetting.coin_rate == s1.coin_rate ? "" : "!";
+            tagArray[1].text = currentSetting.ticket_rate == s1.ticket_rate ? "" : "!";
+            tagArray[2].text = currentSetting.bomb_num == s1.bomb_num ? "" : "!";
+            tagArray[3].text = currentSetting.experience_num == s1.experience_num ? "" : "!";
 
-            tagArray[4].text = currentSetting.min_num == DataManager.Instance.Setting[1].min_num ? "" : "!";
-            tagArray[5].text = currentSetting.max_num == DataManager.Instance.Setting[1].max_num ? "" : "!";
+            tagArray[4].text = currentSetting.min_num == s1.min_num ? "" : "!";
+            tagArray[5].text = currentSetting.max_num == s1.max_num ? "" : "!";
 
-            tagArray[6].text = currentSetting.ticket_mode == DataManager.Instance.Setting[1].ticket_mode ? "" : "!";
-            tagArray[7].text = currentSetting.sound_bg == DataManager.Instance.Setting[1].sound_bg ? "" : "!";
-            tagArray[8].text = currentSetting.qr == DataManager.Instance.Setting[1].qr ? "" : "!";
+            tagArray[6].text = currentSetting.ticket_mode == s1.ticket_mode ? "" : "!";
+            tagArray[7].text = currentSetting.sound_bg == s1.sound_bg ? "" : "!";
+            tagArray[8].text = currentSetting.qr == s1.qr ? "" : "!";
 
-            tagArray[9].text = currentSetting.auto == DataManager.Instance.Setting[1].auto ? "" : "!";
-            tagArray[10].text = currentSetting.bonus_num == DataManager.Instance.Setting[1].bonus_num ? "" : "!";
+            tagArray[9].text = currentSetting.auto == s1.auto ? "" : "!";
+            tagArray[10].text = currentSetting.bonus_num == s1.bonus_num ? "" : "!";
 
             if (m_hint.activeSelf)
             {
@@ -204,7 +205,7 @@ namespace Com.Back
 
             JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(currentSetting), target);
 
-            DataHelper.Instance.Modify("Data/Setting.xml", DataManager.Instance.Setting, DataManager.Instance.Setting[1]);
+            DataHelper.Instance.Modify("Data/Setting.xml", DataManager.Instance.Setting, target);
         }
 
         private string NumberToChinese(int num)
