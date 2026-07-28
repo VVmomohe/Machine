@@ -66,6 +66,11 @@ namespace com.slot
             _holdSpinning = true;
             _holdStopRequested = false;
 
+            // ★ 本轮新落火球并入 _baseFireMults，使滚动中(SetCell)能按 kind 显示免费火球外观(freeFire)，与基础旋转 ShowGrid 行为一致。
+            //   （GameManager 不可直接访问此私有字段，故在此(ReelView 内)并入；ApplyRespinStep 停稳后也会再写一遍，幂等。）
+            if (newFireMults != null)
+                foreach (var kv in newFireMults) _baseFireMults[kv.Key] = kv.Value;
+
             var offset = new Dictionary<int, float>();
             var stopAt = new Dictionary<int, float>();
             for (int i = 0; i < spunReels.Count; i++)
@@ -78,95 +83,66 @@ namespace com.slot
             float maxStop = 0f;
             foreach (var v in stopAt.Values) if (v > maxStop) maxStop = v;
             float endTime = maxStop + settleTime;
+            float endTimeInitial = endTime;   // ★ 用于极端兜底上限判断（见下方循环尾）
 
-            var scrollCells = new Dictionary<int, int>();
-            foreach (int reel in spunReels)
-            {
-                if (reel < 0 || reel >= _reels.Count) continue;
-                scrollCells[reel] = PredictScrollCells(stopAt[reel], settleTime);
-            }
+            var scrollCells = new Dictionary<int, int>();   // 落点由减速段进入减速时按当前 offset 向前取窗口起点写入（见下方 decelStartOffset 分支），无需预预测
 
             var fbStripMult = new Dictionary<int, FireballCell>();
-            // ★ 干净循环副本 + 落点追踪：用于"停止键急停时把落点从远处预测停位改到当前附近"，
-            //   像普通局 StopNow(FindAlignedStopPos) 就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（看起来像"没停"）。
-            var displayStripOriginal = new Dictionary<int, List<int>>();
-            var placedIndices = new Dictionary<int, List<int>>();
-            var quickStopped = new HashSet<int>();
+            // ★ 干净循环：displayStrip 建成 respinGrid 周期循环带（方案A，对齐基础局「整条带即结果」），落点只选窗口、滚动中不再重写符号。
+            // ★ 确定性减速 tween 状态：进入减速时记录起点/时间/目标/时长，之后按归一化进度插值，
+            //   保证精确落点、绝不 snap 跳格（根治"不按暂停自然停跳 1~4 格"）。
+            var decelStartOffset = new Dictionary<int, float>();
+            var decelStartTime = new Dictionary<int, float>();
+            var decelTarget = new Dictionary<int, int>();
+            var decelDur = new Dictionary<int, float>();
 
-            // 干净循环：残留火球替换成普通符号，并备份为 displayStripOriginal（停止时还原落点用）
+            // 干净循环：残留火球替换成普通符号，建成 respinGrid 周期循环带（火球格用普通符占位，由 overlay 显示）。
+            // ★ 关键修复(自然停跳 1-2 格)：displayStrip 长度必须是 rows 的整数倍，否则卷轴滚过条带末端折返处
+            //   会出现 (stripLen%rows) 格的逻辑错位（base 旋转靠 finalSyms 落地规避，Hold 只用周期带 → 必现）。
+            //   此处把条带补齐到 rows 整数倍（按周期公式续写占位符），整圈无缝。
             foreach (int reel in spunReels)
             {
                 if (reel < 0 || reel >= _reels.Count) continue;
                 var st = _reels[reel];
-                int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
-                if (stripLen <= 0) continue;
-                for (int i = 0; i < stripLen; i++)
-                    if (st.displayStrip[i] == m_fireballSymbolId) st.displayStrip[i] = RandNormalSymbol();
-                displayStripOriginal[reel] = new List<int>(st.displayStrip);  // 干净循环副本
+                int oldLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
+                if (oldLen <= 0) continue;
+                // ★ 方案A：displayStrip 建成 respinGrid 的周期循环带（对齐基础局「整条带即结果」）。
+                //   周期 = 该列行数(rows)，逻辑行 row 对应索引 (stripBase + m_buf + row)。
+                //   ★ 本轮「新落」火球(respinGrid=12 且属 newFireMults)保留为真实条带符号(id12)随卷轴滚入；
+                //     历史已锁定火球(respinGrid=12 但非本轮新落)用普通符占位，由已存在的 pinned overlay 显示、保持锁定不动。
+                //   任意 basePos 显示均为 respinGrid 周期序列 → 急停就近不突变（与基础局同构）。
+                int rowsN = st.rows;
+                int newLen = Mathf.CeilToInt(oldLen / (float)rowsN) * rowsN;   // ★ 补齐到 rows 整数倍（无缝循环）
+                var newStrip = new List<int>(newLen);
+                for (int i = 0; i < newLen; i++)
+                {
+                    int row2 = (((i - st.stripBase - m_buf) % rowsN) + rowsN) % rowsN;
+                    int sym2 = (respinGrid != null && reel < respinGrid.Length && respinGrid[reel] != null && row2 < respinGrid[reel].Length)
+                        ? respinGrid[reel][row2] : 0;
+                    // ★ 用户要求"火球像普通ICON一样滚进来"：本轮「新落」火球(respinGrid=12 且属于 step.newFireballs)保留为真实条带符号(id12)，
+                    //   随卷轴自然滚入；停稳后由 ApplyRespinStep 在 m_fireNode 顶层生成锁定 overlay（固定不滚、压最上）。
+                    //   非本轮新落(历史已锁定)火球 → 仍用普通符占位(由已存在的 pinned overlay 显示，保持锁定不动)。
+                    bool isNewFireball = (sym2 == m_fireballSymbolId) && (newFireMults != null) && newFireMults.ContainsKey(reel * 100 + row2);
+                    newStrip.Add(isNewFireball ? m_fireballSymbolId : ((sym2 <= 0 || sym2 == m_fireballSymbolId) ? RandNormalSymbol() : sym2));
+                }
+                st.displayStrip = newStrip;
             }
 
-            // ★ 把本轮 respin 结果（newFireMults 火球 + respinGrid 符号）写入 displayStrip 的 landOffset 落点，并同步 fbStripMult。
-            //   重复调用会先按 placedIndices 还原到 displayStripOriginal（干净循环），再写新落点——
-            //   这是"停止键就近重算落点"的关键：停止时把落点从远处预测位挪到当前附近，火球/符号随之平移，卷轴快速收敛停下。
-            void PlaceRespinResult(int reel, int landOffset)
-            {
-                if (reel < 0 || reel >= _reels.Count) return;
-                var st = _reels[reel];
-                int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
-                if (stripLen <= 0) return;
-
-                // 1) 还原上一次落点（恢复成干净循环符号）
-                if (placedIndices.ContainsKey(reel))
-                    foreach (int idx in placedIndices[reel])
-                        st.displayStrip[idx] = displayStripOriginal[reel][idx];
-                placedIndices[reel] = new List<int>();
-
-                // 2) 清本列旧 fbStripMult
-                int prefix = reel * 100000;
-                var stale = new List<int>();
-                foreach (var kv in fbStripMult)
-                    if (kv.Key >= prefix && kv.Key < prefix + 100000) stale.Add(kv.Key);
-                foreach (var key in stale) fbStripMult.Remove(key);
-
-                // 3) 火球落点
-                if (newFireMults != null)
-                {
-                    foreach (var kv in newFireMults)
-                    {
-                        int rk = kv.Key / 100;
-                        if (rk != reel) continue;
-                        int row = kv.Key % 100;
-                        int fbIdx = ((st.stripBase + landOffset + m_buf + row) % stripLen + stripLen) % stripLen;
-                        st.displayStrip[fbIdx] = m_fireballSymbolId;
-                        placedIndices[reel].Add(fbIdx);
-                        fbStripMult[reel * 100000 + fbIdx] = kv.Value;
-                    }
-                }
-
-                // 4) respinGrid 符号落点（火球格跳过）
-                if (respinGrid != null && reel < respinGrid.Length && respinGrid[reel] != null)
-                {
-                    for (int row2 = 0; row2 < respinGrid[reel].Length; row2++)
-                    {
-                        int sym2 = respinGrid[reel][row2];
-                        if (sym2 <= 0 || sym2 == m_fireballSymbolId) continue;
-                        int landIdx2 = ((st.stripBase + landOffset + m_buf + row2) % stripLen + stripLen) % stripLen;
-                        st.displayStrip[landIdx2] = sym2;
-                        placedIndices[reel].Add(landIdx2);
-                    }
-                }
-
-                scrollCells[reel] = landOffset;
-            }
-
-            // 初始：把结果放到自然预测停位 scrollCells（未按停止键时的落点）
-            foreach (int reel in spunReels)
-                if (scrollCells.ContainsKey(reel)) PlaceRespinResult(reel, scrollCells[reel]);
+            // 初始：displayStrip 已是 respinGrid 周期循环带（行108-115 初始化写入），任意 basePos 显示均为 respinGrid 周期序列，
+            //   故无需 PlaceRespinResult 重写落点（重写会引入 landOffset 相位错位 → 普通符变百搭/火球错位）。火球由 overlay 显示。
+            // （PlaceRespinResult 已删除：方案A 周期带直接驱动，重写反成突变源。）
 
             FireballCell FindFireballCell(int reel, int k, int symIdx)
             {
-                int row = k - m_buf;
-                int mkey = reel * 100 + row;
+                // ★ 关键修复(v2)：火球在条带(band)里的"逻辑行"由 band 索引 symIdx 决定（与滚动 offset 无关），
+                //   必须用 symIdx 推逻辑行去 newFireMults 查倍数——之前用 (k - m_buf) 是"视图行"，
+                //   只有停稳(offset≡0 mod rows)那一瞬视图行才等于 band 逻辑行，故滚动中途查不到 → "倍数停下才出"。
+                //   改用 symIdx 推逻辑行：火球滚过的每个格都命中对应倍数 → 倍数随火球一起滚入（与正常局一致）。
+                var rstate = (reel >= 0 && reel < _reels.Count) ? _reels[reel] : null;
+                int rowsN = (rstate != null) ? rstate.rows : 5;
+                int sb = (rstate != null) ? rstate.stripBase : 0;
+                int row2 = ((symIdx - sb - m_buf) % rowsN + rowsN) % rowsN;
+                int mkey = reel * 100 + row2;
                 FireballCell cell = null;
                 if (newFireMults != null && newFireMults.TryGetValue(mkey, out cell)) { }
                 if (cell == null)
@@ -227,55 +203,65 @@ namespace com.slot
 
                     if (!decelActive)
                     {
-                        // 匀速推进：自然停临近 stopAt 时轻微减速更顺；急停尚未轮到本列则保持全速（与普通局一致）。
-                        float spd = m_baseSpeed;
-                        if (!_holdStopRequested)
-                        {
-                            float remaining = stopAt[reel] - t;
-                            if (remaining < 0.35f) spd = m_baseSpeed * Mathf.Clamp01(remaining / 0.35f);
-                        }
-                        offset[reel] += spd * dt;
+                        // 匀速推进：进入减速前保持全速 m_baseSpeed，与减速段初速度严格连续，
+                        // 避免"先被降到近0速、再突然加速前冲"造成的自然停向前跳格观感。
+                        offset[reel] += m_baseSpeed * dt;
                     }
                     else
                     {
-                        // ★ 急停、且该列仍在匀速段时：把落点从远处预测停位改到"当前显示的整数格"（仅此刻改，避免减速中途火球回跳），
-                        //   像普通局 FindAlignedStopPos 就近停——否则固定远停位会让按停止键后卷轴仍按原速爬到远处才停（像"没停"）。
-                        //   ★ 落点必须 = Floor(offset)（精确对齐"按停瞬间显示的当前格"），不可加随机余量：
-                        //     旧版 land = Floor(offset)+1+RandInt(0,1) 把结果符号写到当前显示位置 +1~2 格处，
-                        //     Cell 定格时显示"旁边格的符"而非按停瞬间所见 → 用户感觉 ID 跳动（基础局因符号已固在循环带故不跳）。
-                        //     改为 Floor(offset)：PlaceRespinResult 同帧把结果符号写到当前显示位置，Cell 立即显示、卷轴平滑收敛到该格，符号不突变。
-                        if (_holdStopRequested && !quickStopped.Contains(reel) && t < stopAt[reel])
+                        // ★ 减速段：匀减速（恒定减速度，初速度=v0=m_baseSpeed、末速度=0），速度连续、落点精确、绝无跳格。
+                        //   旧版 ease-out quad 在起点处速度最大(=2*dist/dur)，且进入减速前又把速度降到近0，
+                        //   形成"先停一下→猛地前冲→再减速"的观感（用户描述的"自然停向前跳 3~4 格"）。
+                        //   现 offset = start + v0*τ - ½(v0/dd)τ²，dd=2*dist/v0 反解保证恰好停在 tgt 且速度连续。
+                        if (!decelStartOffset.ContainsKey(reel))
                         {
-                            quickStopped.Add(reel);
-                            int land = Mathf.FloorToInt(offset[reel]);   // 精确对齐当前显示格（无随机偏移 → 不跳动）
-                            PlaceRespinResult(reel, land);
-                        }
-
-                        float target = scrollCells[reel];
-                        float diff = target - offset[reel];
-                        if (Mathf.Abs(diff) < 0.01f)
-                        {
-                            offset[reel] = target;
-                            if (!stoppedReels.Contains(reel))
+                            int cur = Mathf.FloorToInt(offset[reel]);
+                            int tgt;
+                            if (_holdStopRequested)
                             {
-                                stoppedReels.Add(reel);
-                                // 当前列滚动停后：播放 event:/Sounds/1
-                                if (FMODSoundMgr.Instance != null)
-                                    FMODSoundMgr.Instance.PlaySound("event:/Sounds/1");
+                                // 急停：前方就近窗口起点(≡0 mod rows)，相对按停位置总是前进、不回退。
+                                tgt = st.rows * Mathf.CeilToInt(offset[reel] / (float)st.rows);
+                                if (tgt <= Mathf.FloorToInt(offset[reel])) tgt += st.rows;
                             }
+                            else
+                            {
+                                // 自然停：从当前位置向前取最近窗口起点(≡0 mod rows)，与基础局 BeginStop 自然停一致。
+                                int extra = 3 + RandInt(0, 5);
+                                int window = st.rows * Mathf.CeilToInt((cur + extra) / (float)st.rows);
+                                if (window <= cur) window += st.rows;   // 兜底：严格在前方
+                                tgt = window;
+                            }
+                            float dist = tgt - offset[reel];            // 必为正（前方窗口）
+                            float decelTime = (m_baseSpeed > 1f) ? (2f * dist / m_baseSpeed) : 0.6f;
+                            decelStartOffset[reel] = offset[reel];
+                            decelStartTime[reel] = t;
+                            decelTarget[reel] = tgt;
+                            decelDur[reel] = decelTime;
+                            scrollCells[reel] = tgt;   // 落点固定，settle 直接采用，无跳格
+                            float need = t + decelTime + 0.15f;   // ★ 延长 endTime 兜底，确保该列减速完成前循环不退出
+                            if (need > endTime) endTime = need;
+                        }
+                        float v0 = m_baseSpeed;
+                        float dd = decelDur[reel];
+                        float tau = t - decelStartTime[reel];
+                        if (v0 > 1f)
+                        {
+                            // 匀减速：速度由 v0 线性降到 0，偏移量精确收敛到 decelTarget（无 overshoot/回退）。
+                            offset[reel] = decelStartOffset[reel] + v0 * tau - 0.5f * (v0 / dd) * tau * tau;
+                            if (tau >= dd || offset[reel] >= decelTarget[reel]) offset[reel] = decelTarget[reel];
                         }
                         else
                         {
-                            // ★ 收敛：急停落点已就近 → 直接 ease-out（m_quickDecel，无 maxStep 限幅，手感同普通局急停）；
-                            //   自然停目标远 → 保留 maxStep 限幅防"突然前冲"的突兀感。
-                            float decel = _holdStopRequested ? m_quickDecel : m_normalDecel;
-                            float step = diff * Mathf.Clamp01(dt * decel);
-                            if (!_holdStopRequested)
-                            {
-                                float maxStep = m_baseSpeed * dt;
-                                if (Mathf.Abs(step) > maxStep) step = Mathf.Sign(diff) * maxStep;
-                            }
-                            offset[reel] += step;
+                            // 极端兜底（m_baseSpeed 过低）：用 ease-out 收敛，避免除零/异常。
+                            float p = Mathf.Clamp01(tau / dd);
+                            float e = 1f - (1f - p) * (1f - p);
+                            offset[reel] = decelStartOffset[reel] + (decelTarget[reel] - decelStartOffset[reel]) * e;
+                        }
+                        if (offset[reel] >= decelTarget[reel] - 1e-4f && !stoppedReels.Contains(reel))
+                        {
+                            stoppedReels.Add(reel);
+                            if (FMODSoundMgr.Instance != null)
+                                FMODSoundMgr.Instance.PlaySound("event:/Sounds/1");
                         }
                     }
 
@@ -292,8 +278,9 @@ namespace com.slot
                         int symIdx = (topIdx + k) % stripLen;
                         if (symIdx < 0) symIdx += stripLen;
                         int sym = st.displayStrip[symIdx];
-                        if (sym == m_wildId && (reel == 0 || (k - m_buf) == st.rows - 1))
-                            sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
+                        // ★ Hold 模式百搭不在此拦截：respinGrid 已由生成层保证不在 reel0/顶行放百搭，
+                        //   故百搭按 respinGrid 原样显示（滚动中/停后一致，不再随 offset 闪烁/突现）。
+                        //   滚动/定格的拦截兜底统一交由 SetCell（_holdSpinning 期间跳过，避免屏幕行误拦）。
                         if (sym == m_fireballSymbolId)
                         {
                             var cell = FindFireballCell(reel, k, symIdx);
@@ -319,8 +306,20 @@ namespace com.slot
                 bool allStopped = true;
                 foreach (int r in participating) if (!stoppedReels.Contains(r)) { allStopped = false; break; }
                 if (allStopped) break;
+                // ★ 自然停未收敛完（endTime 到但仍有列在滚）→ 延长循环让卷轴平滑收敛到 scrollCells，
+                //   否则 while 退出后 settle 段直接 snap offset=scrollCells，造成 1~2 格跳位、整列符号瞬间重排
+                //   （"普通图标突然变百搭"等观感）。最多续 2.5s 兜底，仍不收敛才允许 snap（极端兜底，正常不会到）。
+                if (t >= endTime)
+                {
+                    // ★ 未收敛完 → 继续平滑滚动直到全列停稳(allStopped)，绝不 snap（根治自然停跳格）。
+                    //   仅保留极端兜底：超过初始 endTime + 6s 仍不收敛才强制退出（tween 0.6s 必完成，正常永不触发）。
+                    if (t > endTimeInitial + 6f) break;
+                    endTime = t + 0.5f;
+                }
 
-                if (_releaseReels.Count > 0) MoveReleasingOverlays(offset);
+                // ★ 火球 overlay 随卷轴滚动（与循环带同公式，停稳精确归位）；释放列交给 MoveReleasingOverlays 滚走销毁。
+                MoveReleasingOverlays(offset);
+                TrackFireballOverlays(offset);
 
                 yield return null;
             }
@@ -330,15 +329,17 @@ namespace com.slot
                 if (reel < 0 || reel >= _reels.Count) continue;
                 var st = _reels[reel];
                 int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
-                offset[reel] = scrollCells[reel];
+                // ★ 落点归正：优先用减速分支精确整数目标 decelTarget（tween 已完成，offset 应已等于此值），
+                //   防御浮点 floor 误差导致的 frac≈1 视觉跳格；否则 fallback scrollCells。
+                if (decelTarget.ContainsKey(reel)) offset[reel] = decelTarget[reel];
+                else if (scrollCells.ContainsKey(reel)) offset[reel] = scrollCells[reel];
                 int basePos = Mathf.FloorToInt(offset[reel]);
                 int topIdx = st.stripBase + basePos;
                 if (stripLen > 0) st.stripBase = ((topIdx % stripLen) + stripLen) % stripLen;
                 for (int k = 0; k < st.cells.Count; k++)
                 {
-                    int row = k - m_buf;
                     var rt = st.cells[k].transform as RectTransform;
-                    if (rt != null) rt.anchoredPosition = new Vector2(0f, RowToY(row));
+                    if (rt != null) rt.anchoredPosition = new Vector2(0f, RowToY(k - m_buf));
 
                     int symIdx = 0;
                     int sym;
@@ -356,17 +357,9 @@ namespace com.slot
                         var mult = FindFireballCell(reel, k, ((stripLen > 0) ? ((topIdx + k) % stripLen) : 0));
                         if (mult != null) SetCellFireballMult(st, k, mult);
                     }
-                    else if (sym == m_wildId)
-                    {
-                        // ★ 与逐帧渲染保持一致：仅 reel0 / 最后一行 的百搭做确定性替换（m_symbolMin + symIdx%...），
-                        //   其余百搭原样保留、不再在此做 landWild>1 的随机替换。
-                        //   原因：逐帧渲染时多张百搭都正常显示，若此处用 RandNormalSymbol() 随机换掉第 2 张，
-                        //   会造成"滚动时明明有百搭、停好之后却莫名变成别的图案"（用户反馈的 BUG）。
-                        //   百搭总量/列位已由生成层 DecideWildPlan/DecideWildPlanRespin 提前定点（写一次不事后替换），
-                        //   此处仅做 reel0/顶行显示拦截兜底（与 SetCell 的百搭统一拦截点一致），不再依赖 LimitWildsOnBoard。
-                        if (reel == 0 || row == st.rows - 1)
-                            sym = m_symbolMin + (symIdx % (m_symbolMax - m_symbolMin));
-                    }
+                    // ★ 用户原则：Hold 期间所有 ICON（普通 + 特殊/百搭/火球）只在开始(band-build 用 respinGrid 决定)决定，
+                    //   定格段不再做任何符号替换。sym 直接来自 displayStrip(=respinGrid 周期带)，原样写入——
+                    //   与滚动循环(已不拦截百搭)完全一致，根除"滚动是百搭、停下变普通ICON"的"中途修改"。
                     SetCell(st, k, sym, true);
                     if (sym == m_fireballSymbolId)
                     {
@@ -389,31 +382,6 @@ namespace com.slot
             _holdSpinning = false;
         }
 
-        int PredictScrollCells(float stopAtReel, float settleTime)
-        {
-            float simOffset = 0f;
-            float simT = 0f;
-            float simEnd = stopAtReel + settleTime;
-            const float dt = 1f / 60f;
-            while (simT < simEnd)
-            {
-                simT += dt;
-                if (simT < stopAtReel)
-                {
-                    float remaining = stopAtReel - simT;
-                    float spd = (remaining < 0.35f) ? m_baseSpeed * Mathf.Clamp01(remaining / 0.35f) : m_baseSpeed;
-                    simOffset += spd * dt;
-                }
-                else
-                {
-                    float target = Mathf.Round(simOffset);
-                    float diff = target - simOffset;
-                    if (Mathf.Abs(diff) < 0.01f) simOffset = target;
-                    else simOffset += diff * Mathf.Clamp01(dt * m_normalDecel);
-                }
-            }
-            return Mathf.RoundToInt(simOffset);
-        }
 
         // ===== 滚动结束后结算 =====
 
@@ -428,10 +396,13 @@ namespace com.slot
 
             if (step.newFireballs != null)
             {
+                // ★ 本轮新落火球：滚动时已作为真实条带符号(id12)随卷轴滚入并停稳；此处(停稳后)在 m_fireNode 顶层生成锁定 overlay
+                //   —— 固定不滚、压最上层，供后续轮次保持锁定 + 结算/特效/满列统计查询(HasFireballOverlay/CountFireballsInColumn)。
+                //   （不再在 AdvanceHoldSpin 滚动「前」预创建 → 避免"一开局就出现、没滚动进来"的突兀感，符合用户要求。）
                 foreach (var c in step.newFireballs)
                 {
-                    ShowFireballOverlay(c.reel, c.row, c);
                     _baseFireMults[c.reel * 100 + c.row] = c;
+                    ShowFireballOverlay(c.reel, c.row, c, playSound: true);
                 }
             }
 

@@ -190,14 +190,18 @@ namespace Com.Back
 
         public override void SaveDave()
         {
-            // 账户未清帐（仍有账目）→ 必须先清帐才能保存：显示提示并拦截保存，绝不写盘
-            if (!IsAccountDataEmpty())
+            var target = DataManager.Instance.Setting[1];
+
+            // 仅当本次改动涉及 coin_rate 或 ticket_rate 时，才强制要求先清帐再保存
+            // （汇率变动会影响账目换算，必须先清帐避免账目错乱）；修改其它参数无需清帐。
+            bool changedRate = currentSetting.coin_rate != target.coin_rate ||
+                               currentSetting.ticket_rate != target.ticket_rate;
+            if (changedRate && !IsAccountDataEmpty())
             {
                 m_hint.SetActive(true);
                 return;
             }
 
-            var target = DataManager.Instance.Setting[1];
             JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(currentSetting), target);
 
             DataHelper.Instance.Modify("Data/Setting.xml", DataManager.Instance.Setting, DataManager.Instance.Setting[1]);

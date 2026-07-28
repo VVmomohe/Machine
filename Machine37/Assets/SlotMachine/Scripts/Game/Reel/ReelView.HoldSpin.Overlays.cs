@@ -20,8 +20,12 @@ namespace com.slot
             var st = _reels[reel];
             if (st.container == null) return;
 
-            Transform parent = m_persistentFireOverlays && m_node != null && reel < m_node.Length && m_node[reel] != null
-                ? m_node[reel].transform : st.container.transform;
+            // ★ 用户要求"停下的火球放 m_fireNode 下面，肯定在最上层"：主游戏(非持久)优先挂 m_fireNode(顶层容器)；
+            //   Mini 持久模式仍按原逻辑挂 m_node[reel](跨 ClearAll 存活)。m_fireNode 未绑定时回退到 m_node[reel]/st.container。
+            //   位置统一用世界坐标(TransformPoint)计算，避免挂到不同父节点后 X 偏移错乱。
+            bool useFireNode = (!m_persistentFireOverlays && m_fireNode != null);
+            Transform parent = useFireNode ? m_fireNode.transform
+                : ((m_node != null && reel >= 0 && reel < m_node.Length && m_node[reel] != null) ? m_node[reel].transform : st.container.transform);
             GameObject go;
             if (m_symbolPrefab != null)
             {
@@ -36,13 +40,17 @@ namespace com.slot
             _fbOverlays.Add(go);
 
             var rt = go.transform as RectTransform;
-            if (rt != null) rt.anchoredPosition = new Vector2(0f, RowToY(row));
+            // 世界坐标定位：取该列(row)在 m_node[reel] 下的世界位置，挂到任意父节点(含 m_fireNode)都正确。
+            Vector3 worldPos = (m_node != null && reel >= 0 && reel < m_node.Length && m_node[reel] != null)
+                ? m_node[reel].transform.TransformPoint(0f, RowToY(row), 0f)
+                : this.transform.TransformPoint(0f, RowToY(row), 0f);
+            if (rt != null) rt.position = worldPos;
             go.transform.SetAsLastSibling();
 
             if (rt != null)
                 // ★ 诊断：每次创建火球 overlay 都打印其 kind+multiplier，便于确认"固定后 kind 是否真由 Multiplier 变 FreeSpins"。
                 //   复现后请在 Editor.log 按 [FBOverlay] 过滤，看同一 FBOverlay_{reel}_{row} 是否先 Multiplier 后 FreeSpins（若仅出现一次且为 FreeSpins，则为合法免费火球，非突变）。
-                Debug.Log($"[FBOverlay] {go.name} kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} Y={rt.anchoredPosition.y:F1} parent={parent.name} active={go.activeSelf} (reel{reel} row{row})");
+                Debug.Log($"[FBOverlay] {go.name} kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} Y={worldPos.y:F1} parent={parent.name} active={go.activeSelf} (reel{reel} row{row})");
 
             var item = go.GetComponent<ReelItem>();
             if (item != null)
@@ -92,14 +100,43 @@ namespace com.slot
                 if (rt != null)
                 {
                     float off = offset.ContainsKey(reel) ? offset[reel] : 0f;
-                    float y = RowToY(row) - off * m_cellSize;
-                    rt.anchoredPosition = new Vector2(0f, y);
-                    if (y < bottomLimit)
+                    // ★ 世界坐标定位：释放火球随卷轴向下滚走(母节点可能是 m_fireNode 或 m_node[reel])。
+                    //   用母列世界原点 + 向下偏移，保证挂到任意父节点都正确；bottomLimit 仍用卷轴局部 Y(RowToY 坐标系)判定。
+                    Vector3 baseWorld = (m_node != null && reel >= 0 && reel < m_node.Length && m_node[reel] != null)
+                        ? m_node[reel].transform.TransformPoint(0f, RowToY(row), 0f)
+                        : this.transform.TransformPoint(0f, RowToY(row), 0f);
+                    rt.position = baseWorld - new Vector3(0f, off * m_cellSize, 0f);
+                    float yLocal = RowToY(row) - off * m_cellSize;   // 卷轴局部 Y（与 bottomLimit 同坐标系）
+                    if (yLocal < bottomLimit)
                     {
                         Destroy(go);
                         _fbOverlays.RemoveAt(i);
                     }
                 }
+            }
+        }
+
+        /// <summary>锁定火球 overlay 固定在其逻辑格 RowToY(row)，不随卷轴滚动（Hold&Spin 锁定语义）。
+        /// 底层 displayStrip 周期带照常滚动显示普通符，火球由固定 overlay 盖住；火球自始至终停在它的格子里、
+        /// 不漂移、不"跳格"，与正常局一致。仅释放列(tong 收走)才交给 MoveReleasingOverlays 滚走销毁。</summary>
+        void TrackFireballOverlays(Dictionary<int, float> offset)
+        {
+            for (int i = 0; i < _fbOverlays.Count; i++)
+            {
+                var go = _fbOverlays[i];
+                if (go == null) continue;
+                int reel, row;
+                if (!ParseReelRow(go.name, out reel, out row)) continue;
+                if (_releaseReels.Contains(reel)) continue;   // 释放列交给 MoveReleasingOverlays 滚走销毁
+                var rt = go.transform as RectTransform;
+                if (rt == null) continue;
+                // ★ 关键修复：火球一旦锁定即固定在其逻辑格。旧实现用 off%rows 周期性折返，
+                //   每滚一整圈火球 overlay 整体跳一个周期(=rows 格) → 用户看到的"火球没固定、还跳格"。
+                //   改为固定位置后，停轮时底层周期带对齐位(off%rows==0)与 overlay 自然重合，无需再随卷轴平移。
+                //   ★ 世界坐标定位：母节点可能是 m_fireNode 或 m_node[reel]，用 TransformPoint 保证 X/Y 都正确(避免父节点偏移错乱)。
+                rt.position = (m_node != null && reel >= 0 && reel < m_node.Length && m_node[reel] != null)
+                    ? m_node[reel].transform.TransformPoint(0f, RowToY(row), 0f)
+                    : this.transform.TransformPoint(0f, RowToY(row), 0f);
             }
         }
 

@@ -53,6 +53,9 @@ namespace com.slot
         private long _rollStartCredit;
         private long _rollDelta;
         private bool _rollResetBet;
+        /// <summary>滚动令牌：每次 StartRollCore 自增；OnRollDone 携带启动时的令牌，仅当仍等于当前令牌才落账。
+        /// 防止"旧协程的 onDone 在新滚动启动后才触发"时误清 _rolling / 误调 FinalizeRoll（偶发丢分根因）。</summary>
+        private int _rollToken;
 
         void Start()
         {
@@ -185,6 +188,14 @@ namespace com.slot
             StartRollCore(amt, false);
         }
 
+        /// <summary>仅把赢分滚进余额，不改 m_win_num 显示（调用方已用 ShowWinValue 显示过总额）。
+        /// 用于 Hold&Spin 收尾"只补差额"：每轮即时落账的部分不再重复显示/重复加。</summary>
+        public void AddWinToCredit(long amount)
+        {
+            if (amount <= 0) return;
+            StartRollCore(amount, false);
+        }
+
         /// <summary>仅显示赢分（不滚动入账），用于"转轮停稳后先亮出赢分，稍后再滚进总分"的第一拍。</summary>
         public void ShowWinValue(long win)
         {
@@ -224,11 +235,12 @@ namespace com.slot
             _rollDelta = delta;
             _rollResetBet = resetBet;
             _rolling = true;
+            int myToken = ++_rollToken;   // 本轮令牌：旧 onDone 若在新滚动启动后才触发，令牌不匹配则忽略
 
             float dur = CreditRoller.DurationFor(delta);
             // 声音在 t=0 起拍；数字等待 HarvestSoundLead 后起步(与 PandaParadis 同步方式一致)
             PlayWinSound();
-            CreditRoller.Instance.Roll(dur, OnRollTick, OnRollDone, HarvestSoundLead);
+            CreditRoller.Instance.Roll(dur, OnRollTick, () => OnRollDone(myToken), HarvestSoundLead);
         }
 
         /// <summary>滚动每帧回调：按进度 t(0..1) 插值余额(往上滚入赢分)。
@@ -239,9 +251,12 @@ namespace com.slot
             RefreshNumbers();
         }
 
-        /// <summary>滚动完成回调：落账收尾。</summary>
-        private void OnRollDone()
+        /// <summary>滚动完成回调。带令牌校验：仅当本回调对应的滚动仍是"当前"滚动时才落账，
+        /// 否则（已被新 StartRollCore 顶替）直接忽略——避免旧协程的 onDone 在新滚动进行中误将 _rolling 清零、
+        /// 误调 FinalizeRoll，导致外部 IsRolling 守卫失效、自动连转(autoPlay)抢开新局而丢分（偶发 bug）。</summary>
+        private void OnRollDone(int token)
         {
+            if (token != _rollToken) return;
             _rolling = false;
             FinalizeRoll();
         }

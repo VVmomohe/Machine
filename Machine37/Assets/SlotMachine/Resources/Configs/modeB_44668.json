@@ -495,9 +495,9 @@
     0,
     0,
     0,
-    2,
-    10,
-    50
+    0,
+    0,
+    0
   ],
   "minMatch": 3,
   "totalWays": 0,
@@ -578,7 +578,7 @@
     "triggerScatter": 3,
     "multiplier": 1,
     "retrigger": false,
-    "awardSpins": 10,
+    "awardSpins": 2,
     "maxSpins": 10,
     "scatterRetriggerCounts": [3, 4, 5],
     "scatterRetriggerAwards": [2, 5, 10],

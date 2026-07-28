@@ -69,7 +69,7 @@ namespace SlotMachine.Core
         public int triggerScatter = 3;             // 几颗 Scatter 触发
         public float multiplier = 1f;              // 免费转内全部赢分的倍率
         public bool retrigger = true;              // 免费转内再凑齐 Scatter 是否追加次数
-        public int awardSpins = 10;                // 触发即奖励的免费转次数（3/4/5 个 Scatter 都给相同次数，与"收集免费游戏"3个档次一致）
+        public int awardSpins = 2;                 // 触发即奖励的免费转次数（3 个 Scatter → 2 次免费；Scatter 本身不派彩，仅触发免费转）
         public int maxSpins = 10;                  // 免费转次数上限（防极端值，正常情况下不封顶）
 
         // ===== 方式 A：免费局内 Scatter(icon 11) 连消追加次数 =====
@@ -82,13 +82,16 @@ namespace SlotMachine.Core
 
         public int miniCap = 50;                   // 免费局(Mini)轮数硬上限：转够该轮数即强制结束（防止 Scatter 重触发无限续命）；0=不封顶（退化为 300 轮绝对安全网）
 
-        /// <summary>按 Scatter 数量给免费转次数：达到 triggerScatter(默认3) 即奖励 awardSpins(默认10) 次。
-        /// 3/4/5 个 Scatter 全部给相同次数（平直），这是进入 Mini 的总开关。
+        /// <summary>按 Scatter 数量给免费转次数（分档，与火球免费模式同档次 2/5/10）：
+        /// 1/2 个 → 0（不触发）；3 个 → 2 次；4 个 → 5 次；5+ 个 → 10 次。
+        /// 达到 triggerScatter(默认3) 才触发，低于 3 个返回 0。
         /// 免费转压注沿用触发那次 bet（GameSession.Play 内统一用同一 bet）。</summary>
         public int SpinsFor(int count)
         {
             if (count < triggerScatter) return 0;
-            return (maxSpins > 0 && awardSpins > maxSpins) ? maxSpins : awardSpins;
+            int award = ScatterAwardFor(count);          // 分档 3→2 / 4→5 / 5+→10（scatterRetriggerCounts/Awards）
+            if (award <= 0) award = awardSpins;          // 兜底（count>=triggerScatter 时理论上必有档）
+            return (maxSpins > 0 && award > maxSpins) ? maxSpins : award;
         }
 
         /// <summary>方式 A：单轮免费旋转棋盘上出现 count 颗 Scatter(icon 11) 时追加的免费次数（取不超过 count 的最高档）。</summary>
