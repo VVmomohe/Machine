@@ -188,6 +188,14 @@ namespace com.slot
             StartRollCore(amt, false);
         }
 
+        /// <summary>仅把赢分滚进余额，不改 m_win_num 显示（调用方已用 ShowWinValue 显示过总额）。
+        /// 用于 Hold&Spin 收尾"只补差额"：每轮即时落账的部分不再重复显示/重复加。</summary>
+        public void AddWinToCredit(long amount)
+        {
+            if (amount <= 0) return;
+            StartRollCore(amount, false);
+        }
+
         /// <summary>仅显示赢分（不滚动入账），用于"转轮停稳后先亮出赢分，稍后再滚进总分"的第一拍。</summary>
         public void ShowWinValue(long win)
         {

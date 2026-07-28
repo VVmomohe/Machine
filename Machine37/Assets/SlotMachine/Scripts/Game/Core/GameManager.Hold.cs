@@ -17,12 +17,17 @@ namespace com.slot
         //   抽成协程后无法用 ref/out 参数回传，故提升为实例字段，仅在一轮 AdvanceHoldSpin 生命周期内有效。
         private float _holdRoundWin;
 
+        // ★ 已落账到总分的 Hold 赢分累计（含每轮即时落的 + 收尾补差的）。用于收尾时只补"未加过的差额"，
+        //   避免"每轮即时落账"与"收尾 ApplySpinResult(totalPayout)"重复加同一笔赢分。每次进入 Hold&Spin 清零。
+        private float _holdAppliedWin;
+
         /// <summary>进入 Hold&Spin：显示初始锁定状态 + 每列计数器，然后等待玩家按 Start 逐轮推进。</summary>
         void EnterHoldSpin(GameResult r, HoldSpinState hs)
         {
             _activeHold = hs;
             _holdResult = r;
             _holdRolling = false;
+            _holdAppliedWin = 0f;        // ★ 新 Hold&Spin 开始：已落账赢分清零
             _holdScatterSpins = r.freeSpinsAwarded;   // ★ 记录 Scatter 触发的原始次数（不含 FREE 火球追加），用于区分 collectedFree
 
             if (m_reelView != null)
@@ -164,8 +169,7 @@ namespace com.slot
 
                 if (collectWin > 0)
                 {
-                    if (m_player != null) m_player.ShowWinValue((long)System.Math.Round(collectWin));
-                    _holdRoundWin += collectWin;
+                    _holdRoundWin += collectWin;   // ★ 本轮赢分已在 ResolveAfterRound 续轮分支统一落账+显示，这里不重复
                 }
 
                 foreach (var fr in step.fullReels)
@@ -199,9 +203,19 @@ namespace com.slot
             int freeballAdded = (holdR != null) ? holdR.freeSpinsAwarded - _holdScatterSpins : 0;
             bool collectedFree = freeballAdded > 0;
 
-                // 本轮后尚未结束且未收集 FREE：等信用滚动(IsRolling)动画播完才放行下一轮 Start（防狂按穿透）
+                // 本轮后尚未结束且未收集 FREE：本轮赢分即时落账→等信用滚动(IsRolling)动画播完才放行下一轮 Start
                 if (!hs.IsOver() && !collectedFree)
                 {
+                    // ★ 本轮赢分立即滚入总分（余额每轮即涨）：根除"收尾一次性落账"在 autoPlay 高速连转下
+                    //   偶发丢分（用户 2026-07-28 反馈"赢分没加到总分"）。按 _holdRoundWin 落账并累计到 _holdAppliedWin，
+                    //   收尾 ApplyHoldWinToCredit 只补差额，不会重复加。
+                    if (_holdRoundWin > 0f && m_player != null)
+                    {
+                        m_player.ShowWinValue((long)System.Math.Round(_holdRoundWin));   // 显示本轮赢分
+                        m_player.AddFeatureWin(_holdRoundWin);                            // 滚入总分（不动押注）
+                        _holdAppliedWin += _holdRoundWin;
+                    }
+
                     // ★ 防狂按穿透（用户 2026-07-25 拍板：选"急停+结算完才推进"）：
                     //   本轮赢分信用滚动(IsRolling)动画期间仍保持 _holdRolling=true，忽略所有 Start 输入，
                     //   等动画结束才放行下一轮 Start——避免"结算（赢分滚动）还没播完，狂按就又触发下一轮 respin"（用户反馈的 BUG）。
@@ -226,7 +240,7 @@ namespace com.slot
                     long tw = (long)System.Math.Round(holdR.totalPayout);
                     m_player.ShowWinValue(tw);
                     yield return StartCoroutine(WaitForConfirmKey());
-                    m_player.ApplySpinResult(holdR);
+                    ApplyHoldWinToCredit(holdR);   // 只补未加过的差额（每轮已即时落账）
                 }
 
                 int awardSpins = holdR.freeSpinsAwarded;   // 先保存（下面会清零）
@@ -245,6 +259,7 @@ namespace com.slot
                 holdR.freeSpinsAwarded = 0;
                 _holdScatterSpins = 0;          // Scatter 奖励已随本次 Mini 消耗完毕
                 hs.accumulated = 0;
+                _holdAppliedWin = 0;            // ★ 已落账赢分清零（Mini 后的赢分从 0 起算补差）
 
                 // 隐藏计数器（Mini 回来后恢复），但不清 _activeHold
                 if (m_reelView != null) m_reelView.HideAllCounters();
@@ -274,7 +289,7 @@ namespace com.slot
                 long tw = (long)System.Math.Round(holdR.totalPayout);
                 m_player.ShowWinValue(tw);
                 yield return StartCoroutine(WaitForConfirmKey());
-                m_player.ApplySpinResult(holdR);
+                ApplyHoldWinToCredit(holdR);   // 只补未加过的差额（每轮已即时落账）
                 // ★ 计数器不在确认时隐藏：保留"收集到多少倍"的显示，直到玩家按确认开新基础局
                 //   (OnStartKey → Spin → ShowGrid 入口的 HideAllCounters) 才统一消失。
             }
@@ -307,6 +322,18 @@ namespace com.slot
             }
 
             if (r != null) Settle(r);
+        }
+
+        /// <summary>把 Hold&Spin 结算赢分补进总分：只加「totalPayout - 已落账(_holdAppliedWin)」的差额，
+        /// 不动 m_win_num 显示（调用方已用 ShowWinValue 显示 totalPayout）。每轮已即时落账的部分不重复加。
+        /// 用于取代原先的 ApplySpinResult(totalPayout)（那会把每轮已加过的赢分再加重一遍）。</summary>
+        void ApplyHoldWinToCredit(GameResult r)
+        {
+            if (r == null || m_player == null) return;
+            float remaining = r.totalPayout - _holdAppliedWin;
+            if (remaining > 0.5f)
+                m_player.AddWinToCredit((long)System.Math.Round(remaining));
+            _holdAppliedWin = r.totalPayout;   // 标记已全部落账，后续再调也不会重复加
         }
 
         /// <summary>按列统计 FreeSpins 火球，分档追加免费次数（IsOver 兜底路径用）。
