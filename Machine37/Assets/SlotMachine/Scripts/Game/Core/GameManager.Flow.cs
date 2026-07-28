@@ -278,6 +278,8 @@ namespace com.slot
         /// </summary>
         IEnumerator WaitForConfirmKey(bool allowAuto = true)
         {
+            float enterT = Time.time;
+            Debug.Log($"[Settle-Timing] 开始 settle: enterT={enterT:F3} autoPlay={autoPlay} settleMinShowSeconds={settleMinShowSeconds} settleAutoShowSeconds={settleAutoShowSeconds}");
             _waitingConfirm = true;
             try
             {
@@ -287,6 +289,7 @@ namespace com.slot
                 if (autoPlay)
                 {
                     yield return new WaitForSeconds(settleMinShowSeconds);
+                    Debug.Log($"[Settle-Timing] 结束 settle(autoPlay): now={Time.time:F3} 实际={Time.time - enterT:F3}s (期望≈{settleMinShowSeconds})");
                     _waitingConfirm = false;
                     yield break;
                 }
@@ -300,6 +303,7 @@ namespace com.slot
                 {
                     float autoShow = Mathf.Max(settleAutoShowSeconds, settleMinShowSeconds);
                     yield return new WaitForSeconds(autoShow);
+                    Debug.Log($"[Settle-Timing] 结束 settle(sd.auto==1): now={Time.time:F3} 实际={Time.time - enterT:F3}s (期望≈{autoShow})");
                     _waitingConfirm = false;
                     yield break;
                 }
@@ -307,13 +311,13 @@ namespace com.slot
                 // 手动确认 / 连续按确认：等确认键，但保证最短显示时间。
                 // ★ 即便玩家在赢分/选中高亮刚出现的瞬间就按确认，也至少停留 settleMinShowSeconds 秒，
                 //   让赢分滚动和连线高亮播完，避免「秒过」看不清结算。时间可在 Inspector 调。
-                float enterT = Time.time;
                 float minShow = Mathf.Max(0f, settleMinShowSeconds);
                 while (_waitingConfirm)
                     yield return null;
                 float remain = minShow - (Time.time - enterT);
                 if (remain > 0f)
                     yield return new WaitForSeconds(remain);
+                Debug.Log($"[Settle-Timing] 结束 settle(手动/连按): now={Time.time:F3} 实际={Time.time - enterT:F3}s (下限={minShow})");
             }
             finally
             {
