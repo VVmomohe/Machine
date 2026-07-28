@@ -47,6 +47,28 @@ namespace SlotMachine.Core
                     _pots[j.tier] += bet * j.potRate;
         }
 
+        /// <summary>中奖重置：把某一档渐进池清零回 seed（重新开始累积）。彩金火球的 multiplier 在生成时已锁定，
+        /// 重置不影响已经结算入账的金额。供主游戏 Hold&Spin 收尾 / Mini 结算时，对本次中过的档调用。</summary>
+        public void ResetJackpot(string tier)
+        {
+            if (string.IsNullOrEmpty(tier) || _cfg.jackpots == null) return;
+            for (int i = 0; i < _cfg.jackpots.Count; i++)
+            {
+                var j = _cfg.jackpots[i];
+                if (j.tier == tier && _pots.ContainsKey(tier))
+                {
+                    _pots[tier] = j.potSeed > 0f ? j.potSeed : (float)System.Math.Max(j.value, 1f);
+                    return;
+                }
+            }
+        }
+
+        public void ResetJackpots(IEnumerable<string> tiers)
+        {
+            if (tiers == null) return;
+            foreach (var t in tiers) ResetJackpot(t);
+        }
+
         public GameResult Play(float bet)
         {
             var res = new GameResult();

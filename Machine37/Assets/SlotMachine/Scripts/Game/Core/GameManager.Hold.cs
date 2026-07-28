@@ -322,6 +322,11 @@ namespace com.slot
             }
 
             if (r != null) Settle(r);
+
+            // ★ 中过彩金后清零对应档池（渐进池中奖重置）；火球 multiplier 在生成时已锁定，不影响已中金额
+            if (hs != null && hs.wonJackpots != null && hs.wonJackpots.Count > 0 && m_machine?.session != null)
+                foreach (var k in hs.wonJackpots)
+                    m_machine.session.ResetJackpot(k.ToString());
         }
 
         /// <summary>把 Hold&Spin 结算赢分补进总分：只加「totalPayout - 已落账(_holdAppliedWin)」的差额，

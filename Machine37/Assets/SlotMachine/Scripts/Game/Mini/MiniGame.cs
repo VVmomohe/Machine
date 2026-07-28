@@ -309,6 +309,11 @@ public class MiniGame : MonoBehaviour
             foreach (var kind in result.jackpots)
                 bonus.ShowJackpotEffect(kind);
 
+        // ★ 中过彩金后清零对应档池（渐进池中奖重置）；multiplier 已在火球生成时锁定，不影响已中金额
+        if (GameManager.Instance?.m_machine?.session != null && result.jackpots != null)
+            foreach (var kind in result.jackpots)
+                GameManager.Instance.m_machine.session.ResetJackpot(kind.ToString());
+
         RestoreMainBoard(result);
     }
 
