@@ -92,7 +92,7 @@ namespace com.slot
             var step = GameSession.RespinHoldSpin(hs, m_machine.config, m_machine.rng,
                 m_machine.totalBet, m_machine.session.Pots, allowFreeMode: true, engaged: engagedCols);
 
-            // 2) 滚动列 = 未集满列 + 收集满列后"释放滚走"中的幽灵列
+            // 2) 滚动列 = 未集满列 + 本轮刚集满列(让完成满列的最后一颗火球随卷轴滚入) + 收集满列后"释放滚走"中的幽灵列
             var spun = new List<int>();
             for (int rr = 0; rr < hs.reels; rr++)
             {
@@ -100,6 +100,11 @@ namespace com.slot
                 if (m_reelView != null && m_reelView.IsReelReleasing(rr))
                     spun.Add(rr);
             }
+            // ★ 修复 BUG：本轮刚集满的列(hs.isFull 在 RespinHoldSpin 内被置 true，但还不是释放态)会被上面循环漏掉 → 该列本回合不滚动，
+            //   完成满列的最后一颗火球直接以 overlay 出现（无滚入动画）。显式补进 spun，使其本回合照常滚入、停稳后再走满列收集。
+            if (step.fullReels != null)
+                foreach (var fr in step.fullReels)
+                    if (!spun.Contains(fr.reel)) spun.Add(fr.reel);
 
             // 3) 真卷轴滚动（新火球作为真实条带符号 id12 随卷轴滚入，停稳后由 ApplyRespinStep 生成锁定 overlay）
             if (m_reelView != null)
