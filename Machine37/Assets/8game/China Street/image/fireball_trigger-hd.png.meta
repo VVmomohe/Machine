@@ -1,0 +1,1167 @@
+fileFormatVersion: 2
+guid: 9581de8f739c17a4886a92ee61ebd3e0
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_0
+      rect:
+        serializedVersion: 2
+        x: 1761
+        y: 2589
+        width: 247
+        height: 296
+      alignment: 9
+      pivot: {x: 0.5, y: 0.46283785}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6cfb7b2a295136980800000000000000
+      internalID: -8546963948279709754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_1
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 563
+        width: 247
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45890412}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86f591be884eb8030800000000000000
+      internalID: 3498140812294315880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_2
+      rect:
+        serializedVersion: 2
+        x: 1786
+        y: 863
+        width: 199
+        height: 230
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45217392}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0bba6cea3ec76f170800000000000000
+      internalID: 8211888287888354224
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_3
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 694
+        width: 139
+        height: 161
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45341614}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c70ef0aaf9a8a7fe0800000000000000
+      internalID: -1190486733128474500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_4
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 1077
+        width: 103
+        height: 121
+      alignment: 9
+      pivot: {x: 0.5, y: 0.46280992}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85c1ee488fa19b430800000000000000
+      internalID: 3799097415348132952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_5
+      rect:
+        serializedVersion: 2
+        x: 1153
+        y: 753
+        width: 121
+        height: 140
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45714286}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bff51db8771d03e60800000000000000
+      internalID: 7940076454431252475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_6
+      rect:
+        serializedVersion: 2
+        x: 1786
+        y: 673
+        width: 160
+        height: 186
+      alignment: 9
+      pivot: {x: 0.503125, y: 0.45698926}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01710a7dd66535bc0800000000000000
+      internalID: -3795595031174179056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_7
+      rect:
+        serializedVersion: 2
+        x: 1574
+        y: 847
+        width: 208
+        height: 246
+      alignment: 9
+      pivot: {x: 0.50240386, y: 0.45528457}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14a3d87b56c792cd0800000000000000
+      internalID: -2582396135007241663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_8
+      rect:
+        serializedVersion: 2
+        x: 1775
+        y: 3794
+        width: 254
+        height: 298
+      alignment: 9
+      pivot: {x: 0.5019685, y: 0.45973155}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1357aaf93c6b3380800000000000000
+      internalID: -8990473234840857830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_9
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 859
+        width: 287
+        height: 339
+      alignment: 9
+      pivot: {x: 0.5, y: 0.460177}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 529b9bd21a7572920800000000000000
+      internalID: 2965435229415258405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_10
+      rect:
+        serializedVersion: 2
+        x: 1701
+        y: 1864
+        width: 297
+        height: 357
+      alignment: 9
+      pivot: {x: 0.5, y: 0.46218488}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ce5822f881f5ede0800000000000000
+      internalID: -1304370946573312317
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_11
+      rect:
+        serializedVersion: 2
+        x: 418
+        y: 846
+        width: 297
+        height: 357
+      alignment: 9
+      pivot: {x: 0.5, y: 0.46218488}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbc8c49218acf2ba0800000000000000
+      internalID: -6111443513225999172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_12
+      rect:
+        serializedVersion: 2
+        x: 1735
+        y: 2225
+        width: 302
+        height: 360
+      alignment: 9
+      pivot: {x: 0.49834436, y: 0.4611111}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e365d2c0027123e0800000000000000
+      internalID: -2080256205274127389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_13
+      rect:
+        serializedVersion: 2
+        x: 797
+        y: 860
+        width: 352
+        height: 366
+      alignment: 9
+      pivot: {x: 0.49857953, y: 0.46994534}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37630609982e4bd70800000000000000
+      internalID: 9058113831009531507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_14
+      rect:
+        serializedVersion: 2
+        x: 1216
+        y: 897
+        width: 354
+        height: 374
+      alignment: 9
+      pivot: {x: 0.50141245, y: 0.48128343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dad0efb44b1521210800000000000000
+      internalID: 1302193077074398637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_15
+      rect:
+        serializedVersion: 2
+        x: 1608
+        y: 1097
+        width: 355
+        height: 376
+      alignment: 9
+      pivot: {x: 0.5, y: 0.48138297}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 476bb417c2cfdf860800000000000000
+      internalID: 7565480216861849204
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_16
+      rect:
+        serializedVersion: 2
+        x: 1672
+        y: 1477
+        width: 367
+        height: 383
+      alignment: 9
+      pivot: {x: 0.5, y: 0.49347258}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 323b3f10d3e219e20800000000000000
+      internalID: 3355514036928361251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_17
+      rect:
+        serializedVersion: 2
+        x: 832
+        y: 1230
+        width: 380
+        height: 373
+      alignment: 9
+      pivot: {x: 0.5013158, y: 0.4772118}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba95c21a5b39d7970800000000000000
+      internalID: 8754315658980514219
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_18
+      rect:
+        serializedVersion: 2
+        x: 1224
+        y: 1275
+        width: 380
+        height: 376
+      alignment: 9
+      pivot: {x: 0.5013158, y: 0.47606382}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bded451e90258d8c0800000000000000
+      internalID: -3974336468765843749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_19
+      rect:
+        serializedVersion: 2
+        x: 418
+        y: 1207
+        width: 375
+        height: 380
+      alignment: 9
+      pivot: {x: 0.5, y: 0.48157895}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8d47e4c1b716c790800000000000000
+      internalID: -7510289276313580149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_20
+      rect:
+        serializedVersion: 2
+        x: 832
+        y: 1607
+        width: 388
+        height: 387
+      alignment: 9
+      pivot: {x: 0.50128865, y: 0.48062015}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9203122b87e7e250800000000000000
+      internalID: 5973998015488393883
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_21
+      rect:
+        serializedVersion: 2
+        x: 1261
+        y: 1655
+        width: 407
+        height: 391
+      alignment: 9
+      pivot: {x: 0.5, y: 0.48337597}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a7572b0a0e6edc30800000000000000
+      internalID: 4386064076521297827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_22
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1202
+        width: 410
+        height: 389
+      alignment: 9
+      pivot: {x: 0.5012195, y: 0.4807198}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd25b87937a2048a0800000000000000
+      internalID: -6323007200876080419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_23
+      rect:
+        serializedVersion: 2
+        x: 422
+        y: 2022
+        width: 411
+        height: 396
+      alignment: 9
+      pivot: {x: 0.5, y: 0.48232323}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf57fb266db596a40800000000000000
+      internalID: 5361917807699129851
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_24
+      rect:
+        serializedVersion: 2
+        x: 1331
+        y: 3296
+        width: 427
+        height: 394
+      alignment: 9
+      pivot: {x: 0.5023419, y: 0.48984772}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4ec16de39aaf7000800000000000000
+      internalID: 35934874361777738
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_25
+      rect:
+        serializedVersion: 2
+        x: 1336
+        y: 3694
+        width: 435
+        height: 398
+      alignment: 9
+      pivot: {x: 0.5, y: 0.4874372}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c00b9008ab61ed1d0800000000000000
+      internalID: -3324194484685000692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_26
+      rect:
+        serializedVersion: 2
+        x: 893
+        y: 3701
+        width: 439
+        height: 391
+      alignment: 9
+      pivot: {x: 0.5, y: 0.47570333}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 454550c768ae07a60800000000000000
+      internalID: 7669888028739195988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_27
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 3694
+        width: 440
+        height: 398
+      alignment: 9
+      pivot: {x: 0.49886364, y: 0.47738692}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 216b6eb6616d365d0800000000000000
+      internalID: -3070375129148639726
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_28
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 3691
+        width: 441
+        height: 401
+      alignment: 9
+      pivot: {x: 0.5, y: 0.48129675}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f2330ee902f48450800000000000000
+      internalID: 6090258720573567731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_29
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 2849
+        width: 421
+        height: 408
+      alignment: 9
+      pivot: {x: 0.4976247, y: 0.49019608}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6947ecce2a6e35630800000000000000
+      internalID: 3914726088547136662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_30
+      rect:
+        serializedVersion: 2
+        x: 428
+        y: 2422
+        width: 414
+        height: 413
+      alignment: 9
+      pivot: {x: 0.48913044, y: 0.49878934}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f917db91ec03ae80800000000000000
+      internalID: -8168671135998207502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_31
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 2026
+        width: 414
+        height: 413
+      alignment: 9
+      pivot: {x: 0.48913044, y: 0.49878934}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 259f36296b81f2800800000000000000
+      internalID: 589717248627964242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_32
+      rect:
+        serializedVersion: 2
+        x: 867
+        y: 2435
+        width: 414
+        height: 421
+      alignment: 9
+      pivot: {x: 0.4963768, y: 0.50593823}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fce2df5076fe1150800000000000000
+      internalID: 5845380328877911282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_33
+      rect:
+        serializedVersion: 2
+        x: 846
+        y: 1998
+        width: 411
+        height: 433
+      alignment: 9
+      pivot: {x: 0.49026763, y: 0.5034642}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7efecdd89161aef10800000000000000
+      internalID: 2299674858736119783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_34
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1595
+        width: 410
+        height: 427
+      alignment: 9
+      pivot: {x: 0.4890244, y: 0.5152225}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2486d6777f378cb0800000000000000
+      internalID: -4861847490395732945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_35
+      rect:
+        serializedVersion: 2
+        x: 418
+        y: 1591
+        width: 410
+        height: 427
+      alignment: 9
+      pivot: {x: 0.4890244, y: 0.5152225}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 346f108f57e3f20a0800000000000000
+      internalID: -6904231027342707133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_36
+      rect:
+        serializedVersion: 2
+        x: 1285
+        y: 2050
+        width: 412
+        height: 430
+      alignment: 9
+      pivot: {x: 0.49635923, y: 0.5069767}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 913c43bd9e85d8590800000000000000
+      internalID: -7670376828913794279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_37
+      rect:
+        serializedVersion: 2
+        x: 440
+        y: 2839
+        width: 423
+        height: 421
+      alignment: 9
+      pivot: {x: 0.49763593, y: 0.49168646}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0cf173f6faf547f0800000000000000
+      internalID: -628820634395083765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_38
+      rect:
+        serializedVersion: 2
+        x: 1331
+        y: 2869
+        width: 426
+        height: 423
+      alignment: 9
+      pivot: {x: 0.4988263, y: 0.49172577}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b62fa9585222a520800000000000000
+      internalID: 2711767688487577272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_39
+      rect:
+        serializedVersion: 2
+        x: 449
+        y: 3264
+        width: 433
+        height: 426
+      alignment: 9
+      pivot: {x: 0.49769053, y: 0.5023474}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d312b1b4b2c04ed30800000000000000
+      internalID: 4459702911086829885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_40
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 3261
+        width: 432
+        height: 426
+      alignment: 9
+      pivot: {x: 0.4965278, y: 0.5023474}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c51461187449c9d0800000000000000
+      internalID: -2753594414681811518
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_41
+      rect:
+        serializedVersion: 2
+        x: 886
+        y: 2860
+        width: 424
+        height: 429
+      alignment: 9
+      pivot: {x: 0.4893868, y: 0.5058275}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7529f0ef2f92f18d0800000000000000
+      internalID: -2873531913617829289
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_42
+      rect:
+        serializedVersion: 2
+        x: 893
+        y: 3293
+        width: 434
+        height: 404
+      alignment: 9
+      pivot: {x: 0.49884793, y: 0.5148515}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e9cad754dee366d0800000000000000
+      internalID: -2998290331124184601
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_43
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 2443
+        width: 420
+        height: 402
+      alignment: 9
+      pivot: {x: 0.51309526, y: 0.5124378}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a458c1478b884630800000000000000
+      internalID: 3911529689411769504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_44
+      rect:
+        serializedVersion: 2
+        x: 1314
+        y: 2484
+        width: 417
+        height: 381
+      alignment: 9
+      pivot: {x: 0.5143885, y: 0.48818898}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c61f172556b4e93f0800000000000000
+      internalID: -892192777625800340
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_45
+      rect:
+        serializedVersion: 2
+        x: 1775
+        y: 3492
+        width: 247
+        height: 298
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45973155}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb0308eb6bdb72540800000000000000
+      internalID: 4983160105286512827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_46
+      rect:
+        serializedVersion: 2
+        x: 1761
+        y: 2889
+        width: 247
+        height: 297
+      alignment: 9
+      pivot: {x: 0.5, y: 0.46127945}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4f85004419b29b70800000000000000
+      internalID: 8904382909889482574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_fireball_trigger-hd_47
+      rect:
+        serializedVersion: 2
+        x: 1762
+        y: 3190
+        width: 247
+        height: 298
+      alignment: 9
+      pivot: {x: 0.5, y: 0.45973155}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 231e4b046dee307c0800000000000000
+      internalID: -4106175831255752398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      FX_fireball_trigger-hd_0: -8546963948279709754
+      FX_fireball_trigger-hd_1: 3498140812294315880
+      FX_fireball_trigger-hd_10: -1304370946573312317
+      FX_fireball_trigger-hd_11: -6111443513225999172
+      FX_fireball_trigger-hd_12: -2080256205274127389
+      FX_fireball_trigger-hd_13: 9058113831009531507
+      FX_fireball_trigger-hd_14: 1302193077074398637
+      FX_fireball_trigger-hd_15: 7565480216861849204
+      FX_fireball_trigger-hd_16: 3355514036928361251
+      FX_fireball_trigger-hd_17: 8754315658980514219
+      FX_fireball_trigger-hd_18: -3974336468765843749
+      FX_fireball_trigger-hd_19: -7510289276313580149
+      FX_fireball_trigger-hd_2: 8211888287888354224
+      FX_fireball_trigger-hd_20: 5973998015488393883
+      FX_fireball_trigger-hd_21: 4386064076521297827
+      FX_fireball_trigger-hd_22: -6323007200876080419
+      FX_fireball_trigger-hd_23: 5361917807699129851
+      FX_fireball_trigger-hd_24: 35934874361777738
+      FX_fireball_trigger-hd_25: -3324194484685000692
+      FX_fireball_trigger-hd_26: 7669888028739195988
+      FX_fireball_trigger-hd_27: -3070375129148639726
+      FX_fireball_trigger-hd_28: 6090258720573567731
+      FX_fireball_trigger-hd_29: 3914726088547136662
+      FX_fireball_trigger-hd_3: -1190486733128474500
+      FX_fireball_trigger-hd_30: -8168671135998207502
+      FX_fireball_trigger-hd_31: 589717248627964242
+      FX_fireball_trigger-hd_32: 5845380328877911282
+      FX_fireball_trigger-hd_33: 2299674858736119783
+      FX_fireball_trigger-hd_34: -4861847490395732945
+      FX_fireball_trigger-hd_35: -6904231027342707133
+      FX_fireball_trigger-hd_36: -7670376828913794279
+      FX_fireball_trigger-hd_37: -628820634395083765
+      FX_fireball_trigger-hd_38: 2711767688487577272
+      FX_fireball_trigger-hd_39: 4459702911086829885
+      FX_fireball_trigger-hd_4: 3799097415348132952
+      FX_fireball_trigger-hd_40: -2753594414681811518
+      FX_fireball_trigger-hd_41: -2873531913617829289
+      FX_fireball_trigger-hd_42: -2998290331124184601
+      FX_fireball_trigger-hd_43: 3911529689411769504
+      FX_fireball_trigger-hd_44: -892192777625800340
+      FX_fireball_trigger-hd_45: 4983160105286512827
+      FX_fireball_trigger-hd_46: 8904382909889482574
+      FX_fireball_trigger-hd_47: -4106175831255752398
+      FX_fireball_trigger-hd_5: 7940076454431252475
+      FX_fireball_trigger-hd_6: -3795595031174179056
+      FX_fireball_trigger-hd_7: -2582396135007241663
+      FX_fireball_trigger-hd_8: -8990473234840857830
+      FX_fireball_trigger-hd_9: 2965435229415258405
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

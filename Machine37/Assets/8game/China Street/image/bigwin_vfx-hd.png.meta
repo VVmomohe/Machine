@@ -1,0 +1,683 @@
+fileFormatVersion: 2
+guid: 99977b65b006cdf45a423c43c9adbfef
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_0
+      rect:
+        serializedVersion: 2
+        x: 444
+        y: 2404
+        width: 197
+        height: 208
+      alignment: 9
+      pivot: {x: 0.49746192, y: 0.5144231}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25a9dd4a8e3241560800000000000000
+      internalID: 7283485979470305874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_1
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 1580
+        width: 246
+        height: 260
+      alignment: 9
+      pivot: {x: 0.49186993, y: 0.50384617}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63d4e53d8444e3af0800000000000000
+      internalID: -414819036097000138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_2
+      rect:
+        serializedVersion: 2
+        x: 635
+        y: 1760
+        width: 279
+        height: 286
+      alignment: 9
+      pivot: {x: 0.5125448, y: 0.5104895}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fe8be1a12cf83270800000000000000
+      internalID: 8230605540400271089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_3
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 1844
+        width: 295
+        height: 305
+      alignment: 9
+      pivot: {x: 0.4915254, y: 0.5081967}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64142360f24ae68c0800000000000000
+      internalID: -4004082496811417274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_4
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1805
+        width: 328
+        height: 344
+      alignment: 9
+      pivot: {x: 0.5030488, y: 0.51744187}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecfb7c7dea6e65990800000000000000
+      internalID: -7397471699290570802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_5
+      rect:
+        serializedVersion: 2
+        x: 1494
+        y: 1666
+        width: 338
+        height: 370
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5081081}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a51ffa777698090c0800000000000000
+      internalID: -4571002544298397350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_6
+      rect:
+        serializedVersion: 2
+        x: 645
+        y: 2050
+        width: 372
+        height: 393
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5216285}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63569d0b241e85430800000000000000
+      internalID: 3772012364473918774
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_7
+      rect:
+        serializedVersion: 2
+        x: 1533
+        y: 2040
+        width: 390
+        height: 421
+      alignment: 9
+      pivot: {x: 0.4974359, y: 0.51543945}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9742963dcf9a8c620800000000000000
+      internalID: 2794670472127128697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_8
+      rect:
+        serializedVersion: 2
+        x: 1100
+        y: 2029
+        width: 390
+        height: 421
+      alignment: 9
+      pivot: {x: 0.4974359, y: 0.51543945}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 748430f011bb3eb70800000000000000
+      internalID: 8927184568319166535
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_9
+      rect:
+        serializedVersion: 2
+        x: 1533
+        y: 2465
+        width: 418
+        height: 443
+      alignment: 9
+      pivot: {x: 0.50717705, y: 0.5146727}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d1366e51a322d500800000000000000
+      internalID: 419436891279339991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_10
+      rect:
+        serializedVersion: 2
+        x: 1100
+        y: 2454
+        width: 429
+        height: 454
+      alignment: 9
+      pivot: {x: 0.49417248, y: 0.52643174}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3567bb26708f36460800000000000000
+      internalID: 7233898137092060755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_11
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 2153
+        width: 436
+        height: 459
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5315904}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17f2215921e4d6670800000000000000
+      internalID: 8533562710654332785
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_12
+      rect:
+        serializedVersion: 2
+        x: 650
+        y: 2447
+        width: 446
+        height: 461
+      alignment: 9
+      pivot: {x: 0.5, y: 0.54229933}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de18286a570e777c0800000000000000
+      internalID: -4073540542023958035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_13
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 3800
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67e8f33723b67a6b0800000000000000
+      internalID: -5285137773269905802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_14
+      rect:
+        serializedVersion: 2
+        x: 650
+        y: 3800
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6676b2f9a80a61dc0800000000000000
+      internalID: -3668568329210337434
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_15
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 3800
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48b6fd936ee9f1f60800000000000000
+      internalID: 8007293374138641284
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_16
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 3504
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e24ef3d8263babdf0800000000000000
+      internalID: -163621200587660242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_17
+      rect:
+        serializedVersion: 2
+        x: 650
+        y: 3504
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c30c370f623cb0c0800000000000000
+      internalID: -4558713270361652279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_18
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 3504
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3aa632276f9a0e480800000000000000
+      internalID: -8871904389977904477
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_19
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 3208
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5811cae2cf80b7e0800000000000000
+      internalID: -1751742187722172326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_20
+      rect:
+        serializedVersion: 2
+        x: 650
+        y: 3208
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd4c65a0e8cdcb9d0800000000000000
+      internalID: -2757086369240660773
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_21
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 3208
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b38c07f623ca59cc0800000000000000
+      internalID: -3704865785824360389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_22
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 2912
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 759ba454ee8f229a0800000000000000
+      internalID: -6259166829843138217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_23
+      rect:
+        serializedVersion: 2
+        x: 650
+        y: 2912
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d36587d26b3c6a2a0800000000000000
+      internalID: -6726473806216931779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_24
+      rect:
+        serializedVersion: 2
+        x: 1296
+        y: 2912
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d6dbe4a204d20a30800000000000000
+      internalID: 4180136511975184089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_bigwin_vfx-hd_25
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 2616
+        width: 642
+        height: 292
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd316b67cf1e130f0800000000000000
+      internalID: -1138880756308372513
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      FX_bigwin_vfx-hd_0: 7283485979470305874
+      FX_bigwin_vfx-hd_1: -414819036097000138
+      FX_bigwin_vfx-hd_10: 7233898137092060755
+      FX_bigwin_vfx-hd_11: 8533562710654332785
+      FX_bigwin_vfx-hd_12: -4073540542023958035
+      FX_bigwin_vfx-hd_13: -5285137773269905802
+      FX_bigwin_vfx-hd_14: -3668568329210337434
+      FX_bigwin_vfx-hd_15: 8007293374138641284
+      FX_bigwin_vfx-hd_16: -163621200587660242
+      FX_bigwin_vfx-hd_17: -4558713270361652279
+      FX_bigwin_vfx-hd_18: -8871904389977904477
+      FX_bigwin_vfx-hd_19: -1751742187722172326
+      FX_bigwin_vfx-hd_2: 8230605540400271089
+      FX_bigwin_vfx-hd_20: -2757086369240660773
+      FX_bigwin_vfx-hd_21: -3704865785824360389
+      FX_bigwin_vfx-hd_22: -6259166829843138217
+      FX_bigwin_vfx-hd_23: -6726473806216931779
+      FX_bigwin_vfx-hd_24: 4180136511975184089
+      FX_bigwin_vfx-hd_25: -1138880756308372513
+      FX_bigwin_vfx-hd_3: -4004082496811417274
+      FX_bigwin_vfx-hd_4: -7397471699290570802
+      FX_bigwin_vfx-hd_5: -4571002544298397350
+      FX_bigwin_vfx-hd_6: 3772012364473918774
+      FX_bigwin_vfx-hd_7: 2794670472127128697
+      FX_bigwin_vfx-hd_8: 8927184568319166535
+      FX_bigwin_vfx-hd_9: 419436891279339991
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,1343 @@
+fileFormatVersion: 2
+guid: ee17dc6a5faa929449539bf29bccdc06
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FX_basegameuihd_0
+      rect:
+        serializedVersion: 2
+        x: 1029
+        y: 108
+        width: 115
+        height: 112
+      alignment: 9
+      pivot: {x: 0.46991307, y: 0.48660713}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb614b7203eeb6f00800000000000000
+      internalID: 1111243623668913851
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_1
+      rect:
+        serializedVersion: 2
+        x: 312
+        y: 76
+        width: 107
+        height: 107
+      alignment: 9
+      pivot: {x: 0.46990654, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2b693ac98fac2310800000000000000
+      internalID: 1381672192034040618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_2
+      rect:
+        serializedVersion: 2
+        x: 1770
+        y: 10
+        width: 97
+        height: 97
+      alignment: 9
+      pivot: {x: 0.4698969, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fefdccc8f0a7b20d0800000000000000
+      internalID: -3446526882616647697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_3
+      rect:
+        serializedVersion: 2
+        x: 421
+        y: 83
+        width: 107
+        height: 103
+      alignment: 9
+      pivot: {x: 0.46766356, y: 0.48058254}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 59e884f5fa5035130800000000000000
+      internalID: 3554190781701459605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_4
+      rect:
+        serializedVersion: 2
+        x: 1146
+        y: 108
+        width: 115
+        height: 112
+      alignment: 9
+      pivot: {x: 0.46991307, y: 0.48660713}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83d3878e73022bcf0800000000000000
+      internalID: -238092405801730760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_5
+      rect:
+        serializedVersion: 2
+        x: 530
+        y: 83
+        width: 107
+        height: 103
+      alignment: 9
+      pivot: {x: 0.46766356, y: 0.48058254}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4d0f1923f6625020800000000000000
+      internalID: 2329037151856954700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_6
+      rect:
+        serializedVersion: 2
+        x: 1263
+        y: 108
+        width: 115
+        height: 112
+      alignment: 9
+      pivot: {x: 0.46991307, y: 0.48660713}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 565143c1cb2bb26e0800000000000000
+      internalID: -1861197499990796955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_7
+      rect:
+        serializedVersion: 2
+        x: 1380
+        y: 141
+        width: 115
+        height: 112
+      alignment: 9
+      pivot: {x: 0.46991307, y: 0.48660713}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24790332c74b3bc40800000000000000
+      internalID: 5526959612973061954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_8
+      rect:
+        serializedVersion: 2
+        x: 1497
+        y: 141
+        width: 115
+        height: 112
+      alignment: 9
+      pivot: {x: 0.46991307, y: 0.48660713}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d938906fc72aaa4b0800000000000000
+      internalID: -5428347743254248547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_9
+      rect:
+        serializedVersion: 2
+        x: 1380
+        y: 27
+        width: 115
+        height: 112
+      alignment: 9
+      pivot: {x: 0.46991307, y: 0.48660713}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65e2805ae45284150800000000000000
+      internalID: 5856972335101783638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_10
+      rect:
+        serializedVersion: 2
+        x: 717
+        y: 83
+        width: 75
+        height: 4
+      alignment: 9
+      pivot: {x: 0.4698667, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: acdf153b09ca69ed0800000000000000
+      internalID: -2407547213299188278
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_11
+      rect:
+        serializedVersion: 2
+        x: 1033
+        y: 548
+        width: 342
+        height: 324
+      alignment: 9
+      pivot: {x: 0.46988302, y: 0.4722222}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17a030dc344aba930800000000000000
+      internalID: 4155595692288707185
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_12
+      rect:
+        serializedVersion: 2
+        x: 1689
+        y: 520
+        width: 310
+        height: 293
+      alignment: 9
+      pivot: {x: 0.46716133, y: 0.47098976}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a7989397cafadab0800000000000000
+      internalID: -4982394302650345565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_13
+      rect:
+        serializedVersion: 2
+        x: 1029
+        y: 222
+        width: 342
+        height: 324
+      alignment: 9
+      pivot: {x: 0.46988302, y: 0.4722222}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bf4d1275db5e0aa0800000000000000
+      internalID: -6192911465287168074
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_14
+      rect:
+        serializedVersion: 2
+        x: 345
+        y: 188
+        width: 338
+        height: 338
+      alignment: 9
+      pivot: {x: 0.46988168, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0174f0d274b537ba0800000000000000
+      internalID: -6092425509645367536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_15
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 19
+        width: 68
+        height: 68
+      alignment: 9
+      pivot: {x: 0.46632352, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74485829fcd5ab4b0800000000000000
+      internalID: -5423919655116503993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_16
+      rect:
+        serializedVersion: 2
+        x: 1713
+        y: 815
+        width: 305
+        height: 90
+      alignment: 9
+      pivot: {x: 0.46986884, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df9e79c28b1a492a0800000000000000
+      internalID: -6731577730617841155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_17
+      rect:
+        serializedVersion: 2
+        x: 237
+        y: 25
+        width: 62
+        height: 62
+      alignment: 9
+      pivot: {x: 0.46790323, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87e388e9a2a3e1090800000000000000
+      internalID: -8061942328223842696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_18
+      rect:
+        serializedVersion: 2
+        x: 1614
+        y: 183
+        width: 70
+        height: 70
+      alignment: 9
+      pivot: {x: 0.46985713, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d25c3c2782fc3850800000000000000
+      internalID: 6358223436316955351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_19
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 89
+        width: 309
+        height: 94
+      alignment: 9
+      pivot: {x: 0.46987057, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ef1e5111ba9ef110800000000000000
+      internalID: 1296643828020551652
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_20
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 86
+        height: 86
+      alignment: 9
+      pivot: {x: 0.4698837, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe800f091a281a0b0800000000000000
+      internalID: -5719146421350823697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_21
+      rect:
+        serializedVersion: 2
+        x: 1019
+        y: 14
+        width: 103
+        height: 92
+      alignment: 9
+      pivot: {x: 0.4675728, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46e786d2349765fe0800000000000000
+      internalID: -1200638921216065948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_22
+      rect:
+        serializedVersion: 2
+        x: 1869
+        y: 19
+        width: 98
+        height: 88
+      alignment: 9
+      pivot: {x: 0.46622446, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c43fab3a339c6430800000000000000
+      internalID: 3777556065775727812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_23
+      rect:
+        serializedVersion: 2
+        x: 1910
+        y: 112
+        width: 108
+        height: 97
+      alignment: 9
+      pivot: {x: 0.46333334, y: 0.49484536}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1d75fca24b601e10800000000000000
+      internalID: 2166349354878991644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_24
+      rect:
+        serializedVersion: 2
+        x: 1686
+        y: 109
+        width: 110
+        height: 100
+      alignment: 9
+      pivot: {x: 0.46990907, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7ed0d285f31cb8b0800000000000000
+      internalID: -5135207529926566276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_25
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 34
+        width: 54
+        height: 10
+      alignment: 9
+      pivot: {x: 0.45759258, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 561e6df2b8f9e5220800000000000000
+      internalID: 2476592265252233573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_26
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 22
+        width: 50
+        height: 10
+      alignment: 9
+      pivot: {x: 0.45419997, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19d0676a6250837e0800000000000000
+      internalID: -1785671588692750959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_27
+      rect:
+        serializedVersion: 2
+        x: 1609
+        y: 43
+        width: 58
+        height: 14
+      alignment: 9
+      pivot: {x: 0.46051723, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a1fc686f524ab2d0800000000000000
+      internalID: -3262222002535206488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_28
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 46
+        width: 74
+        height: 28
+      alignment: 9
+      pivot: {x: 0.46905404, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88add593ba2bce900800000000000000
+      internalID: 715142889316670088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_29
+      rect:
+        serializedVersion: 2
+        x: 1609
+        y: 59
+        width: 58
+        height: 58
+      alignment: 9
+      pivot: {x: 0.46051723, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a5c4d13dfc025810800000000000000
+      internalID: 1752477486602831269
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_30
+      rect:
+        serializedVersion: 2
+        x: 301
+        y: 20
+        width: 54
+        height: 54
+      alignment: 9
+      pivot: {x: 0.45759258, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4469e8faf0e60010800000000000000
+      internalID: 1154857722989601868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_31
+      rect:
+        serializedVersion: 2
+        x: 1614
+        y: 119
+        width: 62
+        height: 62
+      alignment: 9
+      pivot: {x: 0.4630645, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3f1aa0e159b52550800000000000000
+      internalID: 6135513828674903867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_32
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 11
+        width: 76
+        height: 76
+      alignment: 9
+      pivot: {x: 0.46986842, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bebfd7ee9f38f030800000000000000
+      internalID: 3528640259772366520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_33
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 871
+        width: 342
+        height: 341
+      alignment: 9
+      pivot: {x: 0.46988302, y: 0.49853373}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e25844aad885790f0800000000000000
+      internalID: -1110321417653287634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_34
+      rect:
+        serializedVersion: 2
+        x: 1377
+        y: 255
+        width: 308
+        height: 307
+      alignment: 9
+      pivot: {x: 0.46987012, y: 0.49837133}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7455d16df30e1f3b0800000000000000
+      internalID: -5480352706753374905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_35
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 528
+        width: 342
+        height: 341
+      alignment: 9
+      pivot: {x: 0.46988302, y: 0.49853373}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e437061863bddea0800000000000000
+      internalID: -5846319481629494042
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_36
+      rect:
+        serializedVersion: 2
+        x: 689
+        y: 531
+        width: 338
+        height: 338
+      alignment: 9
+      pivot: {x: 0.46988168, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a33e1e4c552c2a00800000000000000
+      internalID: 733001917732369314
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_37
+      rect:
+        serializedVersion: 2
+        x: 345
+        y: 871
+        width: 342
+        height: 341
+      alignment: 9
+      pivot: {x: 0.46988302, y: 0.49853373}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9964a502fff18c670800000000000000
+      internalID: 8559126272437536409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_38
+      rect:
+        serializedVersion: 2
+        x: 1033
+        y: 874
+        width: 338
+        height: 338
+      alignment: 9
+      pivot: {x: 0.46988168, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb522d93e69f2c680800000000000000
+      internalID: -8736146075333548612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_39
+      rect:
+        serializedVersion: 2
+        x: 1713
+        y: 907
+        width: 305
+        height: 305
+      alignment: 9
+      pivot: {x: 0.46986884, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 185673437c9b91c10800000000000000
+      internalID: 2024853772705424769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_40
+      rect:
+        serializedVersion: 2
+        x: 1687
+        y: 211
+        width: 308
+        height: 307
+      alignment: 9
+      pivot: {x: 0.46987012, y: 0.49837133}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c6d532985b7a9270800000000000000
+      internalID: 8258048487077566145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_41
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 185
+        width: 342
+        height: 341
+      alignment: 9
+      pivot: {x: 0.46988302, y: 0.49853373}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcac0c5bc9f3d02f0800000000000000
+      internalID: -1005077199536993585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_42
+      rect:
+        serializedVersion: 2
+        x: 1373
+        y: 874
+        width: 338
+        height: 338
+      alignment: 9
+      pivot: {x: 0.46988168, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c2e3ff9975860ca0800000000000000
+      internalID: -6051002291904585024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_43
+      rect:
+        serializedVersion: 2
+        x: 1798
+        y: 109
+        width: 110
+        height: 100
+      alignment: 9
+      pivot: {x: 0.46990907, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ef0dcdc8ec006790800000000000000
+      internalID: -7539011582193496090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_44
+      rect:
+        serializedVersion: 2
+        x: 1669
+        y: 17
+        width: 99
+        height: 90
+      alignment: 9
+      pivot: {x: 0.469899, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2de1ecdce57e2030800000000000000
+      internalID: 3471842022927756591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_45
+      rect:
+        serializedVersion: 2
+        x: 345
+        y: 528
+        width: 342
+        height: 341
+      alignment: 9
+      pivot: {x: 0.46988302, y: 0.49853373}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51757dca0e2ab5830800000000000000
+      internalID: 4061018574860801813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_46
+      rect:
+        serializedVersion: 2
+        x: 1377
+        y: 564
+        width: 310
+        height: 308
+      alignment: 9
+      pivot: {x: 0.46716133, y: 0.49675325}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40001d35746d218c0800000000000000
+      internalID: -4029923114705944572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_47
+      rect:
+        serializedVersion: 2
+        x: 689
+        y: 871
+        width: 342
+        height: 341
+      alignment: 9
+      pivot: {x: 0.46988302, y: 0.49853373}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b41f23c6d008ff4b0800000000000000
+      internalID: -5404460232683097781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_48
+      rect:
+        serializedVersion: 2
+        x: 689
+        y: 191
+        width: 338
+        height: 338
+      alignment: 9
+      pivot: {x: 0.46988168, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb97d5e51c985d460800000000000000
+      internalID: 7265865037437041087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_49
+      rect:
+        serializedVersion: 2
+        x: 639
+        y: 81
+        width: 76
+        height: 105
+      alignment: 9
+      pivot: {x: 0.46960524, y: 0.48095238}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66c63ca2b6b628eb0800000000000000
+      internalID: -4719091351507735450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_50
+      rect:
+        serializedVersion: 2
+        x: 1124
+        y: 10
+        width: 102
+        height: 96
+      alignment: 9
+      pivot: {x: 0.467549, y: 0.48958334}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e3518891a1f6a950800000000000000
+      internalID: 6460116391860196320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_51
+      rect:
+        serializedVersion: 2
+        x: 941
+        y: 85
+        width: 76
+        height: 104
+      alignment: 9
+      pivot: {x: 0.46960524, y: 0.47596154}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ccd7f6406db363210800000000000000
+      internalID: 1312302131808533964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_52
+      rect:
+        serializedVersion: 2
+        x: 1497
+        y: 34
+        width: 110
+        height: 105
+      alignment: 9
+      pivot: {x: 0.46990907, y: 0.48095238}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d53d6eff522d26420800000000000000
+      internalID: 2621888993731990365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_53
+      rect:
+        serializedVersion: 2
+        x: 1228
+        y: 10
+        width: 102
+        height: 96
+      alignment: 9
+      pivot: {x: 0.467549, y: 0.48958334}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3025186f61ab74db0800000000000000
+      internalID: -4807669469406998013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_54
+      rect:
+        serializedVersion: 2
+        x: 717
+        y: 89
+        width: 110
+        height: 100
+      alignment: 9
+      pivot: {x: 0.46990907, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 107be59a14b5df040800000000000000
+      internalID: 4682999525107742465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_basegameuihd_55
+      rect:
+        serializedVersion: 2
+        x: 829
+        y: 89
+        width: 110
+        height: 100
+      alignment: 9
+      pivot: {x: 0.46990907, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: deef1aecbf26c5940800000000000000
+      internalID: 5286208896269156077
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      FX_basegameuihd_0: 1111243623668913851
+      FX_basegameuihd_1: 1381672192034040618
+      FX_basegameuihd_10: -2407547213299188278
+      FX_basegameuihd_11: 4155595692288707185
+      FX_basegameuihd_12: -4982394302650345565
+      FX_basegameuihd_13: -6192911465287168074
+      FX_basegameuihd_14: -6092425509645367536
+      FX_basegameuihd_15: -5423919655116503993
+      FX_basegameuihd_16: -6731577730617841155
+      FX_basegameuihd_17: -8061942328223842696
+      FX_basegameuihd_18: 6358223436316955351
+      FX_basegameuihd_19: 1296643828020551652
+      FX_basegameuihd_2: -3446526882616647697
+      FX_basegameuihd_20: -5719146421350823697
+      FX_basegameuihd_21: -1200638921216065948
+      FX_basegameuihd_22: 3777556065775727812
+      FX_basegameuihd_23: 2166349354878991644
+      FX_basegameuihd_24: -5135207529926566276
+      FX_basegameuihd_25: 2476592265252233573
+      FX_basegameuihd_26: -1785671588692750959
+      FX_basegameuihd_27: -3262222002535206488
+      FX_basegameuihd_28: 715142889316670088
+      FX_basegameuihd_29: 1752477486602831269
+      FX_basegameuihd_3: 3554190781701459605
+      FX_basegameuihd_30: 1154857722989601868
+      FX_basegameuihd_31: 6135513828674903867
+      FX_basegameuihd_32: 3528640259772366520
+      FX_basegameuihd_33: -1110321417653287634
+      FX_basegameuihd_34: -5480352706753374905
+      FX_basegameuihd_35: -5846319481629494042
+      FX_basegameuihd_36: 733001917732369314
+      FX_basegameuihd_37: 8559126272437536409
+      FX_basegameuihd_38: -8736146075333548612
+      FX_basegameuihd_39: 2024853772705424769
+      FX_basegameuihd_4: -238092405801730760
+      FX_basegameuihd_40: 8258048487077566145
+      FX_basegameuihd_41: -1005077199536993585
+      FX_basegameuihd_42: -6051002291904585024
+      FX_basegameuihd_43: -7539011582193496090
+      FX_basegameuihd_44: 3471842022927756591
+      FX_basegameuihd_45: 4061018574860801813
+      FX_basegameuihd_46: -4029923114705944572
+      FX_basegameuihd_47: -5404460232683097781
+      FX_basegameuihd_48: 7265865037437041087
+      FX_basegameuihd_49: -4719091351507735450
+      FX_basegameuihd_5: 2329037151856954700
+      FX_basegameuihd_50: 6460116391860196320
+      FX_basegameuihd_51: 1312302131808533964
+      FX_basegameuihd_52: 2621888993731990365
+      FX_basegameuihd_53: -4807669469406998013
+      FX_basegameuihd_54: 4682999525107742465
+      FX_basegameuihd_55: 5286208896269156077
+      FX_basegameuihd_6: -1861197499990796955
+      FX_basegameuihd_7: 5526959612973061954
+      FX_basegameuihd_8: -5428347743254248547
+      FX_basegameuihd_9: 5856972335101783638
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,1167 @@
+fileFormatVersion: 2
+guid: 0fdd13289132fe745af481efdb09597d
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_0
+      rect:
+        serializedVersion: 2
+        x: 598
+        y: 1030
+        width: 183
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49726775, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f95a3f8856f0a6f20800000000000000
+      internalID: 3416560196077725087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_1
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 1026
+        width: 184
+        height: 67
+      alignment: 9
+      pivot: {x: 0.49456522, y: 0.5074627}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a73ced35e55273990800000000000000
+      internalID: -7406409975123229830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_2
+      rect:
+        serializedVersion: 2
+        x: 604
+        y: 1174
+        width: 184
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49456522, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 502748e9a2408c470800000000000000
+      internalID: 8414980484836389381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_3
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 954
+        width: 183
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49726775, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fe81107fec1a57b0800000000000000
+      internalID: -5234839802161819917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_4
+      rect:
+        serializedVersion: 2
+        x: 597
+        y: 958
+        width: 183
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49726775, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2aa3133a5acbbc330800000000000000
+      internalID: 3732284135800126114
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_5
+      rect:
+        serializedVersion: 2
+        x: 206
+        y: 882
+        width: 183
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49726775, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e10ea8a7e38432a0800000000000000
+      internalID: -6758632109785611803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_6
+      rect:
+        serializedVersion: 2
+        x: 596
+        y: 886
+        width: 183
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49726775, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1223a9abd667676e0800000000000000
+      internalID: -1840153184080088543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_7
+      rect:
+        serializedVersion: 2
+        x: 604
+        y: 1102
+        width: 184
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49456522, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e791cf38bfae2ec30800000000000000
+      internalID: 4387327352984312190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_8
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 1169
+        width: 184
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49456522, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbb23e352fec482e0800000000000000
+      internalID: -2124345584027227201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_9
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 1097
+        width: 184
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49456522, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89427a8fa4055b1b0800000000000000
+      internalID: -5641514675282172776
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_10
+      rect:
+        serializedVersion: 2
+        x: 206
+        y: 810
+        width: 183
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49726775, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20f5ae6464b6ce9e0800000000000000
+      internalID: -1590778618786980094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_11
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 779
+        width: 183
+        height: 68
+      alignment: 9
+      pivot: {x: 0.49726775, y: 0.5147059}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 400d3c2044bc053a0800000000000000
+      internalID: -6678614754425843708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_12
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1644
+        width: 396
+        height: 131
+      alignment: 9
+      pivot: {x: 0.48232323, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cecb2427fc7b28a20800000000000000
+      internalID: 3063212798168448236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_13
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1779
+        width: 397
+        height: 130
+      alignment: 9
+      pivot: {x: 0.4836272, y: 0.52692306}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5aef1ced31c77fc20800000000000000
+      internalID: 3240194881699839653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_14
+      rect:
+        serializedVersion: 2
+        x: 405
+        y: 1779
+        width: 397
+        height: 130
+      alignment: 9
+      pivot: {x: 0.4836272, y: 0.52692306}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abc1f355a2b3b9500800000000000000
+      internalID: 403981644584656058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_15
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1913
+        width: 397
+        height: 131
+      alignment: 9
+      pivot: {x: 0.4836272, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff409efd8684beba0800000000000000
+      internalID: -6058669258426481409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_16
+      rect:
+        serializedVersion: 2
+        x: 405
+        y: 1913
+        width: 397
+        height: 131
+      alignment: 9
+      pivot: {x: 0.4836272, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0bafbd4a59cbe68d0800000000000000
+      internalID: -2851134163176916304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_17
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1241
+        width: 393
+        height: 130
+      alignment: 9
+      pivot: {x: 0.4860051, y: 0.52692306}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77f4cbb0e2de27830800000000000000
+      internalID: 4067574195490148215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_18
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 1246
+        width: 395
+        height: 129
+      alignment: 9
+      pivot: {x: 0.4835443, y: 0.5232558}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: edc6f00cf2c01b310800000000000000
+      internalID: 1418928756823649502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_19
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1510
+        width: 396
+        height: 130
+      alignment: 9
+      pivot: {x: 0.4848485, y: 0.5192308}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc65d5e085781a290800000000000000
+      internalID: -7880869060653787444
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_20
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 1511
+        width: 396
+        height: 129
+      alignment: 9
+      pivot: {x: 0.4848485, y: 0.5155039}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63baa40105584ecd0800000000000000
+      internalID: -2529750511758169290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_21
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 1379
+        width: 396
+        height: 128
+      alignment: 9
+      pivot: {x: 0.4848485, y: 0.51953125}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb9f9b98457e94e20800000000000000
+      internalID: 3335451349318498748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_22
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1375
+        width: 395
+        height: 131
+      alignment: 9
+      pivot: {x: 0.4835443, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3bd0ad998adbfa40800000000000000
+      internalID: 5403152462550981435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_23
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 1644
+        width: 396
+        height: 131
+      alignment: 9
+      pivot: {x: 0.48232323, y: 0.5305343}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8545e7f826d9d35d0800000000000000
+      internalID: -3081133523411774376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_24
+      rect:
+        serializedVersion: 2
+        x: 395
+        y: 1012
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5259677c01779c80800000000000000
+      internalID: -8316053888559394210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_25
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 1502
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd1e0f462d7732130800000000000000
+      internalID: 3540805477563687388
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_26
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 929
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4aefc800651f663c0800000000000000
+      internalID: -4366537437010395484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_27
+      rect:
+        serializedVersion: 2
+        x: 785
+        y: 956
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49828e2a7b2b01e50800000000000000
+      internalID: 6778113940974479508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_28
+      rect:
+        serializedVersion: 2
+        x: 394
+        y: 934
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b88778ca2f19bac0800000000000000
+      internalID: -3839002938744272717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_29
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 851
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 490370dca7e651070800000000000000
+      internalID: 8076482980463718548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_30
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 856
+        width: 198
+        height: 74
+      alignment: 9
+      pivot: {x: 0.4949495, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d27d37ca65bda820800000000000000
+      internalID: 2931198402701914836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_31
+      rect:
+        serializedVersion: 2
+        x: 806
+        y: 1970
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f443784e014131ef0800000000000000
+      internalID: -138745100732255153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_32
+      rect:
+        serializedVersion: 2
+        x: 806
+        y: 1892
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0748fdc3e3cab8c60800000000000000
+      internalID: 7821534561168229488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_33
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 1424
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c089b013bde1ef40800000000000000
+      internalID: 5756143152091726016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_34
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 1346
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2281ab751649ad670800000000000000
+      internalID: 8564320787202971682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_35
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 1268
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 620537a68ae07c170800000000000000
+      internalID: 8198537763154513958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_36
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 1190
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f89569fa8eec3020800000000000000
+      internalID: 2322993788473415920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_37
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 1168
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf36af73ce74796e0800000000000000
+      internalID: -1830915643625806853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_38
+      rect:
+        serializedVersion: 2
+        x: 792
+        y: 1112
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a177e2bf39af92330800000000000000
+      internalID: 3686753283460724506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_39
+      rect:
+        serializedVersion: 2
+        x: 792
+        y: 1034
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 409ca26e8904de070800000000000000
+      internalID: 8137231127169124612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_40
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1163
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 08eae7ccd329cb890800000000000000
+      internalID: -7440911690201387392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_41
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1085
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28454729e69fb8000800000000000000
+      internalID: 39399275061597314
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_42
+      rect:
+        serializedVersion: 2
+        x: 395
+        y: 1090
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e12aed14ba8720fd0800000000000000
+      internalID: -2377204976358350306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_43
+      rect:
+        serializedVersion: 2
+        x: 806
+        y: 1814
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0c2640bb08a88950800000000000000
+      internalID: 6451591234363730957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_44
+      rect:
+        serializedVersion: 2
+        x: 806
+        y: 1736
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 309646b5934720270800000000000000
+      internalID: 8215256459972471043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_45
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 1658
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4d8007ff10c66300800000000000000
+      internalID: 245094473258798415
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_46
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 1580
+        width: 200
+        height: 74
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01598a629ddb79d80800000000000000
+      internalID: -8243911852524268272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FX_jackpot_effects-hd_47
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 1007
+        width: 199
+        height: 74
+      alignment: 9
+      pivot: {x: 0.49748743, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04f1313a7db690af0800000000000000
+      internalID: -429693715539091648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      FX_jackpot_effects-hd_0: 3416560196077725087
+      FX_jackpot_effects-hd_1: -7406409975123229830
+      FX_jackpot_effects-hd_10: -1590778618786980094
+      FX_jackpot_effects-hd_11: -6678614754425843708
+      FX_jackpot_effects-hd_12: 3063212798168448236
+      FX_jackpot_effects-hd_13: 3240194881699839653
+      FX_jackpot_effects-hd_14: 403981644584656058
+      FX_jackpot_effects-hd_15: -6058669258426481409
+      FX_jackpot_effects-hd_16: -2851134163176916304
+      FX_jackpot_effects-hd_17: 4067574195490148215
+      FX_jackpot_effects-hd_18: 1418928756823649502
+      FX_jackpot_effects-hd_19: -7880869060653787444
+      FX_jackpot_effects-hd_2: 8414980484836389381
+      FX_jackpot_effects-hd_20: -2529750511758169290
+      FX_jackpot_effects-hd_21: 3335451349318498748
+      FX_jackpot_effects-hd_22: 5403152462550981435
+      FX_jackpot_effects-hd_23: -3081133523411774376
+      FX_jackpot_effects-hd_24: -8316053888559394210
+      FX_jackpot_effects-hd_25: 3540805477563687388
+      FX_jackpot_effects-hd_26: -4366537437010395484
+      FX_jackpot_effects-hd_27: 6778113940974479508
+      FX_jackpot_effects-hd_28: -3839002938744272717
+      FX_jackpot_effects-hd_29: 8076482980463718548
+      FX_jackpot_effects-hd_3: -5234839802161819917
+      FX_jackpot_effects-hd_30: 2931198402701914836
+      FX_jackpot_effects-hd_31: -138745100732255153
+      FX_jackpot_effects-hd_32: 7821534561168229488
+      FX_jackpot_effects-hd_33: 5756143152091726016
+      FX_jackpot_effects-hd_34: 8564320787202971682
+      FX_jackpot_effects-hd_35: 8198537763154513958
+      FX_jackpot_effects-hd_36: 2322993788473415920
+      FX_jackpot_effects-hd_37: -1830915643625806853
+      FX_jackpot_effects-hd_38: 3686753283460724506
+      FX_jackpot_effects-hd_39: 8137231127169124612
+      FX_jackpot_effects-hd_4: 3732284135800126114
+      FX_jackpot_effects-hd_40: -7440911690201387392
+      FX_jackpot_effects-hd_41: 39399275061597314
+      FX_jackpot_effects-hd_42: -2377204976358350306
+      FX_jackpot_effects-hd_43: 6451591234363730957
+      FX_jackpot_effects-hd_44: 8215256459972471043
+      FX_jackpot_effects-hd_45: 245094473258798415
+      FX_jackpot_effects-hd_46: -8243911852524268272
+      FX_jackpot_effects-hd_47: -429693715539091648
+      FX_jackpot_effects-hd_5: -6758632109785611803
+      FX_jackpot_effects-hd_6: -1840153184080088543
+      FX_jackpot_effects-hd_7: 4387327352984312190
+      FX_jackpot_effects-hd_8: -2124345584027227201
+      FX_jackpot_effects-hd_9: -5641514675282172776
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
