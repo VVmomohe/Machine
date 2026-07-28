@@ -95,6 +95,23 @@ namespace com.slot
                     // 初始火球已展示（EnterHoldSpin 显示了火球格/计数器）。
                     // 每轮 respin 由 Start 键通过 OnStartKey → AdvanceHoldSpin 触发。
                     // 这里直接结束，等玩家按 Start 开始第一轮收集。
+
+                    // ★ 基础局普通连线/Scatter 赢分立即入账 + 本局押注消费（Hold 常规路径原本跳过下方无火球路径的
+                    //   ApplySpinResult，导致 baseWin/scatterPayout 被推迟到 Hold 收尾才补、且在 autoPlay 连转下易丢失——
+                    //   用户 2026-07-28 反馈"基础局赢分没加到总分"。此处与无火球路径等价：赢分滚入总分、押注消费(resetBet 清 m_bet_num)，
+                    //   否则 m_bet_num 不清 → 下一局基础局复用旧押注、余额永不再扣压分（累积错误）。
+                    //   已落账金额计入 _holdAppliedWin，Hold 收尾 ApplyHoldWinToCredit 只补差额、不会重复加。
+                    if (m_player != null)
+                    {
+                        long baseWinTotal = (long)System.Math.Round(r.baseWin + r.scatterPayout);
+                        if (baseWinTotal > 0)
+                        {
+                            m_player.ShowWinValue(baseWinTotal);
+                            m_player.AddWinToCredit(baseWinTotal);   // 滚入总分（不动押注）
+                        }
+                        m_player.ResetBet();                          // 消费本局押注：清 m_bet_num=0（下一轮 respin 的 TryDeductRoundBet 会重新 LastBet 扣压分）
+                        _holdAppliedWin = baseWinTotal;               // 计入已落账，收尾不重复加
+                    }
                     yield break;
                 }
 
