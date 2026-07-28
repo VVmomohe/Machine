@@ -482,7 +482,6 @@ MonoBehaviour:
   m_reelView: {fileID: 1822215728}
   m_mainGame: {fileID: 2126070609}
   m_miniGame: {fileID: 543267427}
-  testForceFreeGame: 0
   autoPlay: 0
 --- !u!1001 &1822215727
 PrefabInstance:
@@ -495,6 +494,26 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1821490503}
+    - target: {fileID: 1266387108147411278, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1266387108147411278, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1266387108147411278, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3703622271853334578, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 3221
+      objectReference: {fileID: 0}
+    - target: {fileID: 3703622271853334578, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -52
+      objectReference: {fileID: 0}
     - target: {fileID: 6853531068556854816, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
       propertyPath: m_Name
       value: GamePlanel
