@@ -199,17 +199,25 @@ namespace com.slot
             int freeballAdded = (holdR != null) ? holdR.freeSpinsAwarded - _holdScatterSpins : 0;
             bool collectedFree = freeballAdded > 0;
 
-            // 本轮后尚未结束且未收集 FREE：等信用滚动(IsRolling)动画播完才放行下一轮 Start（防狂按穿透）
-            if (!hs.IsOver() && !collectedFree)
-            {
-                // ★ 防狂按穿透（用户 2026-07-25 拍板：选"急停+结算完才推进"）：
-                //   本轮赢分信用滚动(IsRolling)动画期间仍保持 _holdRolling=true，忽略所有 Start 输入，
-                //   等动画结束才放行下一轮 Start——避免"结算（赢分滚动）还没播完，狂按就又触发下一轮 respin"（用户反馈的 BUG）。
-                int waitFrames = 0;
-                while (m_player != null && m_player.IsRolling && waitFrames++ < 600)
-                    yield return null;
-                yield break;
-            }
+                // 本轮后尚未结束且未收集 FREE：等信用滚动(IsRolling)动画播完 + 最小显示时长，才放行下一轮 Start
+                if (!hs.IsOver() && !collectedFree)
+                {
+                    float gapStart = Time.time;
+                    // ★ 防狂按穿透（用户 2026-07-25 拍板：选"急停+结算完才推进"）：
+                    //   本轮赢分信用滚动(IsRolling)动画期间仍保持 _holdRolling=true，忽略所有 Start 输入，
+                    //   等动画结束才放行下一轮 Start——避免"结算（赢分滚动）还没播完，狂按就又触发下一轮 respin"（用户反馈的 BUG）。
+                    int waitFrames = 0;
+                    while (m_player != null && m_player.IsRolling && waitFrames++ < 600)
+                        yield return null;
+                    // ★ 用户 2026-07-28 要求：Hold&Spin 每轮 respin 间隙也保证最小显示时长（与正常局/Hold收尾一致），
+                    //   防止"刚结算完就立刻下一轮"看不清。期间继续保持 _holdRolling=true 阻止 Start/autoStart 穿透。
+                    float minGap = Mathf.Max(0f, settleMinShowSeconds);
+                    float remain = minGap - (Time.time - gapStart);
+                    if (remain > 0f)
+                        yield return new WaitForSeconds(remain);
+                    Debug.Log($"[Settle-Timing] 结束 hold轮间隙: now={Time.time:F3} 实际={Time.time - gapStart:F3}s (下限={minGap})");
+                    yield break;
+                }
 
             // ★ 收集到 FREE 但 HoldSpin 还没结束（counter>0 列仍在）→ 先进 Mini，保留 _activeHold
             //   Mini 结束后在回调里恢复火球/计数器，继续跑剩余列。
