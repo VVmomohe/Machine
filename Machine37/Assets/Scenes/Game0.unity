@@ -515,6 +515,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -52
       objectReference: {fileID: 0}
+    - target: {fileID: 5682476236021872891, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.146853
+      objectReference: {fileID: 0}
+    - target: {fileID: 5682476236021872891, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.146853
+      objectReference: {fileID: 0}
+    - target: {fileID: 5682476236021872891, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.146853
+      objectReference: {fileID: 0}
     - target: {fileID: 6853531068556854816, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
       propertyPath: m_Name
       value: GamePlanel
