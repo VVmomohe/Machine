@@ -313,13 +313,12 @@ public class MiniGame : MonoBehaviour
                     bonus.ShowJackpotEffect(fk);
             }
 
-        // ★ 中过彩金后清零对应档池（渐进池中奖重置）；multiplier 已在火球生成时锁定，不影响已中金额
-        // jackpots 已存档名 string，直接传给 ResetJackpot
-        if (GameManager.Instance?.m_machine?.session != null && result.jackpots != null)
+        // ★ 彩金清零时机修正：中过彩金不在「结算展示/确认中」清零，改到 Mini 结算完结(展示完、回到主游戏前)才清，
+        //   让彩金池在 Mini 庆祝展示期间仍显示中奖值。
+        RestoreMainBoard(result);
+        if (GameManager.Instance?.m_machine?.session != null && result.jackpots != null && result.jackpots.Count > 0)
             foreach (var tierName in result.jackpots)
                 GameManager.Instance.m_machine.session.ResetJackpot(tierName);
-
-        RestoreMainBoard(result);
     }
 
     /// <summary>结算展示：用计数器模板(Counter Template)显示本次免费游戏的最终总倍数（如 "X21.5"），停留约 m_finalShowTime 秒。</summary>

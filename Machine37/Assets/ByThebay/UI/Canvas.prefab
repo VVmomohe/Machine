@@ -187,7 +187,7 @@ MonoBehaviour:
   - {fileID: 576159508}
   m_symbolPrefab: {fileID: 166654104788604924, guid: e742015205b1acb40ba869541ac32890, type: 3}
   m_reelRows: 0400000004000000060000000600000008000000
-  m_cellSize: 108
+  m_cellSize: 110
   m_rowBaseY: 0
   m_baseSpeed: 22
   m_autoStagger: 0.8
@@ -1286,7 +1286,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -401.5}
+  m_AnchoredPosition: {x: 0, y: -403}
   m_SizeDelta: {x: 754, y: 1039}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4993817287860774692

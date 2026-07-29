@@ -40,10 +40,11 @@ namespace SlotMachine.Core
         // 各档彩金倍数（×bet），顺序固定 [Mini, Minor, Major, Mega]
         public List<float> jackpotMultipliers = new List<float> { 20f, 100f, 500f, 2000f };
         // 各档相对权重（越大越常见）：Mini 最常见，Mega 最稀有。
-        // MINI 占比 ≥80%（起马80%），大档逐级更稀有：Mini=80, Minor=12, Major=6, Mega=2。
-        public List<int> jackpotWeights = new List<int> { 80, 12, 6, 2 };
+        // 2026-07-29 调整：Major 6→2、Mega 2→1（压低大档概率），Mini/Minor 不变(80/12)。
+        // jackpotRatio 同步 0.10→0.095（权重和 100→95），保持 Mini=8%/Minor=1.2% 绝对概率不变，腾出的概率给倍数火球。
+        public List<int> jackpotWeights = new List<int> { 80, 12, 2, 1 };
         // 一颗新火球是彩金类型的概率（否则为倍数火球）
-        public float jackpotRatio = 0.10f;
+        public float jackpotRatio = 0.095f;
 
         // 一颗新火球是"免费模式"类型的概率（仅在主游戏 Hold&Spin 内生成；Mini 免费局不生成 FreeSpins，见 HoldSpinState.RollFireball allowFreeMode）。
         // 免费模式火球不派彩，按列收集到一定数量追加免费次数（FireballKind.FreeSpins）。

@@ -9,9 +9,9 @@ namespace com.slot
         /// <summary>火球类型（彩金类型）：普通符号=Multiplier(0)；火球=倍数火球或 Mini/Minor/Major/Mega 彩金火球。
         /// 仅在 ShowFire 火球时由视图层写入，用于区分火球种类（如不同颜色/特效）。</summary>
         public FireballKind m_type = FireballKind.Multiplier;
+        public float m_rate;
         public int m_id;
         public int m_serial = -1;   // 创建时全局自增编号，用于追踪/调试（区分每个 Item(Clone)）
-        public float m_rate;
 
         public Image m_image;
         public GameObject m_fire;

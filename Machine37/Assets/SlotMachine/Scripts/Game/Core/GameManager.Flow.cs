@@ -81,6 +81,8 @@ namespace com.slot
                             {
                                 yield return StartCoroutine(m_reelView.CollectFullReelAnimation(reel));
                                 if (m_bonus != null) ShowJackpotEffectsForReel(r.holdSpinState, reel);
+                                // ★ 记录本列中过的彩金档到 wonJackpots，供下方「结算完结后」清零使用
+                                HoldSpinState.RecordJackpots(r.holdSpinState, reel);
                                 // 火球收集成功：按本列总倍数分支播放音效（>8→18，否则→110）
                                 if (FMODSoundMgr.Instance != null)
                                     FMODSoundMgr.Instance.PlaySound(HoldSpinState.ReelSum(r.holdSpinState, reel) > 8f ? "event:/Sounds/18" : "event:/Sounds/110");
@@ -122,6 +124,10 @@ namespace com.slot
                     m_player.ShowWinValue(tw);
                     yield return StartCoroutine(WaitForConfirmKey()); // auto 1s 或手动确认
                     m_player.ApplySpinResult(r);
+                    // ★ 【彩金清零·结算完结】同 Hold 正常收尾：确认 + 入账后才清中过的彩金档（不在确认中清）。
+                    if (r.holdSpinState != null && r.holdSpinState.wonJackpots != null
+                        && r.holdSpinState.wonJackpots.Count > 0 && m_machine?.session != null)
+                        foreach (var t in r.holdSpinState.wonJackpots) m_machine.session.ResetJackpot(t);
                     // ★ 计数器不在确认时隐藏（同正常收尾口径）：保留显示到玩家开新基础局才清。
                 }
 

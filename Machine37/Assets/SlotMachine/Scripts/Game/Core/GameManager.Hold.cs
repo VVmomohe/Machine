@@ -166,20 +166,11 @@ namespace com.slot
                         if (FMODSoundMgr.Instance != null)
                             FMODSoundMgr.Instance.PlaySound(fr.sum > 8f ? "event:/Sounds/18" : "event:/Sounds/110");
 
-                        // ★ 满列收集后立即清零该列中过的彩金档（不等 FinishHoldSpin）：
-                        //   防止后续 respin 继续往已中过的池注水导致彩金变大。
-                        if (m_machine?.session != null)
-                        {
-                            for (int row = 0; row < hs.cells[fr.reel].Length; row++)
-                            {
-                                var c = hs.cells[fr.reel][row];
-                                if (c.filled && c.jackpotTier >= 0 && c.jackpotTier < HoldSpinState.JackpotTierNames.Length)
-                                {
-                                    string tierName = HoldSpinState.JackpotTierNames[c.jackpotTier];
-                                    m_machine.session.ResetJackpot(tierName);
-                                }
-                            }
-                        }
+                        // ★ 记录本列中过的彩金档到 wonJackpots，供「结算完结后」(OnHoldEnd/ Flow.cs 的确认之后) 统一清零使用。
+                        //   清零时机已从「满列收集时(确认前)」改为「玩家确认+赢分入账后」，避免彩金池在确认中提前回落。
+                        //   （代价：收集后若仍有后续 respin，该档池会随 Contribute 缓涨——属 2026-07-29 行为的可控回归；
+                        //     若你更想要「一收集就严格归零、池子绝不涨」，告诉我，我把下方即时清零加回即可。）
+                        HoldSpinState.RecordJackpots(hs, fr.reel);
                     }
 
                 if (collectWin > 0)
@@ -282,16 +273,30 @@ namespace com.slot
                 // 进入 Mini，回调中恢复 HoldSpin
                 var savedHs = hs;
                 LogMiniEntry("Hold&Spin中途收集FreeSpins火球", holdR, _holdScatterSpins, freeballAdded, savedHs);
+                // ★【诊断】进免费游戏前：本次中过的彩金档（供玩家对照 log 看 wonJackpots 是否带到了 Mini 之后）
+                if (savedHs != null && savedHs.wonJackpots != null && savedHs.wonJackpots.Count > 0)
+                    UnityEngine.Debug.Log($"[collectedFree→Mini] 进免费游戏前 wonJackpots=[{string.Join(",", savedHs.wonJackpots)}]（免费游戏结束后再清零）");
                 EnterMiniNow(holdR, () =>
                 {
                     _activeHold = savedHs;
                     if (m_reelView != null)
                         m_reelView.ShowFeatureState(savedHs);
+                    // ★【彩金清零·免费游戏结算完结】Hold&Spin 中途收集到 FREE 火球进免费游戏，免费游戏结束后即为该段特性结算完结。
+                    //   此处把中过的彩金档清零（中奖值确认/赢分庆祝期间已显示，此刻回落），避免"确认中不清"却因后续路径跳过了 OnHoldEnd 而永不清零。
+                    //   与 OnHoldEnd 的结算完结清零互为兜底（幂等：已清的档再清无害）。
+                    if (savedHs != null && savedHs.wonJackpots != null && savedHs.wonJackpots.Count > 0 && m_machine?.session != null)
+                    {
+                        UnityEngine.Debug.Log($"[collectedFree→Mini] 免费游戏结束，开始清零 wonJackpots=[{string.Join(",", savedHs.wonJackpots)}]");
+                        foreach (var t in savedHs.wonJackpots) m_machine.session.ResetJackpot(t);
+                    }
                 }, awardSpins);
                 yield break;
             }
 
             // === IsOver → 正常收尾（调 FinishHoldSpin） ===
+            // ★ 先捕获本次中过的彩金档：FinishHoldSpin 内部会清空 _activeHold，须在调用前取；
+            //   清零推迟到「玩家确认 + 赢分入账后」(结算完结)，不在确认中清（见下方 WaitForConfirmKey 之后）。
+            List<string> wonTiers = (hs != null && hs.wonJackpots != null) ? new List<string>(hs.wonJackpots) : null;
             if (hs.IsOver()) AwardFreeballSpinsFromMain(hs, holdR);
             FinishHoldSpin();
             // ★ 特性结束、结算完成：num 与 rate 【不清零】——保留显示到玩家按确认开新局。
@@ -305,6 +310,16 @@ namespace com.slot
                 m_player.ShowWinValue(tw);
                 yield return StartCoroutine(WaitForConfirmKey());
                 ApplyHoldWinToCredit(holdR);   // 只补未加过的差额（每轮已即时落账）
+                // ★ 【彩金清零·结算完结】玩家已确认且赢分入账后，才把中过的彩金档池清零（渐进池中奖重置）。
+                //   这样彩金池在赢分庆祝 + 确认期间仍显示中奖值，不会在「确认中」提前回落。
+                //   清零档位来自 wonTiers（满列收集时经 HoldSpinState.RecordJackpots 记录），不再在满列收集时即时清零。
+                if (wonTiers != null && wonTiers.Count > 0 && m_machine?.session != null)
+                {
+                    UnityEngine.Debug.Log($"[OnHoldEnd] 收尾确认后，开始清零 wonTiers=[{string.Join(",", wonTiers)}]");
+                    foreach (var t in wonTiers) m_machine.session.ResetJackpot(t);
+                }
+                else
+                    UnityEngine.Debug.Log($"[OnHoldEnd] 收尾确认后 wonTiers 为空，无彩金需清零");
                 // ★ 计数器不在确认时隐藏：保留"收集到多少倍"的显示，直到玩家按确认开新基础局
                 //   (OnStartKey → Spin → ShowGrid 入口的 HideAllCounters) 才统一消失。
             }
@@ -337,13 +352,9 @@ namespace com.slot
             }
 
             if (r != null) Settle(r);
-
-            // ★ 中过彩金后清零对应档池（渐进池中奖重置）；火球 multiplier 在生成时已锁定，不影响已中金额
-            // wonJackpots 已存档名 string（如 "Mini"），直接传给 ResetJackpot
-            // ★ 注：满列收集时已即时清过一次（见 RunRespinRound 满列分支），此处为兜底/收尾清零
-            if (hs != null && hs.wonJackpots != null && hs.wonJackpots.Count > 0 && m_machine?.session != null)
-                foreach (var k in hs.wonJackpots)
-                    m_machine.session.ResetJackpot(k);
+            // ★ 彩金清零时机已改：中过彩金不再在此处(结算显示前/确认中)清零，改到玩家「确认 + 赢分入账后」(结算完结)才清。
+            //   见 OnHoldEnd 内 WaitForConfirmKey 之后、Flow.cs 内 ApplySpinResult 之后。
+            //   满列收集时的即时清零(Hold.cs RunRespinRound 满列分支)保留，用于防后续 respin 注水膨胀(防 2026-07-29 回归)。
         }
 
         /// <summary>把 Hold&Spin 结算赢分补进总分：只加「totalPayout - 已落账(_holdAppliedWin)」的差额，
@@ -405,8 +416,18 @@ namespace com.slot
                 // ★ 用 jackpotTier 做权威判定（避免枚举偏移）
                 if (c.filled && c.jackpotTier >= 0 && c.jackpotTier < HoldSpinState.JackpotTierNames.Length)
                 {
-                    if (System.Enum.TryParse<FireballKind>(HoldSpinState.JackpotTierNames[c.jackpotTier], out var fk))
+                    string tierName = HoldSpinState.JackpotTierNames[c.jackpotTier];
+                    if (System.Enum.TryParse<FireballKind>(tierName, out var fk))
+                    {
+                        // ★【诊断·中奖LOG】满列收集命中彩金档：特效播放=中奖。
+                        UnityEngine.Debug.Log($"[JACKPOT-WIN] reel={reel} row={row} tier={tierName} (jackpotTier={c.jackpotTier}) → 播放 ShowJackpotEffect({fk})");
                         m_bonus.ShowJackpotEffect(fk);
+                        // ★【彩金清零·中奖即清】中彩金档的瞬间即把该档池清零（渐进池中奖重置），无需等到特性结算完结。
+                        //   这样"中了个mini彩金就清"，不会在特性仍进行(更多respin)时池子持续注水/显示中奖值不回落。
+                        //   已中金额在火球生成时已锁定，清零只影响该档池后续取值，不影响本次赢分。
+                        if (m_machine?.session != null)
+                            m_machine.session.ResetJackpot(tierName);
+                    }
                 }
             }
         }

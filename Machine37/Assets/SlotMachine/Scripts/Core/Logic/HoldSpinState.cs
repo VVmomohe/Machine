@@ -153,7 +153,11 @@ namespace SlotMachine.Core
                 var c = st.cells[r][row];
                 // 免费模式火球(FreeSpins)和倍数火球不计入彩金
                 if (c.filled && c.jackpotTier >= 0 && c.jackpotTier < JackpotTierNames.Length)
-                    st.wonJackpots.Add(JackpotTierNames[c.jackpotTier]);
+                {
+                    string t = JackpotTierNames[c.jackpotTier];
+                    st.wonJackpots.Add(t);
+                    UnityEngine.Debug.Log($"[RecordJackpots] reel={r} row={row} 记录中奖档={t} → wonJackpots=[{string.Join(",", st.wonJackpots)}]");
+                }
             }
         }
 

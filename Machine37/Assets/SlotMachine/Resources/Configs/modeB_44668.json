@@ -515,9 +515,9 @@
     "dropMax": 3,
     "bankTarget": 8,
     "jackpotEnabled": true,
-    "jackpotRatio": 0.10,
+    "jackpotRatio": 0.095,
     "jackpotMultipliers": [20, 100, 500, 2000],
-    "jackpotWeights": [80, 12, 6, 2],
+    "jackpotWeights": [80, 12, 2, 1],
     "freeModeRatio": 0.053,
     "multipliers": [
       0.5,

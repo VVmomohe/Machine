@@ -78,8 +78,7 @@ namespace com.slot
 
             var scrollCells = new Dictionary<int, int>();   // 落点由减速段进入减速时按当前 offset 向前取窗口起点写入（见下方 decelStartOffset 分支），无需预预测
 
-            var fbStripMult = new Dictionary<int, FireballCell>();
-            // ★ 干净循环：displayStrip 建成 respinGrid 周期循环带（方案A，对齐基础局「整条带即结果」），落点只选窗口、滚动中不再重写符号。
+            _fbStripMult.Clear();   // ★ 每轮 respin 重建「条带位置→倍率」映射（实例字段，基础旋转同用）；避免上一轮残留导致倍率串台
             // ★ 确定性减速 tween 状态：进入减速时记录起点/时间/目标/时长，之后按归一化进度插值，
             //   保证精确落点、绝不 snap 跳格（根治"不按暂停自然停跳 1~4 格"）。
             var decelStartOffset = new Dictionary<int, float>();
@@ -87,61 +86,90 @@ namespace com.slot
             var decelTarget = new Dictionary<int, int>();
             var decelDur = new Dictionary<int, float>();
 
-            // 干净循环：残留火球替换成普通符号，建成 respinGrid 周期循环带（火球格用普通符占位，由 overlay 显示）。
-            // ★ 关键修复(自然停跳 1-2 格)：displayStrip 长度必须是 rows 的整数倍，否则卷轴滚过条带末端折返处
-            //   会出现 (stripLen%rows) 格的逻辑错位（base 旋转靠 finalSyms 落地规避，Hold 只用周期带 → 必现）。
-            //   此处把条带补齐到 rows 整数倍（按周期公式续写占位符），整圈无缝。
+            // ★ feed 带：displayStrip 改为真实独立 reel 条带（m_reelStrips 拼接，见下方循环），不再是 respinGrid 周期循环带。
+            //   火球(12)保留随真实条带滚入；落点窗口由 decel 分支按 respinGrid 强制写入（保证结果正确）。
+            //   条带拼足够长（≥120），避免落点窗口折返重叠；不再要求长度为 rows 整数倍（沿条带取模即可）。
             foreach (int reel in spunReels)
             {
                 if (reel < 0 || reel >= _reels.Count) continue;
                 var st = _reels[reel];
-                int oldLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
-                if (oldLen <= 0) continue;
-                // ★ 方案A：displayStrip 建成 respinGrid 的周期循环带（对齐基础局「整条带即结果」）。
-                //   周期 = 该列行数(rows)，逻辑行 row 对应索引 (stripBase + m_buf + row)。
-                //   ★ 本轮「新落」火球(respinGrid=12 且属 newFireMults)保留为真实条带符号(id12)随卷轴滚入；
-                //     历史已锁定火球(respinGrid=12 但非本轮新落)用普通符占位，由已存在的 pinned overlay 显示、保持锁定不动。
-                //   任意 basePos 显示均为 respinGrid 周期序列 → 急停就近不突变（与基础局同构）。
                 int rowsN = st.rows;
-                int newLen = Mathf.CeilToInt(oldLen / (float)rowsN) * rowsN;   // ★ 补齐到 rows 整数倍（无缝循环）
-                var newStrip = new List<int>(newLen);
-                for (int i = 0; i < newLen; i++)
+                // ★ feed 带：用真实独立 reel 条带（m_reelStrips）滚动，不再用 respinGrid 周期循环带（消除 loop 感）。
+                //   重复拼接到足够长度，保证减速落点窗口在条带范围内、不折返重叠（真实卷轴本就是条带循环）。
+                //   火球(12)由下方 decel 分支在落点窗口按 respinGrid 强制写入，随真实条带自然滚入；历史已锁定火球由 pinned overlay 盖住。
+                var src = (m_reelStrips != null && reel < m_reelStrips.Count) ? m_reelStrips[reel] : null;
+                if (src == null || src.Count <= 0)
                 {
-                    int row2 = (((i - st.stripBase - m_buf) % rowsN) + rowsN) % rowsN;
-                    int sym2 = (respinGrid != null && reel < respinGrid.Length && respinGrid[reel] != null && row2 < respinGrid[reel].Length)
-                        ? respinGrid[reel][row2] : 0;
-                    // ★ 用户要求"火球像普通ICON一样滚进来"：本轮「新落」火球(respinGrid=12 且属于 step.newFireballs)保留为真实条带符号(id12)，
-                    //   随卷轴自然滚入；停稳后由 ApplyRespinStep 在 m_fireNode 顶层生成锁定 overlay（固定不滚、压最上）。
-                    //   非本轮新落(历史已锁定)火球 → 仍用普通符占位(由已存在的 pinned overlay 显示，保持锁定不动)。
-                    bool isNewFireball = (sym2 == m_fireballSymbolId) && (newFireMults != null) && newFireMults.ContainsKey(reel * 100 + row2);
-                    newStrip.Add(isNewFireball ? m_fireballSymbolId : ((sym2 <= 0 || sym2 == m_fireballSymbolId) ? RandNormalSymbol() : sym2));
+                    // 兜底：无条带数据则退回 respinGrid 周期循环带（保正确性，不抛错）
+                    int newLen = Mathf.Max(rowsN * 4, (st.displayStrip != null ? st.displayStrip.Count : rowsN * 4));
+                    newLen = Mathf.CeilToInt(newLen / (float)rowsN) * rowsN;
+                    var fb = new List<int>(newLen);
+                    for (int i = 0; i < newLen; i++)
+                    {
+                        int row2 = (((i - st.stripBase - m_buf) % rowsN) + rowsN) % rowsN;
+                        int sym2 = (respinGrid != null && reel < respinGrid.Length && respinGrid[reel] != null && row2 < respinGrid[reel].Length) ? respinGrid[reel][row2] : 0;
+                        bool isNewFireball = (sym2 == m_fireballSymbolId) && (newFireMults != null) && newFireMults.ContainsKey(reel * 100 + row2);
+                        if (isNewFireball && newFireMults != null)
+                        {
+                            var cell = newFireMults[reel * 100 + row2];
+                            if (cell != null) _fbStripMult[reel * 100000 + i] = cell;
+                        }
+                        fb.Add(isNewFireball ? m_fireballSymbolId : ((sym2 <= 0 || sym2 == m_fireballSymbolId) ? RandNormalSymbol() : sym2));
+                    }
+                    st.displayStrip = fb;
+                    continue;
+                }
+                int minLen = Mathf.Max(src.Count * 3, 120);   // ★ 拼足够长，落点窗口不折返重叠
+                var newStrip = new List<int>(minLen);
+                for (int i = 0; i < minLen; i++)
+                {
+                    int s = src[i % src.Count];
+                    if (s == 0) s = RandSymbol();                 // 空格→稳定替身（与基础旋转 BuildDisplayStrip 一致）
+                    if (s == m_wildId && reel == 0) s = m_symbolMin + (i % (m_symbolMax - m_symbolMin)); // reel0 过滤 Wild
+                    if (s == m_fireballSymbolId) s = RandNormalSymbol();   // ★ 剔除卷轴条带自带的"假火球"(无倍率数据)，避免滚动中显示无倍率火球
+                    if (s > m_symbolMax) s = RandNormalSymbol();           // ★ Hold 滚动带不含 Scatter(=11)，与 respin 符号池一致
+                    newStrip.Add(s);
+                }
+                // ★ 注入真实火球（来自 respinGrid/newFireMults）：使其在滚动过程中即带倍率/彩金档显示（与基础旋转一致），
+                //   并随真实条带滚入。落点窗口在 decel 段仍按 respinGrid 强制写入（保证最终停稳结果正确）。
+                //   每个真实火球在条带上占一个确定位置并写入 _fbStripMult，滚动中 FindFireballCell 即可按条带索引查到倍率→SetCellFireballMult 设 ReelItem.m_type/m_rate+文本。
+                if (newFireMults != null && respinGrid != null && reel < respinGrid.Length)
+                {
+                    int placed = 0;
+                    foreach (var kv in newFireMults)
+                    {
+                        int r = kv.Key / 100;
+                        int logicalRow = kv.Key % 100;
+                        if (r != reel) continue;
+                        var cell = kv.Value;
+                        if (cell == null) continue;
+                        int p = (logicalRow * 23 + placed * 37 + 11) % newStrip.Count;  // 确定性分散落点（条带长≥120，必经过可见区）
+                        newStrip[p] = m_fireballSymbolId;
+                        _fbStripMult[reel * 100000 + p] = cell;
+                        placed++;
+                    }
                 }
                 st.displayStrip = newStrip;
             }
 
-            // 初始：displayStrip 已是 respinGrid 周期循环带（行108-115 初始化写入），任意 basePos 显示均为 respinGrid 周期序列，
-            //   故无需 PlaceRespinResult 重写落点（重写会引入 landOffset 相位错位 → 普通符变百搭/火球错位）。火球由 overlay 显示。
-            // （PlaceRespinResult 已删除：方案A 周期带直接驱动，重写反成突变源。）
+            // ★ feed 带：displayStrip 现为真实独立 reel 条带（m_reelStrips 拼接），任意 basePos 显示均为真实条带序列（非 respinGrid 周期），
+            //   故滚动有真实"顶部进新符、停哪算哪"的 feed 带手感。落点窗口由 decel 分支按 respinGrid 强制写入（行207附近），
+            //   保证最终停稳窗口严格等于 respinGrid、结果正确；火球由 overlay 显示（pinned，不随条带滚）。
 
             FireballCell FindFireballCell(int reel, int k, int symIdx)
             {
-                // ★ 关键修复(v2)：火球在条带(band)里的"逻辑行"由 band 索引 symIdx 决定（与滚动 offset 无关），
-                //   必须用 symIdx 推逻辑行去 newFireMults 查倍数——之前用 (k - m_buf) 是"视图行"，
-                //   只有停稳(offset≡0 mod rows)那一瞬视图行才等于 band 逻辑行，故滚动中途查不到 → "倍数停下才出"。
-                //   改用 symIdx 推逻辑行：火球滚过的每个格都命中对应倍数 → 倍数随火球一起滚入（与正常局一致）。
+                // ★ feed 带下倍率查询：优先按「条带索引→倍率」直接映射（_fbStripMult，decel 落点窗口已填充），
+                //   不依赖 symIdx→逻辑行反推（该公式仅对 stripLen%rowsN==0 的列准确；modeB reel4 为 8 行、stripLen=120 不可整除会错位）。
+                FireballCell cell = null;
+                if (_fbStripMult.TryGetValue(reel * 100000 + symIdx, out cell)) return cell;
+                // 兜底：逻辑行反推（仅对 stripLen%rowsN==0 的列准确）
                 var rstate = (reel >= 0 && reel < _reels.Count) ? _reels[reel] : null;
                 int rowsN = (rstate != null) ? rstate.rows : 5;
                 int sb = (rstate != null) ? rstate.stripBase : 0;
                 int row2 = ((symIdx - sb - m_buf) % rowsN + rowsN) % rowsN;
                 int mkey = reel * 100 + row2;
-                FireballCell cell = null;
-                if (newFireMults != null && newFireMults.TryGetValue(mkey, out cell)) { }
-                if (cell == null)
-                {
-                    int skey = reel * 100000 + symIdx;
-                    fbStripMult.TryGetValue(skey, out cell);
-                }
-                return cell;
+                if (newFireMults != null && newFireMults.TryGetValue(mkey, out cell)) return cell;
+                return null;
             }
 
             // ★ 参与滚动的有效列（用于"全部停稳即提前结束"，避免停止键急停后还空等到 endTime 才结算）
@@ -229,6 +257,31 @@ namespace com.slot
                             decelTarget[reel] = tgt;
                             decelDur[reel] = decelTime;
                             scrollCells[reel] = tgt;   // 落点固定，settle 直接采用，无跳格
+                            // ★ feed 带：在落点窗口强制写入 respinGrid，保证最终停稳窗口严格等于 respinGrid（结果正确，与 base 旋转 finalSyms 对齐同理）。
+                            //   历史已锁定火球(respinGrid=12 但非本轮新落)用普通符占位，由 pinned overlay 盖住（与旧周期带一致，避免收集后底层露火球图）。
+                            if (respinGrid != null && reel < respinGrid.Length && respinGrid[reel] != null)
+                            {
+                                int sl = (st.displayStrip != null) ? st.displayStrip.Count : 0;
+                                if (sl > 0)
+                                {
+                                    for (int k = m_buf; k < m_buf + st.rows && k < st.cells.Count; k++)
+                                    {
+                                        int logicalRow = k - m_buf;
+                                        if (logicalRow >= respinGrid[reel].Length) break;
+                                        int sym = respinGrid[reel][logicalRow];
+                                        bool isNewFireball = (sym == m_fireballSymbolId) && (newFireMults != null) && newFireMults.ContainsKey(reel * 100 + logicalRow);
+                                        if (sym == m_fireballSymbolId && !isNewFireball) sym = RandNormalSymbol();   // 历史火球：条带用普通符，overlay 盖住
+                                        int idx = (st.stripBase + tgt + k) % sl;
+                                        if (idx < 0) idx += sl;
+                                        st.displayStrip[idx] = sym;
+                                        if (isNewFireball && newFireMults != null)
+                                        {
+                                            var cell = newFireMults[reel * 100 + logicalRow];
+                                            if (cell != null) _fbStripMult[reel * 100000 + idx] = cell;   // ★ feed 带下倍率按条带索引直接映射（FindFireballCell 优先查此）
+                                        }
+                                    }
+                                }
+                            }
                             float need = t + decelTime + 0.15f;   // ★ 延长 endTime 兜底，确保该列减速完成前循环不退出
                             if (need > endTime) endTime = need;
                         }
@@ -349,7 +402,7 @@ namespace com.slot
                         if (mult != null) SetCellFireballMult(st, k, mult);
                     }
                     // ★ 用户原则：Hold 期间所有 ICON（普通 + 特殊/百搭/火球）只在开始(band-build 用 respinGrid 决定)决定，
-                    //   定格段不再做任何符号替换。sym 直接来自 displayStrip(=respinGrid 周期带)，原样写入——
+                    //   定格段不再做任何符号替换。sym 直接来自 displayStrip（落点窗口已由 decel 分支按 respinGrid 强制写入），原样写入——
                     //   与滚动循环(已不拦截百搭)完全一致，根除"滚动是百搭、停下变普通ICON"的"中途修改"。
                     SetCell(st, k, sym, true);
                     if (sym == m_fireballSymbolId)

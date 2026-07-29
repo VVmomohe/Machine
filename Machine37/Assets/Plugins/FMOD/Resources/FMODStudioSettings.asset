@@ -536,8 +536,8 @@ MonoBehaviour:
   switchSettingsMigration: 1
   HasSourceProject: 1
   HasPlatforms: 1
-  sourceProjectPath: ../../PandaParadis/FMODProj/FMODProj.fspro
-  sourceBankPath: ../../PandaParadis/FMODProj/Build
+  sourceProjectPath: ../FMODProj/FMODProj.fspro
+  sourceBankPath: ../FMODProj/Build
   sourceBankPathUnformatted: 
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1
