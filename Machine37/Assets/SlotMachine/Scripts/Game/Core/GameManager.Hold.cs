@@ -165,6 +165,21 @@ namespace com.slot
                         // 火球收集成功：按本列总倍数分支播放音效（>8→18，否则→110）
                         if (FMODSoundMgr.Instance != null)
                             FMODSoundMgr.Instance.PlaySound(fr.sum > 8f ? "event:/Sounds/18" : "event:/Sounds/110");
+
+                        // ★ 满列收集后立即清零该列中过的彩金档（不等 FinishHoldSpin）：
+                        //   防止后续 respin 继续往已中过的池注水导致彩金变大。
+                        if (m_machine?.session != null)
+                        {
+                            for (int row = 0; row < hs.cells[fr.reel].Length; row++)
+                            {
+                                var c = hs.cells[fr.reel][row];
+                                if (c.filled && c.jackpotTier >= 0 && c.jackpotTier < HoldSpinState.JackpotTierNames.Length)
+                                {
+                                    string tierName = HoldSpinState.JackpotTierNames[c.jackpotTier];
+                                    m_machine.session.ResetJackpot(tierName);
+                                }
+                            }
+                        }
                     }
 
                 if (collectWin > 0)
@@ -324,9 +339,11 @@ namespace com.slot
             if (r != null) Settle(r);
 
             // ★ 中过彩金后清零对应档池（渐进池中奖重置）；火球 multiplier 在生成时已锁定，不影响已中金额
+            // wonJackpots 已存档名 string（如 "Mini"），直接传给 ResetJackpot
+            // ★ 注：满列收集时已即时清过一次（见 RunRespinRound 满列分支），此处为兜底/收尾清零
             if (hs != null && hs.wonJackpots != null && hs.wonJackpots.Count > 0 && m_machine?.session != null)
                 foreach (var k in hs.wonJackpots)
-                    m_machine.session.ResetJackpot(k.ToString());
+                    m_machine.session.ResetJackpot(k);
         }
 
         /// <summary>把 Hold&Spin 结算赢分补进总分：只加「totalPayout - 已落账(_holdAppliedWin)」的差额，
@@ -385,8 +402,12 @@ namespace com.slot
             for (int row = 0; row < hs.cells[reel].Length; row++)
             {
                 var c = hs.cells[reel][row];
-                if (c.filled && c.kind >= FireballKind.Mini && c.kind <= FireballKind.Mega)
-                    m_bonus.ShowJackpotEffect(c.kind);
+                // ★ 用 jackpotTier 做权威判定（避免枚举偏移）
+                if (c.filled && c.jackpotTier >= 0 && c.jackpotTier < HoldSpinState.JackpotTierNames.Length)
+                {
+                    if (System.Enum.TryParse<FireballKind>(HoldSpinState.JackpotTierNames[c.jackpotTier], out var fk))
+                        m_bonus.ShowJackpotEffect(fk);
+                }
             }
         }
         #endregion

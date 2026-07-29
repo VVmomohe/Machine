@@ -17,6 +17,14 @@ namespace SlotMachine.Core
         // 渐进奖池
         private Dictionary<string,float> _pots = new Dictionary<string,float>();
         private bool _potsInit;
+        // 每档各自累计局数（中该档时清零回 0，未中的档继续累计）
+        private Dictionary<string,int> _tierSpinCount = new Dictionary<string,int>();
+        // 最近一次用于计算的压分（Contribute/RefreshPots 写入，ResetJackpot 清局数后重算用）
+        private float _lastBet = 0f;
+
+        /// <summary>彩金池变化通知（注水/清零后自动触发）。由表现层(GameManager)挂接 BonusView.ShowPots，
+        /// 逻辑层不直接引用 View。挂 null 即关闭自动刷新。</summary>
+        public Action<IReadOnlyDictionary<string,float>> OnPotsChanged;
 
         public GameSession(ReelConfig cfg, ISlotRng rng)
         {
@@ -33,22 +41,73 @@ namespace SlotMachine.Core
             if (_cfg.jackpots == null || _cfg.jackpots.Count == 0) return;
             foreach (var j in _cfg.jackpots)
             {
-                float seed = j.potSeed > 0 ? j.potSeed : (float)System.Math.Max(j.value, 1f);
-                _pots[j.tier] = seed;
+                // 初始值用下限压分(10)算（局数=0）：等首次 Contribute/RefreshPots 用真实压分覆盖
+                _pots[j.tier] = MinBetForPot * j.betMult;
+                _tierSpinCount[j.tier] = 0;
             }
         }
 
+        /// <summary>用当前压分重算各档彩金值（局数不变）。供压分变化时调用（OnBetChanged），
+        /// 让彩金随压分回落/上涨，且不会像 Contribute 那样让局数+1。</summary>
+        public void RefreshPots(float bet)
+        {
+            EnsurePots();
+            _lastBet = bet;
+            if (_cfg.jackpots == null) return;
+            foreach (var j in _cfg.jackpots)
+            {
+                if (j.potRate > 0 && _pots.ContainsKey(j.tier))
+                {
+                    int cnt = _tierSpinCount.ContainsKey(j.tier) ? _tierSpinCount[j.tier] : 0;
+                    RecomputeTier(j, bet, cnt);
+                }
+            }
+            OnPotsChanged?.Invoke(_pots);
+        }
+
+        /// <summary>下注：每档局数+1 后用当前压分重算彩金值（彩金随局数缓慢增长）。</summary>
         public void Contribute(float bet)
         {
             EnsurePots();
+            _lastBet = bet;
             if (_cfg.jackpots == null) return;
             foreach (var j in _cfg.jackpots)
+            {
                 if (j.potRate > 0 && _pots.ContainsKey(j.tier))
-                    _pots[j.tier] += bet * j.potRate;
+                {
+                    // 每档局数 +1（中过该档清零的档会从 0 重新累计）
+                    if (!_tierSpinCount.ContainsKey(j.tier)) _tierSpinCount[j.tier] = 0;
+                    _tierSpinCount[j.tier]++;
+                    int cnt = _tierSpinCount[j.tier];
+                    RecomputeTier(j, bet, cnt);
+                }
+            }
+            OnPotsChanged?.Invoke(_pots);
         }
 
-        /// <summary>中奖重置：把某一档渐进池清零回 seed（重新开始累积）。彩金火球的 multiplier 在生成时已锁定，
-        /// 重置不影响已经结算入账的金额。供主游戏 Hold&Spin 收尾 / Mini 结算时，对本次中过的档调用。</summary>
+        /// <summary>压分下限：低于此值按此值算彩金（避免压分过小彩金趋零）。</summary>
+        const float MinBetForPot = 10f;
+
+        /// <summary>核心：彩金值 = 有效压分×betMult + potRate×该档局数（直接赋值，非累加）。
+        /// 有效压分 = max(bet, 下限10)；压分变→值变（回落），中彩金清局数→回落到 有效压分×betMult。</summary>
+        void RecomputeTier(JackpotTier j, float bet, int cnt)
+        {
+            float effBet = System.Math.Max(bet, MinBetForPot);
+            float val = effBet * j.betMult + j.potRate * cnt;
+            float before = _pots[j.tier];
+            _pots[j.tier] = val;
+            bool capped = false;
+            if (j.potCap > 0 && _pots[j.tier] > j.potCap)
+            {
+                _pots[j.tier] = j.potCap;
+                capped = true;
+            }
+            UnityEngine.Debug.Log($"[{(_tierSpinCount[j.tier] == cnt ? "Refresh" : "Contribute")}] bet={bet}(eff={effBet}) tier={j.tier} ={val:F4} (effBet×betMult={effBet*j.betMult:F4}+potRate×局数={j.potRate*cnt:F4}[局数={cnt}])  {before:F2}→{_pots[j.tier]:F2}{(capped ? " [CAPPED@"+j.potCap+"]" : "")}");
+        }
+
+        /// <summary>中奖重置：清掉该档累计局数并据此重算彩金值（回落到 有效压分×betMult）。
+        /// 彩金火球的 multiplier 在生成时已锁定，重置不影响已结算入账的金额。
+        /// 供主游戏 Hold&Spin 收尾 / Mini 结算时，对本次中过的档调用。</summary>
         public void ResetJackpot(string tier)
         {
             if (string.IsNullOrEmpty(tier) || _cfg.jackpots == null) return;
@@ -57,10 +116,16 @@ namespace SlotMachine.Core
                 var j = _cfg.jackpots[i];
                 if (j.tier == tier && _pots.ContainsKey(tier))
                 {
-                    _pots[tier] = j.potSeed > 0f ? j.potSeed : (float)System.Math.Max(j.value, 1f);
+                    float oldVal = _pots[tier];
+                    _tierSpinCount[tier] = 0;   // ★ 只清该档局数，其他档继续累计
+                    // 局数清0 → 值自然回落到 effBet×betMult
+                    RecomputeTier(j, _lastBet, 0);
+                    UnityEngine.Debug.Log($"[JackpotReset] tier={tier} old={oldVal} → new={_pots[tier]} (effBet={System.Math.Max(_lastBet, MinBetForPot)}), 该档局数清零");
+                    OnPotsChanged?.Invoke(_pots);
                     return;
                 }
             }
+            UnityEngine.Debug.LogWarning($"[JackpotReset] tier={tier} 未匹配到配置项！pots keys=[{string.Join(",", _pots.Keys)}]");
         }
 
         public void ResetJackpots(IEnumerable<string> tiers)

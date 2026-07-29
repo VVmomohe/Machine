@@ -42,6 +42,10 @@ namespace com.slot
         /// <summary>是否正在滚动动画中(供外部等待动画完成)。</summary>
         public bool IsRolling => _rolling;
 
+        /// <summary>压分变化通知（BetUp/LastBet/LoadNum 后触发，带当前压分）。由 GameManager 挂接彩金面板刷新，
+        /// 让"压分变化→彩金显示跟着变（回落）"。</summary>
+        public Action<float> OnBetChanged;
+
         /// <summary>收分音相对数字跳动的"起拍提前量"(秒)，参照 PandaParadis，想调 2 秒改这一个常量。</summary>
         public const float HarvestSoundLead = 0.5f;
 
@@ -96,6 +100,7 @@ namespace com.slot
             }
             m_lastBet = m_bet_num;
             RefreshUI();
+            OnBetChanged?.Invoke(m_bet_num);
         }
 
         private void SaveData()
@@ -139,6 +144,7 @@ namespace com.slot
             m_lastBet = m_bet_num;
             RefreshUI();
             SaveData();
+            OnBetChanged?.Invoke(m_bet_num);
 
             FMODSoundMgr.Instance.PlaySound("event:/Sounds/3");
         }
@@ -157,6 +163,7 @@ namespace com.slot
             m_credit_num -= add;
             RefreshUI();
             SaveData();
+            OnBetChanged?.Invoke(m_bet_num);
         }
 
         /// <summary>消耗本轮押注：把押注清 0（余额已在本轮开始通过 LastBet 挪出，这里不退回）。

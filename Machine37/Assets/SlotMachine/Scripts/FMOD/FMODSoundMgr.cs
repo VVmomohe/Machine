@@ -97,7 +97,7 @@ public class FMODSoundMgr : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            GameLog.Warning($"Master Bus not found: {e.Message}");
+            Debug.LogWarning($"Master Bus not found: {e.Message}");
         }
 
         try
@@ -106,7 +106,7 @@ public class FMODSoundMgr : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            GameLog.Warning($"SFX Bus not found, will use Master Bus. Create 'SFX' bus in FMOD Studio Mixer for better control.");
+            Debug.LogWarning($"SFX Bus not found, will use Master Bus. Create 'SFX' bus in FMOD Studio Mixer for better control.");
         }
 
         try
@@ -115,7 +115,7 @@ public class FMODSoundMgr : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            GameLog.Warning($"Music Bus not found, will use Master Bus. Create 'Music' bus in FMOD Studio Mixer for better control.");
+            Debug.LogWarning($"Music Bus not found, will use Master Bus. Create 'Music' bus in FMOD Studio Mixer for better control.");
         }
 
         // 设置初始音量
@@ -123,7 +123,7 @@ public class FMODSoundMgr : MonoBehaviour
         SetSFXVolume(sfxVolume);
         SetBGMVolume(bgmVolume);
 
-        GameLog.Log("FMODSoundMgr initialized successfully!");
+        Debug.Log("FMODSoundMgr initialized successfully!");
     }
 
     /// <summary>
@@ -174,7 +174,7 @@ public class FMODSoundMgr : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            GameLog.Error($"播放音效失败: {eventPath}\n{e.Message}");
+            Debug.Log($"播放音效失败: {eventPath}\n{e.Message}");
         }
     }
 
@@ -199,7 +199,7 @@ public class FMODSoundMgr : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            GameLog.Error($"播放音效失败: {eventPath}\n{e.Message}");
+            Debug.Log($"播放音效失败: {eventPath}\n{e.Message}");
         }
     }
 
@@ -259,7 +259,7 @@ public class FMODSoundMgr : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            GameLog.Error($"播放音效失败: {eventPath}\n{e.Message}");
+            Debug.Log($"播放音效失败: {eventPath}\n{e.Message}");
         }
     }
 
@@ -318,7 +318,7 @@ public class FMODSoundMgr : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            GameLog.Error($"播放BGM失败: {eventPath}\n{e.Message}");
+            Debug.Log($"播放BGM失败: {eventPath}\n{e.Message}");
         }
     }
 
@@ -396,7 +396,7 @@ public class FMODSoundMgr : MonoBehaviour
     {
         if (!_loopingEvents.TryGetValue(eventPath, out EventInstance instance))
         {
-            GameLog.Warning($"[FMOD] TriggerRunToEndAndReleaseLater: 未找到正在播放的事件 {eventPath}");
+            Debug.LogWarning($"[FMOD] TriggerRunToEndAndReleaseLater: 未找到正在播放的事件 {eventPath}");
             return;
         }
         _loopingEvents.Remove(eventPath);
@@ -404,9 +404,9 @@ public class FMODSoundMgr : MonoBehaviour
             return;
         var result = instance.setParameterByName(endParameterName, endValue);
         if (result != FMOD.RESULT.OK)
-            GameLog.Warning($"[FMOD] setParameterByName(\"{endParameterName}\", {endValue}) 失败: {result}");
+            Debug.LogWarning($"[FMOD] setParameterByName(\"{endParameterName}\", {endValue}) 失败: {result}");
         else
-            GameLog.Log($"[FMOD] Run→End 已设置参数 {endParameterName}={endValue}");
+            Debug.Log($"[FMOD] Run→End 已设置参数 {endParameterName}={endValue}");
         StartCoroutine(ReleaseInstanceAfterDelay(instance, releaseAfterSeconds));
     }
 

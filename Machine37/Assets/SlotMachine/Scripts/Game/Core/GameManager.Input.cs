@@ -113,8 +113,7 @@ namespace com.slot
         {
             m_player.BetUp();
             m_machine.totalBet = m_player.m_bet_num;
-            m_machine.session.Contribute(m_player.m_bet_num);
-            m_bonus.ShowPots(m_machine.session.Pots);
+            // ★ 加注不注水：渐进池只在真正下注(Start)时 Contribute（Contribute 末尾自动刷新 BonusView）
         }
 
         void OnStopKey()

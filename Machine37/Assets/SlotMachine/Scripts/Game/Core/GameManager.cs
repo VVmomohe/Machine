@@ -89,10 +89,13 @@ namespace com.slot
         void InitPots()
         {
             if (m_machine == null || m_machine.session == null || m_bonus == null) return;
+            // ★ 彩金池变化自动刷新 BonusView（Contribute/ResetJackpot 后触发，调用方无需手动 ShowPots）
+            m_machine.session.OnPotsChanged = pots => m_bonus.ShowPots(pots);
+            // ★ 压分变化：用当前压分重算彩金值（局数不变）再刷新 UI，让彩金随压分回落/上涨
+            if (m_player != null) m_player.OnBetChanged = bet => m_machine.session.RefreshPots(bet);
             m_machine.session.EnsurePots();
             m_machine.totalBet = m_player.m_bet_num;
-            m_machine.session.Contribute(m_player.m_bet_num);
-            m_bonus.ShowPots(m_machine.session.Pots);
+            m_machine.session.Contribute(m_player.m_bet_num);  // 末尾自动 ShowPots
         }
 
         /// <summary>把 config 的棋盘模式（行数/符号带/火球id）同步给 ReelView，覆盖 Inspector 默认值。</summary>

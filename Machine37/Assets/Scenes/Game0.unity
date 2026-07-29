@@ -483,6 +483,7 @@ MonoBehaviour:
   m_mainGame: {fileID: 2126070609}
   m_miniGame: {fileID: 543267427}
   autoPlay: 0
+  settleAutoShowSeconds: 1
 --- !u!1001 &1822215727
 PrefabInstance:
   m_ObjectHideFlags: 0

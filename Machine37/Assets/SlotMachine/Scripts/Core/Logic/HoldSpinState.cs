@@ -16,6 +16,10 @@ namespace SlotMachine.Core
     /// </summary>
     public class HoldSpinState
     {
+        /// <summary>彩金档名（与 JSON 配置 jackpots[].tier 一致）：[0]=Mini [1]=Minor [2]=Major [3]=Mega。
+        /// 用 string 做池查表/清零，避免 FireballKind 枚举偏移导致键不匹配。</summary>
+        public static readonly string[] JackpotTierNames = { "Mini", "Minor", "Major", "Mega" };
+
         public ReelConfig cfg;
         public ISlotRng rng;
         public float bet;
@@ -26,7 +30,7 @@ namespace SlotMachine.Core
         public bool[] isFull;           // 该列是否已集满
         public bool[] released;         // 该列是否已释放
         public float accumulated;       // 特性累计赢分（含倍数火球 + 彩金火球，统一按 ×bet 累加）
-        public List<FireballKind> wonJackpots = new List<FireballKind>();  // 本特性中已中的彩金档（可重复/多档）
+        public List<string> wonJackpots = new List<string>();  // 本特性中已中的彩金档名（"Mini"/"Minor"/"Major"/"Mega"，可重复/多档）
         public bool active;
         /// <summary>渐进彩金池（Mini/Minor/Major/Mega → 当前累积值，单位=信用点）。
         /// 彩金火球的 multiplier = Pots[tier] / bet（信用→倍率统一，使 ReelSum 结果 ×bet 恰为池值）。</summary>
@@ -140,15 +144,16 @@ namespace SlotMachine.Core
             return vals[vals.Count - 1];
         }
 
-        /// <summary>把某列中的彩金火球档位记录到 wonJackpots（用于显示/统计；倍数火球不计入）。</summary>
+        /// <summary>把某列中的彩金火球档位记录到 wonJackpots（用于显示/统计；倍数火球不计入）。
+        /// 存档名 string（如 "Mini"）而非枚举，避免枚举偏移导致清零时键不匹配。</summary>
         public static void RecordJackpots(HoldSpinState st, int r)
         {
             for (int row = 0; row < st.cells[r].Length; row++)
             {
                 var c = st.cells[r][row];
-                // 免费模式火球(FreeSpins)不计入彩金（它只追加免费次数，无彩金档）
-                if (c.filled && c.kind != FireballKind.Multiplier && c.kind != FireballKind.FreeSpins)
-                    st.wonJackpots.Add(c.kind);
+                // 免费模式火球(FreeSpins)和倍数火球不计入彩金
+                if (c.filled && c.jackpotTier >= 0 && c.jackpotTier < JackpotTierNames.Length)
+                    st.wonJackpots.Add(JackpotTierNames[c.jackpotTier]);
             }
         }
 
@@ -177,9 +182,10 @@ namespace SlotMachine.Core
             {
                 int tier = PickJackpotTier(cfg, rng);   // 0=Mini .. 3=Mega
                 c.kind = (FireballKind)(tier + 1);
-                // ★ 彩金火球按 UI 显示的渐进池值算；池值单位=信用点→需 /bet 统一到倍率
-                string tierName = ((FireballKind)(tier + 1)).ToString();  // "Mini"/"Minor"/"Major"/"Mega"
-                if (pots != null && pots.TryGetValue(tierName, out float potVal) && bet > 0)
+                c.jackpotTier = tier;                   // ★ 权威索引，避免枚举偏移
+                // ★ 池查表用 JackpotTierNames[tier]（"Mini"/"Minor"/"Major"/"Mega"），与 JSON 配置 key 一致
+                string tierName = (tier >= 0 && tier < JackpotTierNames.Length) ? JackpotTierNames[tier] : "";
+                if (pots != null && !string.IsNullOrEmpty(tierName) && pots.TryGetValue(tierName, out float potVal) && bet > 0)
                     c.multiplier = potVal / bet;
                 else
                     c.multiplier = hc.jackpotMultipliers[tier];

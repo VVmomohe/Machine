@@ -42,7 +42,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -89,156 +89,21 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: FX_freespins-hd_0
-      rect:
-        serializedVersion: 2
-        x: 1103
-        y: 635
-        width: 811
-        height: 384
-      alignment: 9
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 64597bd70d076ffd0800000000000000
-      internalID: -2308533718216108730
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: FX_freespins-hd_1
-      rect:
-        serializedVersion: 2
-        x: 1512
-        y: 259
-        width: 315
-        height: 94
-      alignment: 9
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fb4019b120fa2bbf0800000000000000
-      internalID: -309993000747858753
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: FX_freespins-hd_2
-      rect:
-        serializedVersion: 2
-        x: 1103
-        y: 359
-        width: 687
-        height: 270
-      alignment: 9
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b230d9842671ba6c0800000000000000
-      internalID: -4131182522289814741
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: FX_freespins-hd_3
-      rect:
-        serializedVersion: 2
-        x: 1084
-        y: 210
-        width: 422
-        height: 143
-      alignment: 9
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1fe4fe3c3692cff30800000000000000
-      internalID: 4610605626986286833
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: FX_freespins-hd_4
-      rect:
-        serializedVersion: 2
-        x: 1796
-        y: 502
-        width: 166
-        height: 127
-      alignment: 9
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 306a6fd9876832d30800000000000000
-      internalID: 4405512713102861827
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: FX_freespins-hd_5
-      rect:
-        serializedVersion: 2
-        x: 5
-        y: 393
-        width: 1092
-        height: 626
-      alignment: 9
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: dfa73afe139b75b90800000000000000
-      internalID: -7253125050731889923
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: FX_freespins-hd_6
-      rect:
-        serializedVersion: 2
-        x: 5
-        y: 67
-        width: 1073
-        height: 320
-      alignment: 9
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8960174a63473a0d0800000000000000
-      internalID: -3412756314580777320
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     physicsShape: []
     bones: []
@@ -249,14 +114,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      FX_freespins-hd_0: -2308533718216108730
-      FX_freespins-hd_1: -309993000747858753
-      FX_freespins-hd_2: -4131182522289814741
-      FX_freespins-hd_3: 4610605626986286833
-      FX_freespins-hd_4: 4405512713102861827
-      FX_freespins-hd_5: -7253125050731889923
-      FX_freespins-hd_6: -3412756314580777320
+    nameFileIdTable: {}
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

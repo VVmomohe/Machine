@@ -13,8 +13,9 @@ namespace SlotMachine.Core
         public float value = 15f;           // 倍数(×bet) 或固定值（静态展示/兜底用）
         public bool valueIsMultiplier = true;
         public int weight = 1;              // 火球携带该奖池的相对权重（越大越常见）
-        public float potRate = 0f;          // 渐进奖池：每次下注贡献比例(×totalBet) 进此档；0=不累积(静态)
-        public float potSeed = 0f;          // 该档被中走后重置到的基数(信用点)；0 则取 max(value,1)
+        public float potRate = 0f;          // 渐进奖池基础注水率(四档统一)：彩金值 = 有效压分×betMult + potRate×局数
+        public float betMult = 1f;          // 该档跟压分挂钩的倍数系数(可调)：压分越大彩金越高；四档各自不同拉开差距
+        public float potCap = 0f;           // 渐进奖池硬上限(绝对值信用点)：>0 时封顶，防止极端膨胀；0=不封顶
     }
 
     /// <summary>Hold &amp; Spin 火球参数，全部数据驱动。

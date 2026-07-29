@@ -58,7 +58,7 @@ public class MiniGame : MonoBehaviour
     {
         public float fireTotal;             // 全部火球派彩（倍数之和 + 中彩金档，已 ×bet）
         public int fireCount;               // 火球总颗数
-        public List<FireballKind> jackpots; // 中过的彩金档（可重复/多档）
+        public List<string> jackpots; // 中过的彩金档名（"Mini"/"Minor"/"Major"/"Mega"，可重复/多档）
     }
 
     // ===== 公开入口（由 GameManager 在进入免费游戏时调用） =====
@@ -305,14 +305,19 @@ public class MiniGame : MonoBehaviour
 
         // ★ 彩金特效统一在 Mini 结束时播放（不是每轮播）
         var bonus = GameManager.Instance?.m_bonus;
+        UnityEngine.Debug.Log($"[Mini结算] 中彩金档数={result.jackpots?.Count ?? 0} 档名=[{string.Join(",", result.jackpots ?? new List<string>())}]");
         if (bonus != null && result.jackpots != null && result.jackpots.Count > 0)
-            foreach (var kind in result.jackpots)
-                bonus.ShowJackpotEffect(kind);
+            foreach (var tierName in result.jackpots)
+            {
+                if (System.Enum.TryParse<FireballKind>(tierName, out var fk))
+                    bonus.ShowJackpotEffect(fk);
+            }
 
         // ★ 中过彩金后清零对应档池（渐进池中奖重置）；multiplier 已在火球生成时锁定，不影响已中金额
+        // jackpots 已存档名 string，直接传给 ResetJackpot
         if (GameManager.Instance?.m_machine?.session != null && result.jackpots != null)
-            foreach (var kind in result.jackpots)
-                GameManager.Instance.m_machine.session.ResetJackpot(kind.ToString());
+            foreach (var tierName in result.jackpots)
+                GameManager.Instance.m_machine.session.ResetJackpot(tierName);
 
         RestoreMainBoard(result);
     }
@@ -483,12 +488,13 @@ public class MiniGame : MonoBehaviour
 
     // ===== 结算 =====
 
-    List<FireballKind> CollectJackpots()
+    List<string> CollectJackpots()
     {
-        var list = new List<FireballKind>();
+        var list = new List<string>();
         foreach (var c in _allFires)
-            // 免费模式火球(FreeSpins)不属于彩金档，排除（它只追加免费次数）
-            if (c.kind != FireballKind.Multiplier && c.kind != FireballKind.FreeSpins) list.Add(c.kind);
+            // 免费模式火球(FreeSpins)和倍数火球不属于彩金档，排除
+            if (c.jackpotTier >= 0 && c.jackpotTier < HoldSpinState.JackpotTierNames.Length)
+                list.Add(HoldSpinState.JackpotTierNames[c.jackpotTier]);
         return list;
     }
 }

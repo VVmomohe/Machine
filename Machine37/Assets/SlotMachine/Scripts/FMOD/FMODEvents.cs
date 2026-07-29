@@ -207,7 +207,7 @@ public static class FMODEvents
         }
 
         // 如果没有找到映射，尝试自动转换
-        GameLog.Warning($"未找到路径映射: {oldPath}，尝试自动转换");
+        Debug.LogWarning($"未找到路径映射: {oldPath}，尝试自动转换");
         return $"event:/{oldPath}";
     }
 }
