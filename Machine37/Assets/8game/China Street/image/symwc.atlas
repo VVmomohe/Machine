@@ -1,0 +1,30 @@
+symwc.webp
+size:1024,256
+filter:Linear,Linear
+BODY
+bounds:434,41,163,185
+offsets:26,22,246,224
+Glow2
+bounds:250,39,182,187
+offsets:20,17,245,223
+Tassel
+bounds:599,44,111,76
+offsets:130,9,246,224
+glow
+bounds:2,2,246,224
+sparkle
+bounds:818,68,42,42
+offsets:4,3,49,49
+text
+bounds:712,20,104,90
+offsets:58,75,246,224
+text GLOW
+bounds:877,128,112,98
+offsets:54,71,246,224
+text glow blur
+bounds:599,122,146,104
+offsets:37,68,246,224
+text shadow
+bounds:747,112,128,114
+offsets:47,61,246,224
+
