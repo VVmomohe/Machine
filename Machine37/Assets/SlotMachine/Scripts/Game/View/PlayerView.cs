@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using SlotMachine.Core;   // GameResult
@@ -38,6 +39,13 @@ namespace com.slot
         [Header("音效")]
         [Tooltip("是否播放收分音(需先在 FMOD 接入事件路径, 见 PlayWinSound)")]
         public bool m_playSound = false;
+
+        [Header("特效")]
+        [Tooltip("赢分> m_bigWinThreshold 时播放的庆祝特效(方案A：基础局/Scatter/Hold收尾/Mini收尾 统一经 ShowWinValue 触发)")]
+        public GameObject m_bigWinEffect;
+        public long m_bigWinThreshold = 50;
+        public float m_bigWinDuration = 3f;
+        private Coroutine _bigWinCoroutine = null;
 
         /// <summary>是否正在滚动动画中(供外部等待动画完成)。</summary>
         public bool IsRolling => _rolling;
@@ -209,6 +217,24 @@ namespace com.slot
             if (_rolling) FinalizeRoll();   // 先收尾进行中的收分动画，避免被新显示覆盖/丢分
             m_win_num = win;
             RefreshUI();
+            PlayBigWin(win);   // ★ 赢分>阈值时播放庆祝特效(方案A：含 Hold 每轮 respin 临时赢分)
+        }
+
+        /// <summary>赢分> m_bigWinThreshold 时播放庆祝特效，约 m_bigWinDuration 秒后自动隐藏。
+        /// 重复触发刷新计时(不叠加第二个实例)。方案A：ShowWinValue 统一触发(含 Hold 每轮 respin 临时赢分)。</summary>
+        public void PlayBigWin(long win)
+        {
+            if (m_bigWinEffect == null || win <= m_bigWinThreshold) return;
+            m_bigWinEffect.SetActive(true);
+            if (_bigWinCoroutine != null) StopCoroutine(_bigWinCoroutine);
+            _bigWinCoroutine = StartCoroutine(HideBigWinAfter(m_bigWinDuration));
+        }
+
+        IEnumerator HideBigWinAfter(float sec)
+        {
+            yield return new WaitForSeconds(sec);
+            if (m_bigWinEffect != null) m_bigWinEffect.SetActive(false);
+            _bigWinCoroutine = null;
         }
 
         /// <summary>开新一局前清赢分显示(归 0)，让"赢分清零"发生在转轮启动那一刻，
