@@ -37,6 +37,9 @@ namespace com.slot
             // ★ 进小游戏：立即收掉可能残留的大赢庆祝特效(火球 respin 局或进 Mini 前的赢分显示若触发过大赢，
             //   其 3s 特效会盖在进小游戏过渡/小游戏 HUD 上)。主 HUD 小游戏期间仍可见，故必须在此清掉避免重叠。
             if (m_player != null) m_player.CancelBigWin();
+            // ★ 进小游戏：同时收掉上局残留的彩金中奖特效(Mini/Minor/Major/Mega)，
+            //   否则会带进小游戏 HUD 与场内新中奖特效重叠（与 EnterHoldSpin / OnStartKey 顶部同一范式）。
+            if (m_bonus != null) m_bonus.HideAllJackpotEffects();
             // ★ 注意：此处【不再】调用 ResetWinDisplay 清 0 —— 基础赢分已用 ShowWinValue 显示在 HUD，
             //   进 Mini 期间主 HUD 仍可见，应保留该赢分显示(用户要求"赢分显示到小游戏赢分中先")，
             //   待小游戏结算(onDone)才把"基础赢分+Mini赢分"一次性滚入总分并刷新显示。

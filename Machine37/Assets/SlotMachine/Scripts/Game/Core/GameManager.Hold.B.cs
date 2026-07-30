@@ -26,6 +26,10 @@ namespace com.slot
         /// <summary>进入 Hold&Spin：显示初始锁定状态 + 每列计数器，然后等待玩家按 Start 逐轮推进。</summary>
         void EnterHoldSpin(GameResult r, HoldSpinState hs)
         {
+            // ★ 进入 Hold&Spin 开局：先清掉上一局残留的彩金特效（与 OnStartKey 正常开局清理同一范式）。
+            //   A 模式不进本函数(holdMode=Direct)，无影响；B 模式 Hold 内中彩金已改 persistent 持续播，靠此 + OnStartKey 在开局隐藏。
+            if (m_bonus != null) m_bonus.HideAllJackpotEffects();
+
             _activeHold = hs;
             _holdResult = r;
             _holdRolling = false;
@@ -426,7 +430,7 @@ namespace com.slot
                     {
                         // ★【诊断·中奖LOG】满列收集命中彩金档：特效播放=中奖。
                         UnityEngine.Debug.Log($"[JACKPOT-WIN] reel={reel} row={row} tier={tierName} (jackpotTier={c.jackpotTier}) → 播放 ShowJackpotEffect({fk})");
-                        m_bonus.ShowJackpotEffect(fk);
+                        m_bonus.ShowJackpotEffect(fk, persistent: true);   // ★ 模式B：Hold&Spin 内满列中彩金 → 持续播，开局(EnterHoldSpin/OnStartKey)才隐藏
                         // ★【彩金清零·中奖即清】中彩金档的瞬间即把该档池清零（渐进池中奖重置），无需等到特性结算完结。
                         //   这样"中了个mini彩金就清"，不会在特性仍进行(更多respin)时池子持续注水/显示中奖值不回落。
                         //   已中金额在火球生成时已锁定，清零只影响该档池后续取值，不影响本次赢分。

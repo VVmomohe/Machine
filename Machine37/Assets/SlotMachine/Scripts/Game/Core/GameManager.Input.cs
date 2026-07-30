@@ -50,6 +50,13 @@ namespace com.slot
             if (m_reelView != null)
                 m_reelView.CheckEngagedAll();    // m_num<=0 → 清 engaged（无火球列不残留）
 
+            // ★ 与 CheckEngagedAll 同一时机（任何分支/守卫前）100% 先跑：开新局(含 Hold&Spin respin 续轮)才隐藏上局彩金特效。
+            //   原 hide 写在 _activeHold 早返回之后(line 105)，导致 HOLD respin 推进时跳过→特效残留不隐藏。移到此处修复。
+            if (m_bonus != null)
+                m_bonus.HideAllJackpotEffects();
+            else
+                UnityEngine.Debug.LogWarning("[OnStartKey] m_bonus==null! 无法隐藏彩金特效（BonusView 未挂载或未赋值）");
+
             // ★ Hold&Spin 进行中：Start 键同样 = 新的一轮（用户模型：按确认滚动就是新局）。
             //   与基础局的唯一区别只是"转的内容"：respin 只转空格、已锁火球保留；而非"是否新局"。
             //   计数器层面两者已完全统一——上方滚动前都已 CheckEngagedAll + HideAllCounters（先清），
@@ -101,9 +108,6 @@ namespace com.slot
 
             if (m_reelView != null)
                 m_reelView.HideAllCounters();    // 归零并整体隐藏（开新局 / 特性每轮重算前都先清）
-
-            if (m_bonus != null)
-                m_bonus.HideAllJackpotEffects(); // ★ 开新局才隐藏：上局中奖的彩金特效(Mini/Minor/Major/Mega)在此统一关掉（模式A 持续播、B 收尾清理）
 
             m_machine.totalBet = m_player.m_bet_num;
             m_machine.session.Contribute(m_player.m_bet_num);

@@ -18,6 +18,11 @@ namespace com.slot
         {
             _spinPending = true;
 
+            // ★ 兜底：所有新局必经此函数，在此统一隐藏上局残留的彩金特效。
+            //   主路径已在 OnStartKey 调过一次（用户按 Start 时立即响应），
+            //   此处防御 MiniGame 结束回退/其他绕过 OnStartKey 的路径遗漏。
+            if (m_bonus != null) m_bonus.HideAllJackpotEffects();
+
             if (m_reelView != null)
             {
                 // 落了火球，把倍率传给 ShowGrid，滚动阶段就显示倍率。
