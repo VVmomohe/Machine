@@ -292,6 +292,16 @@ public class MiniGame : MonoBehaviour
             jackpots = CollectJackpots(),
         };
 
+        // ★ 彩金特效：全部火球停下、免费次数归零即刻播放（不再等倍数计数器展示播完）。
+        var bonus = GameManager.Instance?.m_bonus;
+        UnityEngine.Debug.Log($"[Mini结算] 中彩金档数={result.jackpots?.Count ?? 0} 档名=[{string.Join(",", result.jackpots ?? new List<string>())}]");
+        if (bonus != null && result.jackpots != null && result.jackpots.Count > 0)
+            foreach (var tierName in result.jackpots)
+            {
+                if (System.Enum.TryParse<FireballKind>(tierName, out var fk))
+                    bonus.ShowJackpotEffect(fk, persistent: true);   // ★ 免费转中彩金 → 持续播，下一开局(OnStartKey/EnterHoldSpin)才隐藏
+            }
+
         // ★ 结算展示：用计数器模板(Counter Template)显示本次免费游戏的最终总倍数，停留约 2 秒后再回主游戏。
         //   （此时 Mini 棋盘仍可见；结算信息不再走 remainingText。）
         if (m_remainingText != null) m_remainingText.text = "";   // 先清空剩余次数文本
@@ -302,16 +312,6 @@ public class MiniGame : MonoBehaviour
             GameManager.Instance.m_player.ShowWinValue((long)System.Math.Round(result.fireTotal));
 
         yield return StartCoroutine(ShowFinalMultiplier(totalMult));
-
-        // ★ 彩金特效统一在 Mini 结束时播放（不是每轮播）
-        var bonus = GameManager.Instance?.m_bonus;
-        UnityEngine.Debug.Log($"[Mini结算] 中彩金档数={result.jackpots?.Count ?? 0} 档名=[{string.Join(",", result.jackpots ?? new List<string>())}]");
-        if (bonus != null && result.jackpots != null && result.jackpots.Count > 0)
-            foreach (var tierName in result.jackpots)
-            {
-                if (System.Enum.TryParse<FireballKind>(tierName, out var fk))
-                    bonus.ShowJackpotEffect(fk);
-            }
 
         // ★ 彩金清零时机修正：中过彩金不在「结算展示/确认中」清零，改到 Mini 结算完结(展示完、回到主游戏前)才清，
         //   让彩金池在 Mini 庆祝展示期间仍显示中奖值。
