@@ -66,7 +66,7 @@ namespace com.slot
         public GameResult Spin()
         {
             if (config == null || session == null) return null;
-            return session.Play(totalBet);
+            return session.Play(totalBet, GameManager.Instance != null && GameManager.Instance.m_testDoubleFireball);
         }
     }
 }

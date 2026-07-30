@@ -31,6 +31,10 @@ namespace com.slot
         /// 转轮正在滚动时不触发（避免把正在转的卷轴急停），等其自然停稳后下一帧自动继续。取消勾选立即回手动。</summary>
         public bool autoPlay = false;
 
+        /// <summary>【测试】火球概率翻倍开关（Inspector 勾选）。开启后基础旋转与 Mini 免费局中火球每格出现率约翻倍
+        /// （章鱼/免费每格比例保持不变，普通被火球挤占）。仅用于调试，不影响正式手感配置。</summary>
+        public bool m_testDoubleFireball = false;
+
         /// <summary>【自动结算/自动连转停留时长(秒)·外置可调】仅 autoPlay(F1自动连转) 或 sd.auto==1(设置项自动结算) 时，
         /// 结算后停留这么久才放下一局，避免「秒过」直接进下一局。默认 0.9s，可在 Inspector 改。
         /// 手动确认 / 连续按确认 不受影响（仍纯等确认键）。</summary>

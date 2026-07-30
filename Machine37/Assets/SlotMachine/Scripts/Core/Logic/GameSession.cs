@@ -134,13 +134,13 @@ namespace SlotMachine.Core
             foreach (var t in tiers) ResetJackpot(t);
         }
 
-        public GameResult Play(float bet)
+        public GameResult Play(float bet, bool doubleFireball = false)
         {
             var res = new GameResult();
             EnsurePots();
 
             // 1) 基础旋转
-            int[][] grid = OutcomeGenerator.Spin(_cfg, _rng);
+            int[][] grid = OutcomeGenerator.Spin(_cfg, _rng, doubleFireball);
             var wins = EvaluateBase(grid, bet);
             res.baseWins = wins;
             float baseWin = 0;

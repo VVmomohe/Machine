@@ -383,7 +383,7 @@ public class MiniGame : MonoBehaviour
         }
 
         // 1) 基础旋转：生成棋盘，然后把已有火球锁回格子（它们在后续旋转中不消失）
-        int[][] grid = OutcomeGenerator.Spin(cfg, GameManager.Instance.m_machine.rng);
+        int[][] grid = OutcomeGenerator.Spin(cfg, GameManager.Instance.m_machine.rng, GameManager.Instance.m_testDoubleFireball);
         foreach (var f in _allFires)
             if (f.reel >= 0 && f.reel < grid.Length && f.row >= 0 && f.row < grid[f.reel].Length)
                 grid[f.reel][f.row] = fbId;

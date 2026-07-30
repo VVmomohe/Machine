@@ -32,7 +32,7 @@ namespace SlotMachine.Core
 
         static bool IsSpecial(int id) => id >= 9 && id <= 12;
 
-        public static int[][] Spin(ReelConfig cfg, ISlotRng rng)
+        public static int[][] Spin(ReelConfig cfg, ISlotRng rng, bool doubleFireball = false)
         {
             int reels = cfg.reelRows.Count;
             var grid = new int[reels][];
@@ -49,6 +49,18 @@ namespace SlotMachine.Core
                 ? cfg.baseSpin.specialWeights
                 : new List<int> { 2, 3, 13 };
             double specialCellProb = (cfg.baseSpin != null && cfg.baseSpin.specialProb > 0f) ? cfg.baseSpin.specialProb : 0.18;
+
+            // ★ 测试开关：火球概率翻倍（仅调试）。火球权重 ×2，并联动提高 specialProb 使火球每格绝对概率精确翻倍；
+            //   章鱼/免费每格比例保持不变（它们占 specialProb 的份额不变），普通被火球挤占。
+            if (doubleFireball && specialWeights.Count > 0)
+            {
+                double stOld = specialWeights.Sum();
+                var w = new List<int>(specialWeights);
+                w[w.Count - 1] *= 2;                       // 火球为 specialWeights 最后一项（顺序 [章鱼,免费,火球]）
+                specialWeights = w;
+                double stNew = specialWeights.Sum();
+                specialCellProb = Math.Min(specialCellProb * stNew / stOld, 0.99);
+            }
 
             // ★ 1) 预先决定百搭方案（写一次，绝不事后清理/替换）
             var wildCells = DecideWildPlan(cfg, rng);
