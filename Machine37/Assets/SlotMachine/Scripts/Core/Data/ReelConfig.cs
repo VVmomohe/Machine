@@ -37,6 +37,14 @@ namespace SlotMachine.Core
         public List<JackpotTier> jackpots = new List<JackpotTier>(); // Mini/Minor/Major/Mega
         public FreeSpinsConfig freeSpins;                    // Scatter 免费转
 
+            // ===== 基础旋转符号密度（与转轮条带密度解耦，直接控制每格出什么符号）=====
+            // 设计（用户 2026-07-30）：普通ICON≈80% / 章鱼2% / 百搭2% / 免费3% / 火球13%。
+            // 实现：baseSpin.specialProb = 目标「每格」是特殊符号(章鱼/免费/火球)的占比 f；
+            //   普通ICON = 1 - f。特殊符号内部按 specialWeights=[章鱼,免费,火球] 加权选一种。
+            //   生成时按当前列 cap 把 f 折算成「每段触发特殊概率」(抵消普通游程稀释)，保证每列每格特殊率≈f。
+            //   百搭(wild)由 DecideWildPlan 另算、以覆盖式落格（期望≈2%），不计入 specialProb。
+            public BaseSpinConfig baseSpin;
+
         public SymbolPay GetSymbol(int id)
         {
             for (int i = 0; i < paytable.Count; i++)
@@ -88,5 +96,19 @@ namespace SlotMachine.Core
 
         /// <summary>符号总数（= paytable.Count），用于 fallback 随机符号生成。</summary>
         public int GetSymbolCount() => paytable.Count;
+    }
+
+    /// <summary>
+    /// 基础旋转每格的符号密度配置（与转轮条带解耦）。
+    /// specialProb = 目标「每格」是特殊符号(章鱼/免费/火球)的占比 f；普通ICON = 1 - f。
+    ///   注意：这是 per-cell 目标占比，生成时会按列 cap 自动折算成段触发概率，无需手算稀释。
+    /// specialWeights = 特殊符号内部相对权重，顺序固定 [章鱼, 免费, 火球]。
+    ///   例：specialProb=0.18 + [2,3,13] → 章鱼2% / 免费3% / 火球13%（普通82%，再减百搭≈80%）。
+    /// </summary>
+    [Serializable]
+    public class BaseSpinConfig
+    {
+        public float specialProb = 0.18f;
+        public List<int> specialWeights = new List<int> { 2, 3, 13 };
     }
 }

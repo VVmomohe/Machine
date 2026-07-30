@@ -17,7 +17,10 @@ namespace SlotMachine.Core
     /// ★ 相邻游程强制不同号（去重），游程不能跨段拼接 → 严格保证每列竖连 ≤ 该列上限。
     /// 特殊符号(9章鱼/11免费/12火球)：不参与聚类，按概率以单格散落。
     /// 百搭(10)：由 DecideWildPlan 预先决定（最多 maxWildsPerSpin 颗、排除第一列 reel0 与顶行、整体 wildSpawnChance 概率），写一次。
-    /// 返回 grid[reel][row]，row0=顶部，row=rows-1=底部。
+    /// 返回 grid[reel][row]，row0=底部（视觉下），row=rows-1=顶部（视觉上）。
+    /// ★ 注意：此约定须与渲染层 ReelView.SnapFinal 一致——SnapFinal 以 row==rows-1 为顶行并拦截百搭，
+    ///   故 DecideWildPlan 也必须排除 rows-1（而非 row0），否则数据层把 Wild 放顶行、渲染层又替换成随机符，
+    ///   导致「画面 A / 数据 Wild 对不上」的 ID 与图标脱钩 bug。
     /// </summary>
     public static class OutcomeGenerator
     {
@@ -36,11 +39,16 @@ namespace SlotMachine.Core
             for (int i = 0; i < reels; i++)
                 grid[i] = new int[cfg.reelRows[i]];
 
-            // 特殊符号袋：排除百搭(由 wildPlan 预先决定)，仅含 9章鱼/11免费/12火球
-            var specialBag = BuildSpecialBag(cfg);
-            double specialProb = specialBag.Count > 0
-                ? Math.Min(0.15, (double)specialBag.Count / cfg.reelStrips.Sum(s => s.Count))
-                : 0;
+            // ★ 基础旋转符号密度：由配置 baseSpin 直接控制（与转轮条带密度解耦，便于对齐原游戏手感）
+            //   baseSpin.specialProb = 目标「每格」是特殊符号(章鱼/免费/火球)的占比(f)；普通ICON = 1 - f（百搭另算覆盖式）。
+            //   普通符号以 1~cap 的竖向游程成串填充，会把特殊密度稀释，故实际「每段触发特殊」的概率需按 cap 折算：
+            //     pIter = f*(1+cap)/2 / (1 - f + f*(1+cap)/2)，保证每列每格特殊率精确≈f。
+            //   特殊符号内部按 specialWeights=[章鱼,免费,火球] 加权分配。缺失配置时回退 f=0.18 / [2,3,13]。
+            var specialIds = new List<int> { 9, 11, cfg.fireballSymbolId >= 0 ? cfg.fireballSymbolId : 12 };
+            var specialWeights = (cfg.baseSpin != null && cfg.baseSpin.specialWeights != null && cfg.baseSpin.specialWeights.Count == specialIds.Count)
+                ? cfg.baseSpin.specialWeights
+                : new List<int> { 2, 3, 13 };
+            double specialCellProb = (cfg.baseSpin != null && cfg.baseSpin.specialProb > 0f) ? cfg.baseSpin.specialProb : 0.18;
 
             // ★ 1) 预先决定百搭方案（写一次，绝不事后清理/替换）
             var wildCells = DecideWildPlan(cfg, rng);
@@ -49,7 +57,7 @@ namespace SlotMachine.Core
             for (int c = 0; c < reels; c++)
             {
                 int rows = cfg.reelRows[c];
-                int[] colResult = BuildColumnFromList(c, rows, specialBag, specialProb, rng);
+                int[] colResult = BuildColumnFromList(c, rows, specialIds, specialWeights, specialCellProb, rng);
                 for (int row = 0; row < rows; row++)
                     grid[c][row] = colResult[row];
             }
@@ -68,10 +76,15 @@ namespace SlotMachine.Core
         /// 再随机取其中连续 rows 个作为本列可见结果（窗口外作 padding，绝不中途换）。
         /// 不含百搭（百搭由 DecideWildPlan 统一注入）。
         /// </summary>
-        static int[] BuildColumnFromList(int col, int rows, List<int> specialBag, double specialProb, ISlotRng rng)
+        static int[] BuildColumnFromList(int col, int rows, List<int> specialIds, List<int> specialWeights, double specialCellProb, ISlotRng rng)
         {
             int listLen = rows * StripBaseMultiplier;
-            var queue = BuildRunSequence(listLen, GetReelCap(col), specialBag, specialProb, rng);
+            // 把「每格特殊占比 f」折算成「每段触发特殊概率 pIter」，抵消普通游程(1~cap)的稀释
+            int cap = GetReelCap(col);
+            double eL = (1.0 + cap) / 2.0;                 // 普通游程平均长度
+            double f = Math.Min(specialCellProb, 0.99);
+            double pIter = f * eL / (1.0 - f + f * eL);    // 保证本列每格特殊率≈f
+            var queue = BuildRunSequence(listLen, cap, specialIds, specialWeights, pIter, rng);
 
             // 随机取一段连续窗口（窗口来自已算好的 List，而非滚动中临时决定）
             int maxStart = listLen - rows;
@@ -83,7 +96,7 @@ namespace SlotMachine.Core
         }
 
         /// <summary>生成长度为 len 的聚类序列（自底向上，按 cap 给定竖连上限）。返回 int[]。</summary>
-        static int[] BuildRunSequence(int len, int cap, List<int> specialBag, double specialProb, ISlotRng rng)
+        static int[] BuildRunSequence(int len, int cap, List<int> specialIds, List<int> specialWeights, double pIter, ISlotRng rng)
         {
             var queue = new int[len];
             if (len <= 0) return queue;
@@ -93,16 +106,13 @@ namespace SlotMachine.Core
 
             while (r >= 0)
             {
-                // 特殊符号：单格散落，打断普通符号的竖向游程
-                bool useSpecial = specialBag.Count > 0 && rng.NextDouble() < specialProb;
+                // 特殊符号：单格散落，打断普通符号的竖向游程（pIter 已由 cap 折算，保证每格特殊率≈f）
+                bool useSpecial = specialIds.Count > 0 && rng.NextDouble() < pIter;
                 if (useSpecial)
                 {
-                    var spCandidates = (belowSym >= 9 && belowSym <= 12)
-                        ? specialBag.Where(s => s != belowSym).ToList()
-                        : specialBag;
-                    queue[r] = spCandidates.Count > 0
-                        ? spCandidates[rng.Next(spCandidates.Count)]
-                        : NormalPool[rng.Next(NormalPool.Count)];   // 兜底：无可用特殊符时用普通符
+                    // ★ 直接按 specialWeights 加权选（不排除以前"正下方同号"，否则会系统性压制最高频的特殊符如火球，使分布偏离目标）
+                    int pick = WeightedPick(Enumerable.Range(0, specialIds.Count).ToList(), specialWeights, rng);
+                    queue[r] = specialIds[pick];
                     belowSym = queue[r];
                     r--;
                     continue;
@@ -137,21 +147,28 @@ namespace SlotMachine.Core
 
         // ─── 符号池 ────────────────────────────────────────────
 
-        static List<int> BuildSpecialBag(ReelConfig cfg)
+        /// <summary>从候选索引 candIdx（specialIds 的下标）中按 specialWeights 加权随机选一个。</summary>
+        static int WeightedPick(List<int> candIdx, List<int> weights, ISlotRng rng)
         {
-            int wildId = cfg.WildId();
-            var bag = new List<int>();
-            foreach (var strip in cfg.reelStrips)
-                foreach (var s in strip)
-                    if (IsSpecial(s) && s != wildId) bag.Add(s);   // ★ 排除百搭，百搭走 DecideWildPlan
-            return bag;
+            int total = 0;
+            foreach (int i in candIdx) total += weights[i];
+            if (total <= 0) return candIdx[rng.Next(candIdx.Count)];
+            int roll = rng.Next(total);
+            int acc = 0;
+            foreach (int i in candIdx)
+            {
+                acc += weights[i];
+                if (roll < acc) return i;
+            }
+            return candIdx[candIdx.Count - 1];
         }
 
         // ─── 百搭预先决定（写一次，不事后清理）────────────────────
 
         /// <summary>
         /// 预先决定本局百搭落点：最多 maxWildsPerSpin 颗，排除第一列(reel0, 除非 wildAllowedInFirstReel)
-        /// 与顶行(data row0, 与视图层 toprow 拦截一致，避免显示/结算脱节)，整体以 wildSpawnChance 概率实际投放。
+        /// 与顶行(rows-1, 即视觉顶部 row=rows-1；与渲染层 ReelView.SnapFinal 以 rows-1 为顶行拦截一致，避免显示/结算脱节)，
+        /// 整体以 wildSpawnChance 概率实际投放。
         /// 返回 (col,row) 列表；写一次，生成层据此注入，视图层无需再替换。
         /// </summary>
         static List<(int col, int row)> DecideWildPlan(ReelConfig cfg, ISlotRng rng)
@@ -162,13 +179,13 @@ namespace SlotMachine.Core
             if (cfg.maxWildsPerSpin <= 0) return result;
             if (rng.NextDouble() >= cfg.wildSpawnChance) return result;   // 整体出现率
 
-            // 候选(列,行)：排除第一列(除非允许) 与 顶行(data row0)
+            // 候选(列,行)：排除第一列(除非允许) 与 顶行(rows-1, 即视觉顶部；与 SnapFinal 拦截一致)
             var cells = new List<(int col, int row)>();
             for (int c = 0; c < cfg.reelRows.Count; c++)
             {
                 if (!cfg.wildAllowedInFirstReel && c == 0) continue;
                 int rows = cfg.reelRows[c];
-                for (int row = 1; row < rows; row++)   // row0=顶行，排除（与视图 toprow 拦截一致）
+                for (int row = 0; row < rows - 1; row++)   // 排除顶行 rows-1（index0=底部，rows-1=视觉顶部）
                     cells.Add((c, row));
             }
             if (cells.Count == 0) return result;

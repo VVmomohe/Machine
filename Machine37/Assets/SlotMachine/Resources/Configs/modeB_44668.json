@@ -8,6 +8,11 @@
     6,
     8
   ],
+
+  "baseSpin": {
+    "specialProb": 0.18,
+    "specialWeights": [2, 3, 13]
+  },
   "reelStrips": [
     [
       12,
