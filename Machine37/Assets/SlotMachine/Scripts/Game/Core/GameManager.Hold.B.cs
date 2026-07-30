@@ -246,8 +246,9 @@ namespace com.slot
 
                 if (m_player != null)
                 {
+                    m_player.CancelBigWin();   // ★ 进 Mini 前先清掉可能残留的 respin 局大赢特效(本分支必进 Mini，避免与过渡特效重叠)
                     long tw = (long)System.Math.Round(holdR.totalPayout);
-                    m_player.ShowWinValue(tw);
+                    m_player.ShowWinValue(tw, !WillEnterMini(holdR));   // 显示当前赢分；本分支必进 Mini 故不播大赢特效
                     yield return StartCoroutine(WaitForConfirmKey());
                     ApplyHoldWinToCredit(holdR);   // 只补未加过的差额（每轮已即时落账）
                 }
@@ -309,6 +310,7 @@ namespace com.slot
 
             if (m_player != null && holdR != null)
             {
+                m_player.CancelBigWin();   // ★ 进 Mini 前先清掉可能残留的 respin 局大赢特效(避免确认等待期间仍叠着)
                 long tw = (long)System.Math.Round(holdR.totalPayout);
                 m_player.ShowWinValue(tw, !WillEnterMini(holdR));   // 显示特性赢分；若将进 Mini 则不播大赢特效(避免与进小游戏过渡特效重叠)
                 yield return StartCoroutine(WaitForConfirmKey());
