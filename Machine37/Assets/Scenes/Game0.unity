@@ -483,9 +483,10 @@ MonoBehaviour:
   m_mainGame: {fileID: 2126070609}
   m_miniGame: {fileID: 543267427}
   autoPlay: 0
+  m_testDoubleFireball: 1
   settleAutoShowSeconds: 1
-  m_miniEnterEffect: {fileID: 1987959587}
   m_miniEnterDelay: 1
+  m_miniEnterEffect: {fileID: 1987959587}
 --- !u!1001 &1822215727
 PrefabInstance:
   m_ObjectHideFlags: 0
