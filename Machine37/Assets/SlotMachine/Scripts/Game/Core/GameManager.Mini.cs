@@ -13,6 +13,7 @@ namespace com.slot
         #region Mini 免费小游戏入口
         public GameObject m_miniEnterEffect;     // 进小游戏前的过渡特效(场景级 overlay，勿挂在 m_miniGame 下)
         public float m_miniEnterDelay = 1f;       // 进小游戏前特效播放时长(秒)
+        private long _pendingMiniBaseWin = 0;     // 进 Mini 前延迟入账的基础赢分(由 Flow.cs 两条路径设置；Hold 路径已即时落账故为 0)
 
         bool WillEnterMini(GameResult r)
         {
@@ -22,18 +23,19 @@ namespace com.slot
 
         void EnterMiniNow(GameResult r, System.Action onRestore = null, int overrideSpins = -1)
         {
-            StartCoroutine(EnterMiniCoroutine(r, onRestore, overrideSpins));
+            long deferredBaseWin = _pendingMiniBaseWin;   // 捕获本次待延迟入账的基础赢分(进 Mini 前的路径已设置)
+            _pendingMiniBaseWin = 0;
+            StartCoroutine(EnterMiniCoroutine(r, onRestore, overrideSpins, deferredBaseWin));
         }
 
-        IEnumerator EnterMiniCoroutine(GameResult r, System.Action onRestore, int overrideSpins)
+        IEnumerator EnterMiniCoroutine(GameResult r, System.Action onRestore, int overrideSpins, long deferredBaseWin)
         {
             r.freeSpinsWin = 0;
             _miniActive = true;   // ★ 立即上锁，避免 1s 过渡演出期间被 Start 键穿透(原同步实现也是此刻上锁)
             Debug.Log($"[MINI-ENTRY] ★ 实际进入小游戏: 次数={(overrideSpins >= 0 ? overrideSpins : r.freeSpinsAwarded)} scatterCount={r.scatterCount}");
-            // ★ 进入小游戏：清掉基础局赢分显示(归 0)。余额已由 ApplySpinResult 在滚入，
-            //   ResetWinDisplay 会先把进行中的滚分落账再清 0，不丢分。Mini 全程主 HUD 仍可见，
-            //   不清会一直挂着基础局那笔赢分。
-            if (m_player != null) m_player.ResetWinDisplay();
+            // ★ 注意：此处【不再】调用 ResetWinDisplay 清 0 —— 基础赢分已用 ShowWinValue 显示在 HUD，
+            //   进 Mini 期间主 HUD 仍可见，应保留该赢分显示(用户要求"赢分显示到小游戏赢分中先")，
+            //   待小游戏结算(onDone)才把"基础赢分+Mini赢分"一次性滚入总分并刷新显示。
 
             // ★ 进小游戏过渡特效：先激活，约 m_miniEnterDelay 秒后隐藏，再真正进入小游戏
             if (m_miniEnterEffect != null)
@@ -54,8 +56,16 @@ namespace com.slot
             mini.StartMini(spins, (res) =>
             {
                 _miniActive = false;
-                if (m_player != null && res != null && res.fireTotal > 0f)
-                    m_player.AddFeatureWin(res.fireTotal);
+                // ★ 小游戏结算：把"延迟入账的基础赢分 + Mini 火球赢分"一次性滚入总分。
+                //   基础赢分此前未滚入(进 Mini 前只 ShowWinValue 显示，未 ApplySpinResult)，避免与进小游戏过渡动画重叠播放。
+                //   Hold 中途FREE/IsOver 路径因赢分已即时落账，deferredBaseWin=0，此处等价于原 AddFeatureWin(res.fireTotal)。
+                long miniWin = (res != null) ? (long)System.Math.Round(res.fireTotal) : 0L;
+                long combined = deferredBaseWin + miniWin;
+                if (m_player != null && combined > 0L)
+                {
+                    m_player.ShowWinValue(combined);
+                    m_player.AddWinToCredit(combined);
+                }
                 // Mini 结束后恢复主游戏 BGM（event:/Sounds/11）
                 if (FMODSoundMgr.Instance != null)
                     FMODSoundMgr.Instance.PlayBGM("event:/Sounds/11");
