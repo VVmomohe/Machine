@@ -44,8 +44,8 @@ namespace com.slot
         private Dictionary<Text, Coroutine> _pulseCoroutines;
         // 彩金特效：FireballKind → GameObject
         private Dictionary<FireballKind, GameObject> _effectByKind;
-        // 彩金特效防中断：同档新触发替换旧 coroutine
-        private Dictionary<FireballKind, Coroutine> _effectCoroutines;
+        // ★ 当前中奖档集合（持久显示，直到开新局 HideAllJackpotEffects 清空）。各档特效同时播放，开新局统一隐藏。
+        private HashSet<FireballKind> _wonTiers = new HashSet<FireballKind>();
 
         void Awake()
         {
@@ -67,7 +67,6 @@ namespace com.slot
                 { FireballKind.Major, m_majorEffect },
                 { FireballKind.Mega,  m_megaEffect },
             };
-            _effectCoroutines = new Dictionary<FireballKind, Coroutine>();
         }
 
         // ============== 逻辑：刷新四档显示值 ==============
@@ -124,59 +123,61 @@ namespace com.slot
         // ============== 彩金特效 ==============
 
         /// <summary>
-        /// 激活某档彩金对应的 m_xxxEffect。
-        /// 默认（persistent=false）行为与历史一致：自动 N 秒后关闭——B 模式(Hold&amp;Spin)沿用。
-        /// 模式A（persistent=true，直线结算 holdMode="Direct"）改为"中了一直播放、开新局才隐藏"：
-        ///   不挂自动关闭，特效 GameObject 持续显示(其内部循环动画自播)，由 HideAllJackpotEffects 在开新局(OnStartKey)时统一隐藏。
-        /// 同档重新触发会重启（取消旧关闭计时 / 重新激活）。
+        /// 记录某档彩金中奖，加入中奖档集合并由轮播协程负责展示。
+        /// 多档同中（如同时中 Mini+Minor）时，轮播协程会一档一档轮流展示，确保每档都播到（避免四档全屏特效堆叠只显顶层）。
+        /// 单档时集合只有一档→轮播恒显该档=持续播，直到开新局 HideAllJackpotEffects 清空。
+        /// 同档重复中奖只加一次（幂等）。
         /// </summary>
         public void ShowJackpotEffect(FireballKind kind, float duration = 2.5f, bool persistent = false)
         {
             if (_effectByKind == null) return;
             if (!_effectByKind.TryGetValue(kind, out var go) || go == null)
             {
-                UnityEngine.Debug.LogWarning($"[ShowJackpotEffect] kind={kind} 特效GameObject未绑定(Inspector m_{kind}Effect 为空)！跳过播放");
+                // ★ 诊断：若某档 GameObject 未绑定，日志会明确指出——用于排查"只播某档"是否因 Minor/Major/Mega 未绑。
+                UnityEngine.Debug.LogWarning($"[ShowJackpotEffect] kind={kind} 特效GameObject未绑定(Inspector m_{kind}Effect 为空)！跳过播放（若为'只播某档'根因，请在 Inspector 绑定该特效）");
                 return;
             }
 
-            // 取消同档上一次未完成的自动关闭计时（无论持久与否，避免旧协程在后台把特效关掉）
-            if (_effectCoroutines.TryGetValue(kind, out var old) && old != null)
-            {
-                StopCoroutine(old);
-                _effectCoroutines.Remove(kind);
-            }
-
+            bool added = _wonTiers.Add(kind);
+            if (added)
+                UnityEngine.Debug.Log($"[ShowJackpotEffect] kind={kind} 已激活 (同时播放模式，不再轮播；开新局 HideAllJackpotEffects 才隐藏)");
+            // ★ 直接激活该档特效：特效本身是 loop 的（自动循环播放）。多档同中时各自独立 SetActive(true)，
+            //   可同时叠加显示（不再隐藏其它档、不再轮播排队）。
             go.SetActive(true);
-            UnityEngine.Debug.Log($"[ShowJackpotEffect] kind={kind} 播放特效 (persistent={persistent}, duration={duration})");
-
-            if (!persistent)
-                _effectCoroutines[kind] = StartCoroutine(DisableEffectAfter(go, kind, duration));
-            // persistent=true：不挂自动关闭，特效持续显示直到 HideAllJackpotEffects(开新局)。
         }
 
-        /// <summary>开新局(OnStartKey)统一隐藏全部彩金特效——与 ReelFireNum.HideAllCounters 同一时机(开新局才隐藏)。
-        /// 同时停掉任何未完成的自动关闭计时，防竞态把已隐藏的特效又打开。</summary>
+        /// <summary>开新局(OnStartKey / EnterHoldSpin)统一隐藏全部彩金特效——与 ReelFireNum.HideAllCounters 同一时机(开新局才隐藏)。
+        /// 清空中奖档集合并停掉轮播协程，防竞态把已隐藏的特效又打开。</summary>
         public void HideAllJackpotEffects()
         {
-            if (_effectByKind == null) return;
-            foreach (var kv in _effectByKind)
-                if (kv.Value != null) kv.Value.SetActive(false);
-
-            // 清掉所有待执行的自动关闭协程（非持久模式中途仍可能挂着），避免它们随后把已隐藏的特效又 SetActive(true)
-            if (_effectCoroutines != null)
+            UnityEngine.Debug.Log($"[HideAllJackpotEffects] 开始 _effectByKind=({(_effectByKind!=null?_effectByKind.Count.ToString():"null")})");
+            if (_effectByKind == null)
             {
-                foreach (var co in _effectCoroutines.Values)
-                    if (co != null) StopCoroutine(co);
-                _effectCoroutines.Clear();
+                UnityEngine.Debug.LogWarning("[HideAllJackpotEffects] _effectByKind==null! Awake 可能未执行或 BonusView 未初始化");
+                return;
             }
-            UnityEngine.Debug.Log("[HideAllJackpotEffects] 隐藏全部彩金特效 (开新局)");
-        }
 
-        IEnumerator DisableEffectAfter(GameObject go, FireballKind kind, float delay)
-        {
-            yield return new WaitForSeconds(delay);
-            if (go != null) go.SetActive(false);
-            _effectCoroutines.Remove(kind);
+            // ★ 清空中奖档集合（必须在隐藏 GameObject 之前）
+            _wonTiers.Clear();
+
+            int hidden = 0, nullCount = 0;
+            foreach (var kv in _effectByKind)
+            {
+                if (kv.Value != null)
+                {
+                    var wasActive = kv.Value.activeSelf;
+                    kv.Value.SetActive(false);
+                    if (wasActive) hidden++;
+                    UnityEngine.Debug.Log($"[HideAllJackpotEffects] 隐藏 {kv.Key} (wasActive={wasActive} → now false)");
+                }
+                else
+                {
+                    nullCount++;
+                    UnityEngine.Debug.LogWarning($"[HideAllJackpotEffects] {kv.Key} 的 GameObject 为 null! Inspector m_{kv.Key}Effect 未绑定");
+                }
+            }
+
+            UnityEngine.Debug.Log($"[HideAllJackpotEffects] 隐藏全部彩金特效 (开新局, hidden={hidden}, null={nullCount})");
         }
 
         /// <summary>
