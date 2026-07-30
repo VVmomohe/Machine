@@ -41,10 +41,12 @@ namespace SlotMachine.Core
         public List<float> jackpotMultipliers = new List<float> { 20f, 100f, 500f, 2000f };
         // 各档相对权重（越大越常见）：Mini 最常见，Mega 最稀有。
         // 2026-07-29 调整：Major 6→2、Mega 2→1（压低大档概率），Mini/Minor 不变(80/12)。
-        // jackpotRatio 同步 0.10→0.095（权重和 100→95），保持 Mini=8%/Minor=1.2% 绝对概率不变，腾出的概率给倍数火球。
-        public List<int> jackpotWeights = new List<int> { 80, 12, 2, 1 };
+        // 2026-07-30 调整：Mini 命中概率 8%→9%。仅抬 Mini：权重 [80,12,2,1]→[90,12,2,1]（和95→105），
+        //   jackpotRatio 0.095→0.105，使 Mini=0.105×90/105=9.0%、Minor=1.2%/Major=0.2%/Mega=0.1% 不变；
+        //   整条彩金火球占比 9.5%→10.5%，多出的 1pp 从倍数火球扣。
+        public List<int> jackpotWeights = new List<int> { 90, 12, 2, 1 };
         // 一颗新火球是彩金类型的概率（否则为倍数火球）
-        public float jackpotRatio = 0.095f;
+        public float jackpotRatio = 0.105f;
 
         // 一颗新火球是"免费模式"类型的概率（仅在主游戏 Hold&Spin 内生成；Mini 免费局不生成 FreeSpins，见 HoldSpinState.RollFireball allowFreeMode）。
         // 免费模式火球不派彩，按列收集到一定数量追加免费次数（FireballKind.FreeSpins）。
@@ -59,6 +61,11 @@ namespace SlotMachine.Core
         // <0 或 0 表示回退到"该列 reelStrips 中火球占比"（旧行为）。
         // 2026-07-24：原游戏火球概率比当前实测 15.4% 低约 30%，故设为 ≈0.108 对齐。
         public float fbProb = -1f;
+
+        // ===== 模式专用(holdMode 分支) =====
+        public string holdMode = "ReelFill";     // "Direct"=A(基础轮落≥triggerMin火球直接算分,不进Hold&Spin/不锁定/不respin); "ReelFill"=B(收集盘/满列)
+        public int fullUnlockFireballs = 20;     // A 行解锁全开阈值：火球总数达此值解锁所有行(起始4行,8火球解第1额外行)
+        public bool sequentialWinAnimation = false;  // true=A(China Street):赢线逐条顺序高亮播放(高亮一条→loop→还原→下一条); false=B:所有线同时高亮
     }
 
     /// <summary>免费旋转参数，由 Scatter 触发。奖励次数随 Scatter 数量变化（见 SpinsFor）。
@@ -83,6 +90,12 @@ namespace SlotMachine.Core
         public List<int> freeballAwards = new List<int> { 2, 5, 10 };         // 对应累计追加 2/5/10 次（升档时只补差额）
 
         public int miniCap = 50;                   // 免费局(Mini)轮数硬上限：转够该轮数即强制结束（防止 Scatter 重触发无限续命）；0=不封顶（退化为 300 轮绝对安全网）
+
+        // ===== A 模式专用：波动性免费转（scatter 在指定列各1个触发，选波动性）=====
+        public bool useVolatility = false;                    // true=按波动性选免费局数+倍率（A）；false=按 Scatter 数量分档（B）
+        public List<int> freeGameReels = new List<int>();     // A：出现 Free Games 符号即触发的列（0-indexed），如 [1,2,3]=reels 2/3/4
+        public List<int> volatilitySpins = new List<int> { 5, 7, 10, 15, 20 };     // A 波动性选项：免费局数
+        public List<int> volatilityMultipliers = new List<int> { 2, 3, 5, 10, 25 }; // A 波动性对应倍率
 
         /// <summary>按 Scatter 数量给免费转次数（分档，与火球免费模式同档次 2/5/10）：
         /// 1/2 个 → 0（不触发）；3 个 → 2 次；4 个 → 5 次；5+ 个 → 10 次。

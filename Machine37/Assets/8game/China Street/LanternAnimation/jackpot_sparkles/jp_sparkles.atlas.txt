@@ -1,0 +1,7 @@
+jp_sparkles.png
+size:256,128
+filter:Linear,Linear
+shutterstock_313402637
+bounds:2,2,125,111
+offsets:33,23,184,161
+

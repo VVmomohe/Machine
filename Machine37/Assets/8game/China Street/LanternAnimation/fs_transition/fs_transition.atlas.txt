@@ -1,0 +1,10 @@
+fs_transition.png
+size:512,512
+filter:Linear,Linear
+Tassel_straight
+bounds:295,206,156,191
+offsets:126,22,353,591
+lantern
+bounds:2,2,291,395
+offsets:20,175,353,591
+

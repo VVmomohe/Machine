@@ -1,0 +1,31 @@
+symfs.png
+size:1024,256
+filter:Linear,Linear
+BONUS SPINS CHINESE
+bounds:212,7,206,72
+offsets:19,85,245,165
+BONUS SPINS CHINESE hot
+bounds:2,5,208,74
+offsets:18,84,245,165
+Chop sticks
+bounds:548,34,61,45
+offsets:135,57,246,165
+bg
+bounds:250,81,246,165
+bg hot copy
+bounds:2,81,246,165
+border
+bounds:746,81,246,165
+border hot copy
+bounds:498,81,246,165
+bowl
+bounds:420,2,126,77
+offsets:59,9,246,165
+noodles
+bounds:994,173,73,22
+offsets:78,56,246,165
+rotate:90
+squiggle
+bounds:611,42,63,37
+offsets:91,66,246,165
+
