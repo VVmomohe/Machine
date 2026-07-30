@@ -1,0 +1,35 @@
+neonsigns.png
+size:1024,256
+filter:Linear,Linear
+pink glow
+bounds:2,2,102,186
+offsets:1,1,104,188
+rotate:90
+pink sign
+bounds:571,147,102,186
+offsets:1,1,104,188
+rotate:90
+purple glow
+bounds:287,107,142,282
+offsets:1,1,144,284
+rotate:90
+purple sign
+bounds:2,106,143,283
+offsets:1,1,145,285
+rotate:90
+red glow
+bounds:759,158,91,113
+offsets:1,1,93,115
+rotate:90
+red sign
+bounds:874,158,91,113
+offsets:1,1,93,115
+rotate:90
+yellow glow
+bounds:190,5,88,99
+offsets:1,1,90,101
+yellow sign
+bounds:571,57,88,99
+offsets:1,1,90,101
+rotate:90
+

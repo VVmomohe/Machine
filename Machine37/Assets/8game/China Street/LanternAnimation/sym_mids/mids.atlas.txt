@@ -1,0 +1,37 @@
+mids.png
+size:1024,256
+filter:Linear,Linear
+DUMPLING 1
+bounds:214,44,58,54
+offsets:1,1,60,56
+DUMPLING 2
+bounds:214,2,51,40
+offsets:1,1,53,42
+DUMPLING 3
+bounds:708,147,50,35
+offsets:1,1,52,37
+LID
+bounds:570,138,136,116
+offsets:1,1,138,118
+STEAM
+bounds:830,183,79,71
+offsets:0,0,100,85
+basket inside
+bounds:708,184,120,70
+offsets:1,1,122,72
+basket outside
+bounds:424,127,144,127
+offsets:1,1,146,129
+cookie
+bounds:224,100,198,154
+offsets:6,0,209,154
+cookie glow
+bounds:131,28,81,75
+sparkle
+bounds:911,194,89,60
+offsets:1,1,91,62
+teapot
+bounds:2,105,220,149
+teapot glow
+bounds:2,26,127,77
+
