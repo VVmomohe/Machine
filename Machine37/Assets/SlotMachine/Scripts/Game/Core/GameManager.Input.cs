@@ -102,6 +102,9 @@ namespace com.slot
             if (m_reelView != null)
                 m_reelView.HideAllCounters();    // 归零并整体隐藏（开新局 / 特性每轮重算前都先清）
 
+            if (m_bonus != null)
+                m_bonus.HideAllJackpotEffects(); // ★ 开新局才隐藏：上局中奖的彩金特效(Mini/Minor/Major/Mega)在此统一关掉（模式A 持续播、B 收尾清理）
+
             m_machine.totalBet = m_player.m_bet_num;
             m_machine.session.Contribute(m_player.m_bet_num);
 

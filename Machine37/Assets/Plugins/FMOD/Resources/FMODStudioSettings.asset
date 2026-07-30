@@ -560,7 +560,7 @@ MonoBehaviour:
   RealChannelSettings: []
   Plugins: []
   MasterBanks:
-  - Common
+  - Sounds
   Banks: []
   BanksToLoad: []
   LiveUpdatePort: 9264

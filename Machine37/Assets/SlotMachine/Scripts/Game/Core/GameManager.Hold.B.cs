@@ -7,8 +7,10 @@ using Com.Back;   // DataManager（读取 Setting[1].auto 自动结算开关）
 
 namespace com.slot
 {
-    /// <summary>GameManager 的 Hold&amp;Spin 子系统（partial 拆分自 GameManager.Flow.cs）：
-    ///   进入特性 → 逐轮推进(respin 滚动/停稳/满列派彩) → 收尾/进 Mini。</summary>
+    /// <summary>GameManager 的 Hold&amp;Spin 子系统 —— 【模式B(Cash Falls / modeB_44668) 专属】：
+    ///   进入特性 → 逐轮推进(respin 滚动/停稳/满列派彩) → 收尾/进 Mini。
+    ///   模式A(China Street) 不进此路径（holdMode="Direct" 直线结算，见 GameManager.Flow.A.cs / GameSession.A.cs）；
+    ///   SettleAfterReelsStop 仅当 res.holdSpinState != null 时调用本子系统，A 永不创建 holdSpinState。</summary>
     public partial class GameManager
     {
         #region Hold&Spin
@@ -38,6 +40,7 @@ namespace com.slot
                 //   清理已移至 AdvanceHoldSpin 开头（respin 滚动前）。
                 m_reelView.ShowFeatureState(hs);   // 火球格锁定 + 倍率文字 + 有火球的列显示计数器3
             }
+
             // 注意：IsOver 判定已移到 SettleAfterReelsStop 协程（需要先播满列掉落动画再收尾）
         }
 
@@ -129,7 +132,7 @@ namespace com.slot
             if (m_reelView != null)
                 m_reelView.ApplyRespinStep(step, hs);
 
-            // 5) 本轮普通线奖（★ 与基础旋转共用 SettleRoundWins：评估/高亮/音效/诊断同一套口径）
+            // 5) 本轮普通线奖（★ 与基础旋转共用 SettleRoundWins）
             if (m_machine != null && m_machine.session != null)
             {
                 int[][] grid = BuildRespinGrid(hs);

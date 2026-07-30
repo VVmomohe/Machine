@@ -182,12 +182,23 @@ namespace SlotMachine.Core
             var hc = cfg.holdSpin;
             double r = rng.NextDouble();
 
+            // ★ A 模式(holdMode="Direct") 硬约束：永不生成免费模式火球（FreeSpins），
+            //   即使调用方误传 allowFreeMode=true 或 JSON freeModeRatio>0 也拦截。
+            //   A 模式火球只可能是 倍数(Multiplier) 或 彩金(Mini/Minor/Major/Mega) 两类。
+            if (hc != null && hc.holdMode == "Direct")
+                allowFreeMode = false;
+
             // ① 免费模式火球（仅在主游戏 Hold&Spin 内 allowFreeMode=true 时启用；Mini 不生成）：不派彩，multiplier=0。
             //   分区：r ∈ [0, freeModeRatio) → 免费模式；[freeModeRatio, freeModeRatio+jackpotRatio) → 彩金；其余 → 倍数。
             float effFreeRatio = (hc != null ? hc.freeModeRatio : 0f);
             bool isFree = allowFreeMode && effFreeRatio > 0f && r < effFreeRatio;
             if (isFree)
+            {
+                // ★ 根因诊断（非防御）：一旦生成 FreeSpins，打印调用栈 + 当前 holdMode/allowFreeMode/effFreeRatio，
+                //   直接定位"为什么生成了免费火球"。A 模式(modeA:holdMode=Direct, freeModeRatio=0)逻辑上不可能触发此处。
+                UnityEngine.Debug.LogWarning($"[FreeSpins-GEN] 生成 FreeSpins 火球！根因诊断 → holdMode={hc?.holdMode} allowFreeMode={allowFreeMode} effFreeRatio={effFreeRatio} r={r:F4}\n{System.Environment.StackTrace}");
                 return new FireballCell { filled = true, kind = FireballKind.FreeSpins, multiplier = 0f };
+            }
 
             // ② 彩金火球
             bool jackpot = hc != null && hc.jackpotEnabled

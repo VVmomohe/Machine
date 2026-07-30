@@ -47,10 +47,10 @@ namespace com.slot
             if (rt != null) rt.position = worldPos;
             go.transform.SetAsLastSibling();
 
-            if (rt != null)
-                // ★ 诊断：每次创建火球 overlay 都打印其 kind+multiplier，便于确认"固定后 kind 是否真由 Multiplier 变 FreeSpins"。
-                //   复现后请在 Editor.log 按 [FBOverlay] 过滤，看同一 FBOverlay_{reel}_{row} 是否先 Multiplier 后 FreeSpins（若仅出现一次且为 FreeSpins，则为合法免费火球，非突变）。
-                Debug.Log($"[FBOverlay] {go.name} kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} Y={worldPos.y:F1} parent={parent.name} active={go.activeSelf} (reel{reel} row{row})");
+            //if (rt != null)
+            //    // ★ 诊断：每次创建火球 overlay 都打印其 kind+multiplier，便于确认"固定后 kind 是否真由 Multiplier 变 FreeSpins"。
+            //    //   复现后请在 Editor.log 按 [FBOverlay] 过滤，看同一 FBOverlay_{reel}_{row} 是否先 Multiplier 后 FreeSpins（若仅出现一次且为 FreeSpins，则为合法免费火球，非突变）。
+            //    Debug.Log($"[FBOverlay] {go.name} kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} Y={worldPos.y:F1} parent={parent.name} active={go.activeSelf} (reel{reel} row{row})");
 
             var item = go.GetComponent<ReelItem>();
             if (item != null)

@@ -9,7 +9,7 @@ namespace SlotMachine.Core
     /// 一次完整游戏动作编排（逻辑层，不依赖 UnityEngine）：
     ///   基础旋转 → 火球 Hold&amp;Spin（≥1颗火球触发） → Scatter 免费旋转。
     /// </summary>
-    public class GameSession
+    public partial class GameSession
     {
         private readonly ReelConfig _cfg;
         private readonly ISlotRng _rng;
@@ -164,13 +164,48 @@ namespace SlotMachine.Core
             // 4) Scatter 免费旋转 → 只记奖励次数，交由 Mini（MiniGame）统一运行与结算。
             //    ★ 旧逻辑（在此处内部模拟 while 循环旋转、累加 res.freeSpinsWin）已删除，
             //      避免与 Mini 重复结算；免费游戏的实际旋转/连线加转/火球统计全部在 MiniGame 内进行。
-            int fsAward = (_cfg.freeSpins != null) ? _cfg.freeSpins.SpinsFor(sc) : 0;
+            int fsAward = 0;
+            if (_cfg.freeSpins != null)
+            {
+                // A 模式(useVolatility)：Free Games 符号在指定列(freeGameReels)各出现 1 个 → 波动性选局数+倍率；
+                // B 模式：按 Scatter 数量分档(3→2/4→5/5+→10)。两者都只记次数，免费局由 MiniGame 运行。
+                fsAward = _cfg.freeSpins.useVolatility
+                    ? PickVolatilityFreeSpins(grid)
+                    : _cfg.freeSpins.SpinsFor(sc);
+            }
 
             res.freeSpinsAwarded = fsAward;
             // 注：res.freeSpinsWin 恒为 0（免费游戏赢分由 Mini 统计火球后经回调 AddFeatureWin 入账）。
 
             res.totalPayout = res.baseWin + res.scatterPayout + res.featureWin + res.freeSpinsWin;
             return res;
+        }
+
+        /// <summary>A 模式波动性免费转触发+选择：freeGameReels 指定的每一列都出现 ≥1 个 Scatter(=Free Games 符号) 即触发；
+        /// 触发后随机选一档波动性( volatilitySpins[i] 局 + 对应 volatilityMultipliers[i] 倍 )，并把倍率写入 cfg.freeSpins.multiplier
+        /// （供 MiniGame 结算免费局赢分时使用；当前 MiniGame 未消费该倍率，已标记 TODO）。
+        /// 未满足指定列条件则不触发(返回 0)。</summary>
+        int PickVolatilityFreeSpins(int[][] grid)
+        {
+            var fs = _cfg.freeSpins;
+            if (fs.freeGameReels == null || fs.freeGameReels.Count == 0) return 0;
+            int sid = _cfg.ScatterId();
+            foreach (int reel in fs.freeGameReels)
+            {
+                if (reel < 0 || reel >= grid.Length) return 0;
+                bool has = false;
+                for (int row = 0; row < grid[reel].Length; row++)
+                    if (grid[reel][row] == sid) { has = true; break; }
+                if (!has) return 0;
+            }
+            int n = Math.Min(fs.volatilitySpins.Count, fs.volatilityMultipliers.Count);
+            if (n <= 0) return 0;
+            int idx = _rng.Next(n);
+            int spins = fs.volatilitySpins[idx];
+            int mult = fs.volatilityMultipliers[idx];
+            fs.multiplier = mult;   // ★ 写入倍率供 MiniGame 结算用（当前 MiniGame 未消费，标记 TODO）
+            UnityEngine.Debug.Log($"[FreeSpins-A] 波动性触发：列[{string.Join(",", fs.freeGameReels)}] 各含 Free Games 符号 → {spins} 局 ×{mult}");
+            return spins;
         }
 
         // ---- 内部 ----
@@ -205,7 +240,16 @@ namespace SlotMachine.Core
             for (int r = 0; r < grid.Length; r++)
                 for (int row = 0; row < grid[r].Length; row++)
                     if (grid[r][row] == fbId)
-                        initial.Add(new FireballCell { reel = r, row = row, filled = true });
+                    {
+                        // ★ 基础旋转每颗火球立刻定倍率/彩金档（与 Hold&Spin 同口径 RollFireball），
+                        //   使基础轮火球即显示倍率文字（China Street 类玩法：火球在底轮就带 x倍率/彩金档）。
+                        //   allowFreeMode:false → 底轮火球只可能是 倍数/彩金 火球（不出现 FREE 火球外观）。
+                        var c = HoldSpinState.RollFireball(_cfg, _rng, bet, _pots, allowFreeMode: false);
+                        c.reel = r; c.row = row; c.filled = true;
+                        initial.Add(c);
+                        if (res.baseFireballs == null) res.baseFireballs = new List<FireballCell>();
+                        res.baseFireballs.Add(c);
+                    }
 
             if (initial.Count == 0) return;  // 没火球 → 不触发
 
@@ -213,6 +257,16 @@ namespace SlotMachine.Core
             int minTrigger = (_cfg.holdSpin.triggerMin > 0) ? _cfg.holdSpin.triggerMin : 1;
             if (initial.Count < minTrigger) return;
 
+            // ★ A 模式(直线结算：holdMode="Direct")：落 ≥triggerMin 火球直接在基础轮算分，不进 Hold&Spin、不锁定、不 respin。
+            //   所有火球倍率之和 ×bet 计入 featureWin；彩金火球落定即中(即时清池)，中奖档记 res.wonJackpots 供显示层播特效。
+            //   ★ 逻辑抽到 GameSession.A.cs（模式A 专属，与 B 的 HoldSpinState.Start 分支彻底分离）。
+            if (_cfg.holdSpin.holdMode == "Direct")
+            {
+                SettleFireballsDirect(initial, bet, res);
+                return;  // 不创建 holdSpinState
+            }
+
+            // ★ initial 与 res.baseFireballs 同源（同一批已定倍率的 FireballCell），Start 不会再重掷，Hold&Spin 与基础轮倍率完全一致。
             res.holdSpinState = HoldSpinState.Start(_cfg, _rng, bet, initial, _pots, allowFreeMode: true);
         }
 
@@ -399,6 +453,8 @@ namespace SlotMachine.Core
             step.active = state.active;
             return step;
         }
+
+        // [cleanup] RespinRowUnlock 已删除：模式A 改为基础轮直线结算（落≥triggerMin 火球直接算分），不再进 Hold&Spin。
 
         /// <summary>
         /// 生成一列垂直聚类符号（不含火球，火球由调用方独立掷骰决定）。

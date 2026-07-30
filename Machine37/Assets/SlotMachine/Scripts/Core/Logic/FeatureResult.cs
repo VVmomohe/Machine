@@ -41,5 +41,7 @@ namespace SlotMachine.Core
         public int freeSpinsAwarded;              // 实际奖励免费转次数
         public float totalPayout;                 // 全部赢分
         public HoldSpinState holdSpinState;       // Hold&Spin 态（基础旋转落火球时创建，null=未触发）
+        public List<FireballCell> baseFireballs;  // 基础旋转落下的全部火球（每颗已定倍率/彩金档），用于基础轮即显示倍率文字（China Street 类玩法）
+        public List<string> wonJackpots;          // A 模式(直线结算)本局中过的彩金档名("Mini"/"Minor"/"Major"/"Mega")，供显示层播特效（清池已在 GameSession 即时完成）
     }
 }

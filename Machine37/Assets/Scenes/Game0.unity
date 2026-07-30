@@ -483,6 +483,9 @@ MonoBehaviour:
   m_mainGame: {fileID: 2126070609}
   m_miniGame: {fileID: 543267427}
   autoPlay: 0
+  settleAutoShowSeconds: 1
+  m_miniEnterEffect: {fileID: 1987959587}
+  m_miniEnterDelay: 1
 --- !u!1001 &1822215727
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -490,30 +493,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1628704525, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 1821490503}
-    - target: {fileID: 1266387108147411278, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1266387108147411278, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1266387108147411278, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3703622271853334578, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 3221
-      objectReference: {fileID: 0}
-    - target: {fileID: 3703622271853334578, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -52
-      objectReference: {fileID: 0}
     - target: {fileID: 6853531068556854816, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
       propertyPath: m_Name
       value: GamePlanel
@@ -626,6 +605,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9926d874474eb3d4592c9a552e2b20cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1987959587 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7713587467030876684, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}
+  m_PrefabInstance: {fileID: 1822215727}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2033405562 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3211697500906875340, guid: 147896b1c4fc2f94185fc1e86c02305e, type: 3}

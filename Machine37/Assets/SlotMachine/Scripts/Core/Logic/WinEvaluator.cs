@@ -31,6 +31,9 @@ namespace SlotMachine.Core
 
     /// <summary>
     /// 经典连线（payline）判定：每条蛇形线从 reel0 起连续相同符号(含 wild 替代)。
+    /// ★ 百搭只锁定一种符号：遍历该线所有可能的目标符号，取「连续前缀(符号或 wild)最长且赔付最高」的那一个作为本线唯一赢。
+    ///   Wild 一旦替成某符号，整条线就固定为这个 ID——不会再同时去帮同线另一个符号凑 *N（如章鱼*3 后，9 不再 *3）。
+    ///   与 B 模式 RowEvaluator 的「百搭去重 / 只算最高」口径一致。
     /// </summary>
     public class PaylineEvaluator : IPayEvaluator
     {
@@ -39,52 +42,116 @@ namespace SlotMachine.Core
             var wins = new List<Win>();
             int lines = cfg.paylines.Count;
             if (lines == 0) return wins;
-            float betPerLine = totalBet / lines;
+            // ★ 与 B 模式(RowEvaluator)口径一致：每条连线赔付 = mult × totalBet（不除以线数）。
+            //   之前用 totalBet/lines 导致低倍连线被取整成 0（如 0.2×1=0.2→0）。
+            float betPerLine = totalBet;
 
             for (int li = 0; li < lines; li++)
             {
                 var line = cfg.paylines[li];
-                // 基准符号：取线上第一个非 wild、非特性符号；全 wild 则取 wild
-                int baseSym = -1;
-                for (int reel = 0; reel < cfg.reelCount; reel++)
-                {
-                    int s = grid[reel][line[reel]];
-                    var sp = cfg.GetSymbol(s);
-                    if (sp != null && !sp.wild && !cfg.IsFeatureSymbol(s)) { baseSym = s; break; }
-                }
-                if (baseSym < 0) baseSym = grid[0][line[0]];
 
-                int cnt = 0;
-                for (int reel = 0; reel < cfg.reelCount; reel++)
+                // 1) 对每个候选符号(非 scatter / 非特性)，算从 reel0 起的连续前缀长度(该符号或 wild)
+                int bestSym = -1;
+                int bestCnt = 0;
+                float bestMult = 0f;
+                foreach (var s in cfg.paytable)
                 {
-                    int s = grid[reel][line[reel]];
-                    var sp = cfg.GetSymbol(s);
-                    if (s == baseSym || (sp != null && sp.wild)) cnt++;
-                    else break;
-                }
-
-                var bsp = cfg.GetSymbol(baseSym);
-                if ((bsp != null && bsp.scatter) || cfg.IsFeatureSymbol(baseSym)) continue;
-                if (cnt >= cfg.MinMatchFor(baseSym))
-                {
-                    float mult = cfg.PayMult(baseSym, cnt);
-                    if (mult > 0)
+                    if (s.scatter || s.fireball || s.firelink) continue;
+                    int sym = s.symbolId;
+                    int minM = cfg.MinMatchFor(sym);
+                    int run = 0;
+                    for (int reel = 0; reel < cfg.reelCount; reel++)
                     {
-                        var w = new Win
-                        {
-                            lineIndex = li,
-                            symbolId = baseSym,
-                            count = cnt,
-                            ways = 0,
-                            payout = mult * betPerLine
-                        };
-                        for (int reel = 0; reel < cnt; reel++)
-                            w.positions.Add(reel * 100 + line[reel]);
-                        wins.Add(w);
+                        int g = grid[reel][line[reel]];
+                        var sp = cfg.GetSymbol(g);
+                        if (g == sym || (sp != null && sp.wild)) run++;
+                        else break;                       // 非连续 → 断
+                    }
+                    if (run < minM) continue;
+                    float mult = cfg.PayMult(sym, run);
+                    if (mult <= 0f) continue;
+                    // 选赔付最高；同赔付选符号 id 更大者
+                    if (mult > bestMult || (mult == bestMult && sym > bestSym))
+                    {
+                        bestSym = sym; bestCnt = run; bestMult = mult;
                     }
                 }
+
+                if (bestSym < 0) continue;
+
+                // 2) 记录该符号的实际中奖格(含替它的 wild)
+                var pos = new List<int>();
+                for (int reel = 0; reel < bestCnt; reel++)
+                {
+                    int g = grid[reel][line[reel]];
+                    var sp = cfg.GetSymbol(g);
+                    if (g == bestSym || (sp != null && sp.wild))
+                        pos.Add(reel * 100 + line[reel]);
+                }
+
+                wins.Add(new Win
+                {
+                    lineIndex = li,
+                    symbolId = bestSym,
+                    count = bestCnt,
+                    ways = 0,
+                    payout = bestMult * betPerLine,
+                    positions = pos
+                });
             }
-            return wins;
+
+            // ★ 连线去重（两轮）：
+            //   第1轮：多条 payline 覆盖同一批格子→「同一条连线」只算一次。
+            //   第2轮：子集去重——若赢线A的格子是赢线B的真子集(A⊂B, 同符号)，
+            //         则A是B的"短版前缀"，去掉A(保留更长的B)，避免3连+4连同路径重复计奖。
+            var seenLines = new HashSet<string>();
+            var deduped = new List<Win>();
+            foreach (var w in wins)
+            {
+                string key = WinKey(w.positions);
+                if (seenLines.Add(key)) deduped.Add(w);
+                else UnityEngine.Debug.Log($"[Win-Dedup] 重复连线(同格子)忽略：line={w.lineIndex} sym={w.symbolId} pos={key}");
+            }
+
+            // ★ 子集去重：按 count 降序排列后，对每条赢线检查是否有更长(同符号)的赢线包含它
+            deduped.Sort((a, b) => b.count.CompareTo(a.count));  // 长的优先
+            var finalWins = new List<Win>();
+            for (int i = 0; i < deduped.Count; i++)
+            {
+                bool isSubset = false;
+                for (int j = 0; j < i; j++)  // 只和更长的比
+                {
+                    if (deduped[j].symbolId != deduped[i].symbolId) continue;
+                    if (IsSubset(deduped[i].positions, deduped[j].positions))
+                    {
+                        isSubset = true;
+                        UnityEngine.Debug.Log($"[Win-Subset] 短线被子集忽略：line={deduped[i].lineIndex} sym={deduped[i].symbolId} cnt={deduped[i].count} pos={WinKey(deduped[i].positions)} ⊂ line={deduped[j].lineIndex} cnt={deduped[j].count}");
+                        break;
+                    }
+                }
+                if (!isSubset) finalWins.Add(deduped[i]);
+            }
+            return finalWins;
+        }
+
+        /// <summary>把中奖格子集合转成稳定 key（排序后拼接），用于连线去重。</summary>
+        static string WinKey(List<int> pos)
+        {
+            if (pos == null || pos.Count == 0) return "";
+            int[] arr = pos.ToArray();
+            Array.Sort(arr);
+            return string.Join(",", arr);
+        }
+
+        /// <summary>判断 small 是否为 large 的真子集（所有元素都在 large 中，且数量更少）。</summary>
+        static bool IsSubset(List<int> small, List<int> large)
+        {
+            if (small == null || large == null) return false;
+            if (small.Count >= large.Count) return false;
+            var set = new HashSet<int>(large);
+            foreach (var p in small)
+                if (!set.Contains(p)) return false;
+            return true;
         }
     }
 

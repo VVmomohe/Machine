@@ -8,8 +8,8 @@ using Com.Back;   // DataManager（读取 Setting[1].auto 自动结算开关）
 namespace com.slot
 {
     /// <summary>GameManager 一局流程部分（基础局 + 结算 + 辅助）：
-    ///   上锁 → 滚动 → 等停稳 → (Hold&Spin重转循环见 GameManager.Hold.cs) → 结算解锁。
-    ///   Hold&Spin 与 Mini 子系统已拆分到 GameManager.Hold.cs / GameManager.Mini.cs。</summary>
+    ///   上锁 → 滚动 → 等停稳 → (Hold&Spin重转循环见 GameManager.Hold.B.cs，仅模式B) → 结算解锁。
+    ///   模式A 专属流程在 GameManager.Flow.A.cs；Hold&Spin(B) 子系统在 GameManager.Hold.B.cs；Mini 在 GameManager.Mini.cs。</summary>
     public partial class GameManager
     {
         #region 基础局
@@ -20,9 +20,14 @@ namespace com.slot
 
             if (m_reelView != null)
             {
-                // 落了火球，把倍率传给 ShowGrid，滚动阶段就显示倍率
+                // 落了火球，把倍率传给 ShowGrid，滚动阶段就显示倍率。
+                // ★ 优先用 res.baseFireballs：基础轮落下的全部火球（不论是否触发 Hold&Spin）都已定倍率，一律显示。
+                //   触发 Hold&Spin 时 hs.cells 与 baseFireballs 同源，二者结果一致，fallback 仅作保险。
                 var fireMults = new Dictionary<int, FireballCell>();
-                if (r.holdSpinState != null)
+                if (r.baseFireballs != null)
+                    foreach (var c in r.baseFireballs)
+                        if (c.filled) fireMults[c.reel * 100 + c.row] = c;
+                if (fireMults.Count == 0 && r.holdSpinState != null)
                 {
                     var hs = r.holdSpinState;
                     for (int reel = 0; reel < hs.reels; reel++)
@@ -55,7 +60,10 @@ namespace com.slot
                 float bw = SettleRoundWins(r.baseGrid, m_machine.totalBet, out sc);
                 r.baseWin = bw;
                 r.scatterCount = sc;
-                if (m_machine.config != null && m_machine.config.freeSpins != null)
+                // ★ A 模式(直线结算 holdMode="Direct")用波动性免费转(PickVolatilityFreeSpins 已在 GameSession.Play 算好)，
+                //   不走 SpinsFor(sc) 覆盖；B 模式仍按 Scatter 数量分档。
+                if (m_machine.config != null && m_machine.config.freeSpins != null
+                    && !(m_machine.config.holdSpin != null && m_machine.config.holdSpin.holdMode == "Direct"))
                     r.freeSpinsAwarded = m_machine.config.freeSpins.SpinsFor(sc);
                 // 注：r.scatterPayout 仍由 GameSession.Play 按 ScatterUtil.Payout 计算（与历史一致），此处不重复折算。
             }
@@ -121,9 +129,10 @@ namespace com.slot
                 if (m_player != null)
                 {
                     long tw = (long)System.Math.Round(r.totalPayout);
-                    m_player.ShowWinValue(tw);
+                    m_player.ShowWinValue(tw);              // 先静态显示基础赢分(进 Mini 期间 HUD 仍可见)
                     yield return StartCoroutine(WaitForConfirmKey()); // auto 1s 或手动确认
-                    m_player.ApplySpinResult(r);
+                    m_player.ResetBet();                    // 清押注显示(原 ApplySpinResult 在滚分结束时会清)
+                    _pendingMiniBaseWin = tw;               // ★ 基础赢分延迟到小游戏结算时再滚入，避免与进小游戏动画重叠
                     // ★ 【彩金清零·结算完结】同 Hold 正常收尾：确认 + 入账后才清中过的彩金档（不在确认中清）。
                     if (r.holdSpinState != null && r.holdSpinState.wonJackpots != null
                         && r.holdSpinState.wonJackpots.Count > 0 && m_machine?.session != null)
@@ -138,6 +147,9 @@ namespace com.slot
                 yield break;
             }
 
+            // ★ A 模式(直线结算)彩金特效：落定的彩金档播特效（逻辑/清池在 GameSession.A；此处仅显示，见 GameManager.Flow.A.cs）。
+            ShowDirectJackpotEffects(r);
+
             // 3) 无火球：先显示赢分 → 等按确认键 → 再滚动到总分
             // ★ 若本局奖励免费旋转且将进入 Mini：先把内部免费旋转赢分剔除（改由 Mini 统一结算火球），
             //   避免下方 ApplySpinResult 把内部 freeSpinsWin 一起滚进余额造成重复派彩。
@@ -150,9 +162,10 @@ namespace com.slot
             if (m_player != null)
             {
                 long win = (long)System.Math.Round(r.totalPayout);
-                m_player.ShowWinValue(win);              // 先静态显示赢分
+                m_player.ShowWinValue(win);              // 先静态显示赢分(进 Mini 期间 HUD 仍可见)
                 yield return StartCoroutine(WaitForConfirmKey()); // 等待玩家按确认键
-                m_player.ApplySpinResult(r);             // 开始滚进总分
+                m_player.ResetBet();                     // 清押注显示(原 ApplySpinResult 在滚分结束时会清)
+                _pendingMiniBaseWin = win;              // ★ 基础赢分延迟到小游戏结算时再滚入，避免与进小游戏动画重叠
             }
 
             // 4) 免费游戏触发 → 进入 Mini（隐藏 Main，Mini 内统一结算火球）；否则正常结算解锁
@@ -231,7 +244,13 @@ namespace com.slot
                 if (wins.Count == 0) UnityEngine.Debug.Log("[WIN] 无普通连线赢分");
             }
 
-            if (wins.Count > 0 && m_reelView != null) m_reelView.HighlightWins(wins);
+            if (wins.Count > 0 && m_reelView != null)
+            {
+                // A 模式(sequentialWinAnimation=true)：赢线逐条顺序高亮播放；B 模式：所有线同时高亮。
+                m_reelView.m_winSequential = (m_machine.config != null && m_machine.config.holdSpin != null
+                                              && m_machine.config.holdSpin.sequentialWinAnimation);
+                m_reelView.HighlightWins(wins);
+            }
             if (lineWin > 0)
             {
                 if (m_player != null) m_player.ShowWinValue((long)System.Math.Round(lineWin));

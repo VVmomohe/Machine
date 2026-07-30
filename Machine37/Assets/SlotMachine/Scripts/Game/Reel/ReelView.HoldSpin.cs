@@ -43,7 +43,7 @@ namespace com.slot
                     // 可见性由 ReelFireNum 自管：active 且 (有圈 或 有倍率) 才显示；开新局(active=false)才整体隐藏。
                     SetRespinCounterRow(r, s.counter[r]);
 
-            RefreshColumnEffects(s, s.counter);   // 近满列(差1火球)→亮整列 m_effect；已释放/集满列不亮
+            RefreshColumnEffects(s, s.counter);   // 近满列(差1火球)→亮整列 m_effect
         }
 
         // ===== 滚动一轮 =====
@@ -455,7 +455,7 @@ namespace com.slot
                     // 可见性由 ReelFireNum 自管：active 且 (有圈 或 有倍率) 才显示；开新局(active=false)才整体隐藏。
                     SetRespinCounterRow(reel, step.counters[reel]);
 
-            RefreshColumnEffects(state, step.counters);   // 近满列(差1火球)→亮整列 m_effect；已释放/集满列不亮
+            RefreshColumnEffects(state, step.counters);   // 近满列(差1火球)→亮整列 m_effect
         }
 
         // ===== 释放列 =====

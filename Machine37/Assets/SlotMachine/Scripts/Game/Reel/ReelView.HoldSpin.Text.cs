@@ -16,6 +16,12 @@ namespace com.slot
             if (k < 0 || k >= st.cellItems.Count) return;
             var item = st.cellItems[k];
             if (item == null) return;
+
+            // ★ 诊断（非防御）：基础轮火球出现 FreeSpins 说明数据层异常（A 硬禁 / B 基础轮 allowFreeMode=false）。
+            //   不篡改数据，如实显示并告警供定位根因（真正的 A/B 判定看 [ConfigLoad] 日志）。
+            if (cell.kind == FireballKind.FreeSpins)
+                Debug.LogWarning($"[FireballLabel] ⚠️ 出现 FreeSpins 火球(reel={st.reelIdx} k={k}) → 数据层异常，当前 holdMode 可能非 Direct");
+
             item.m_type = cell.kind;
             item.m_rate = cell.multiplier;
             // ★ 诊断日志：若 kind 非法或 multiplier 与 kind 不匹配，输出详细值供定位
@@ -85,5 +91,8 @@ namespace com.slot
             var ri = go.GetComponent<ReelItem>();
             return ri != null ? ri.m_rate : 0f;
         }
+
+        /// <summary>降级兜底：FreeSpins 被强制转为倍数火球时，给一个合理的默认倍率（取配置中间值 1.5）。</summary>
+        static float PickMultiplierFallback() => 1.5f;
     }
 }

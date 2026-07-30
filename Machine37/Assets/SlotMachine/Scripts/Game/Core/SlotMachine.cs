@@ -25,8 +25,19 @@ namespace com.slot
 
         void Awake()
         {
-            if (configText == null) configText = Resources.Load<TextAsset>("Configs/modeB_44668");
+            // ★ 场景决定游戏（强制按场景名加载，防止 Game1 场景里 Inspector 残留的 configText 指向 modeB 导致整盘误跑 44668）：
+            //   Game1 = 模式A(China Street / modeA_4x5)；其余(如 Game0) = 模式B(Cash Falls / modeB_44668)。
+            string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            string cfgName = (sceneName == "Game1") ? "Configs/modeA_4x5" : "Configs/modeB_44668";
+            TextAsset loaded = Resources.Load<TextAsset>(cfgName);
+            if (loaded != null)
+                configText = loaded;   // ★ 场景决定，忽略 Inspector 残留（防止 Game1 误跑 modeB_44668 而生成 FreeSpins）
+            else
+                UnityEngine.Debug.LogError($"[ConfigLoad] Resources.Load('{cfgName}') 失败！回退 Inspector configText，存在误跑其它模式风险。");
             if (configText != null) config = LoadConfig(configText);   // 强制从 JSON 重载，不依赖 config 是否已序列化
+            // ★ 根因诊断（非防御）：打印实际加载的场景名 / 配置名 / 是否命中 Resources / 最终 holdMode，
+            //   直接确认 Game1 到底跑的是 A(Direct) 还是 B(ReelFill)。
+            UnityEngine.Debug.Log($"[ConfigLoad] scene='{sceneName}' cfg='{cfgName}' loaded={(loaded != null)} holdMode={config?.holdSpin?.holdMode}");
             ApplyConfig();
         }
 

@@ -123,8 +123,14 @@ namespace com.slot
 
         // ============== 彩金特效 ==============
 
-        /// <summary>激活某档彩金对应的 m_xxxEffect，自动 N 秒后关闭；同档重新触发会重启计时。</summary>
-        public void ShowJackpotEffect(FireballKind kind, float duration = 2.5f)
+        /// <summary>
+        /// 激活某档彩金对应的 m_xxxEffect。
+        /// 默认（persistent=false）行为与历史一致：自动 N 秒后关闭——B 模式(Hold&amp;Spin)沿用。
+        /// 模式A（persistent=true，直线结算 holdMode="Direct"）改为"中了一直播放、开新局才隐藏"：
+        ///   不挂自动关闭，特效 GameObject 持续显示(其内部循环动画自播)，由 HideAllJackpotEffects 在开新局(OnStartKey)时统一隐藏。
+        /// 同档重新触发会重启（取消旧关闭计时 / 重新激活）。
+        /// </summary>
+        public void ShowJackpotEffect(FireballKind kind, float duration = 2.5f, bool persistent = false)
         {
             if (_effectByKind == null) return;
             if (!_effectByKind.TryGetValue(kind, out var go) || go == null)
@@ -133,12 +139,37 @@ namespace com.slot
                 return;
             }
 
+            // 取消同档上一次未完成的自动关闭计时（无论持久与否，避免旧协程在后台把特效关掉）
             if (_effectCoroutines.TryGetValue(kind, out var old) && old != null)
+            {
                 StopCoroutine(old);
+                _effectCoroutines.Remove(kind);
+            }
 
             go.SetActive(true);
-            UnityEngine.Debug.Log($"[ShowJackpotEffect] kind={kind} 播放特效 (duration={duration})");
-            _effectCoroutines[kind] = StartCoroutine(DisableEffectAfter(go, kind, duration));
+            UnityEngine.Debug.Log($"[ShowJackpotEffect] kind={kind} 播放特效 (persistent={persistent}, duration={duration})");
+
+            if (!persistent)
+                _effectCoroutines[kind] = StartCoroutine(DisableEffectAfter(go, kind, duration));
+            // persistent=true：不挂自动关闭，特效持续显示直到 HideAllJackpotEffects(开新局)。
+        }
+
+        /// <summary>开新局(OnStartKey)统一隐藏全部彩金特效——与 ReelFireNum.HideAllCounters 同一时机(开新局才隐藏)。
+        /// 同时停掉任何未完成的自动关闭计时，防竞态把已隐藏的特效又打开。</summary>
+        public void HideAllJackpotEffects()
+        {
+            if (_effectByKind == null) return;
+            foreach (var kv in _effectByKind)
+                if (kv.Value != null) kv.Value.SetActive(false);
+
+            // 清掉所有待执行的自动关闭协程（非持久模式中途仍可能挂着），避免它们随后把已隐藏的特效又 SetActive(true)
+            if (_effectCoroutines != null)
+            {
+                foreach (var co in _effectCoroutines.Values)
+                    if (co != null) StopCoroutine(co);
+                _effectCoroutines.Clear();
+            }
+            UnityEngine.Debug.Log("[HideAllJackpotEffects] 隐藏全部彩金特效 (开新局)");
         }
 
         IEnumerator DisableEffectAfter(GameObject go, FireballKind kind, float delay)
