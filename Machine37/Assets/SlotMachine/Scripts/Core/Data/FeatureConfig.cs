@@ -41,16 +41,17 @@ namespace SlotMachine.Core
         public List<float> jackpotMultipliers = new List<float> { 20f, 100f, 500f, 2000f };
         // 各档相对权重（越大越常见）：Mini 最常见，Mega 最稀有。
         // 2026-07-29 调整：Major 6→2、Mega 2→1（压低大档概率），Mini/Minor 不变(80/12)。
-        // 2026-07-30 调整：Mini 命中概率 8%→9%。仅抬 Mini：权重 [80,12,2,1]→[90,12,2,1]（和95→105），
-        //   jackpotRatio 0.095→0.105，使 Mini=0.105×90/105=9.0%、Minor=1.2%/Major=0.2%/Mega=0.1% 不变；
-        //   整条彩金火球占比 9.5%→10.5%，多出的 1pp 从倍数火球扣。
-        public List<int> jackpotWeights = new List<int> { 90, 12, 2, 1 };
+        // 2026-07-30 调整1：Mini 命中概率 8%→9%（权重[80,12,2,1]→[90,12,2,1]，ratio 0.095→0.105）。
+        // 2026-07-30 调整2：FreeSpins −0.3pp、倍数 −0.2pp 全给 Mini：权重[90,12,2,1]→[95,12,2,1]（和105→110），
+        //   ratio 0.105→0.110，使 Mini=0.110×95/110=9.5%、Minor=1.2%/Major=0.2%/Mega=0.1% 不变；
+        //   整条彩金火球占比 10.5%→11.0%，多出的 0.5pp 来自 FreeSpins(5.3→5.0)与倍数(84.2→84.0)。
+        public List<int> jackpotWeights = new List<int> { 95, 12, 2, 1 };
         // 一颗新火球是彩金类型的概率（否则为倍数火球）
-        public float jackpotRatio = 0.105f;
+        public float jackpotRatio = 0.110f;
 
         // 一颗新火球是"免费模式"类型的概率（仅在主游戏 Hold&Spin 内生成；Mini 免费局不生成 FreeSpins，见 HoldSpinState.RollFireball allowFreeMode）。
         // 免费模式火球不派彩，按列收集到一定数量追加免费次数（FireballKind.FreeSpins）。
-        public float freeModeRatio = 0.053f;   // 每颗新火球是"免费模式"(FreeSpins)类型的概率；2026-07-23 由 JSON 0.08 砍 1/3 → 0.053（实际运行取值以 JSON 为准）
+        public float freeModeRatio = 0.050f;   // 每颗新火球是"免费模式"(FreeSpins)类型的概率；2026-07-30 由 0.053 → 0.050（−0.3pp 让给 Mini，实际运行取值以 JSON 为准）
 
         // ===== 旧 Hold&Spin 交互式参数（保留供 HoldSpinState 编译，收集盘玩法不使用）=====
         public int respinCount = 3;
