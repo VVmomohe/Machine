@@ -9,11 +9,9 @@ namespace com.slot
     /// <summary>
     /// 彩金(jackpot)面板：对应 Fire Link / Cash Falls 类玩法顶部的 MINI / MINOR / MAJOR / MEGA 四档进度奖池。
     ///
-    /// 表现：四档文本常显当前奖池值；某档中奖时做"放大脉冲"高亮(不变色)，模拟网页里那四盏灯被点亮的效果。
-    /// 逻辑：四档渐进奖池由 GameSession.Contribute 在每次下注时注水(压分即涨)，本类只负责把
-    ///       当前奖池值(ReelConfig.jackpots / GameSession.Pots)翻译成显示与表现。
-    ///       注：火球 Hold&Spin 现在只做倍率收集(见 HoldSpinConfig.multipliers)，不携带奖池球；
-    ///       四档奖池由其他入口触发，本面板仍负责显示/脉冲。
+    /// 表现：四档文本常显当前奖池值（整数，无小数位）；某档中奖时做"放大脉冲"高亮(不变色)。
+    /// 数据：四档彩金值由 GameSession 计算（= 有效压分×betMult + potRate×局数），本类只负责显示与表现，
+    ///       不持有任何彩金状态。每次池变化（Contribute/RefreshPots/ResetJackpot）由 OnPotsChanged 回调触发 ShowPots。
     /// </summary>
     public class BonusView : MonoBehaviour
     {
@@ -86,6 +84,7 @@ namespace com.slot
                 {
                     t.transform.localScale = GetNativeScale(t);   // 防御：脉冲/弹窗放大后强制复位到原生 base scale
                     t.text = FormatValue(kv.Value);
+                    UnityEngine.Debug.Log($"[ShowPots] tier={kv.Key} 显示={FormatValue(kv.Value)} (raw={kv.Value:F4})");
                 }
         }
 
@@ -128,12 +127,17 @@ namespace com.slot
         public void ShowJackpotEffect(FireballKind kind, float duration = 2.5f)
         {
             if (_effectByKind == null) return;
-            if (!_effectByKind.TryGetValue(kind, out var go) || go == null) return;
+            if (!_effectByKind.TryGetValue(kind, out var go) || go == null)
+            {
+                UnityEngine.Debug.LogWarning($"[ShowJackpotEffect] kind={kind} 特效GameObject未绑定(Inspector m_{kind}Effect 为空)！跳过播放");
+                return;
+            }
 
             if (_effectCoroutines.TryGetValue(kind, out var old) && old != null)
                 StopCoroutine(old);
 
             go.SetActive(true);
+            UnityEngine.Debug.Log($"[ShowJackpotEffect] kind={kind} 播放特效 (duration={duration})");
             _effectCoroutines[kind] = StartCoroutine(DisableEffectAfter(go, kind, duration));
         }
 
@@ -253,9 +257,8 @@ namespace com.slot
 
         private static string FormatValue(float v)
         {
-            // 千分位 + 2 位小数，便于看到每次下注的渐进增长。
-            // 想和网页一样只显示整数，把下面改成 v.ToString("N0") 即可。
-            return v.ToString("N2");
+            // 彩金显示整数（无小数位）；累积仍用小数精度，只在显示时截断。
+            return ((int)System.Math.Floor(v)).ToString("N0");
         }
     }
 }

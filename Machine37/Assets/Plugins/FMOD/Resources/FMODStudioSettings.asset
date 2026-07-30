@@ -536,8 +536,8 @@ MonoBehaviour:
   switchSettingsMigration: 1
   HasSourceProject: 1
   HasPlatforms: 1
-  sourceProjectPath: ../FMODProj/FMODProj.fspro
-  sourceBankPath: ../FMODProj/Build
+  sourceProjectPath: ../../PandaParadis/FMODProj/FMODProj.fspro
+  sourceBankPath: ../../PandaParadis/FMODProj/Build
   sourceBankPathUnformatted: 
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1
@@ -560,7 +560,7 @@ MonoBehaviour:
   RealChannelSettings: []
   Plugins: []
   MasterBanks:
-  - Sounds
+  - Common
   Banks: []
   BanksToLoad: []
   LiveUpdatePort: 9264

@@ -546,32 +546,36 @@
       "value": 0.07,
       "valueIsMultiplier": true,
       "weight": 50,
-      "potRate": 0.002,
-      "potSeed": 0.1
+      "potRate": 0.2,
+      "betMult": 1.8,
+      "potCap": 2000
     },
     {
       "tier": "Minor",
       "value": 0.2,
       "valueIsMultiplier": true,
       "weight": 30,
-      "potRate": 0.005,
-      "potSeed": 0.5
+      "potRate": 0.2,
+      "betMult": 3.8,
+      "potCap": 5000
     },
     {
       "tier": "Major",
       "value": 0.67,
       "valueIsMultiplier": true,
       "weight": 15,
-      "potRate": 0.015,
-      "potSeed": 2.5
+      "potRate": 0.2,
+      "betMult": 10.8,
+      "potCap": 20000
     },
     {
       "tier": "Mega",
       "value": 3.3,
       "valueIsMultiplier": true,
       "weight": 5,
-      "potRate": 0.05,
-      "potSeed": 20.0
+      "potRate": 0.2,
+      "betMult": 50.8,
+      "potCap": 100000
     }
   ],
   "freeSpins": {

@@ -23,6 +23,7 @@ namespace SlotMachine.Core
         public bool filled;
         public float multiplier;        // 火球值（xbet）：倍数火球=自身倍率；彩金火球=对应档的倍数（如 Mini=20）
         public FireballKind kind = FireballKind.Multiplier;  // 火球类型（决定显示文字与是否计入彩金）
+        public int jackpotTier = -1;   // 彩金火球档位索引：0=Mini,1=Minor,2=Major,3=Mega；-1=非彩金火球。权威索引，避免枚举偏移。
     }
 
     /// <summary>一次完整游戏动作（基础旋转 + 可能的特性 + 免费旋转）的产出。</summary>
