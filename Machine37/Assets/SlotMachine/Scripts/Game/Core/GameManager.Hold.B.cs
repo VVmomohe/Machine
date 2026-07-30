@@ -310,7 +310,7 @@ namespace com.slot
             if (m_player != null && holdR != null)
             {
                 long tw = (long)System.Math.Round(holdR.totalPayout);
-                m_player.ShowWinValue(tw);
+                m_player.ShowWinValue(tw, !WillEnterMini(holdR));   // 显示特性赢分；若将进 Mini 则不播大赢特效(避免与进小游戏过渡特效重叠)
                 yield return StartCoroutine(WaitForConfirmKey());
                 ApplyHoldWinToCredit(holdR);   // 只补未加过的差额（每轮已即时落账）
                 // ★ 【彩金清零·结算完结】玩家已确认且赢分入账后，才把中过的彩金档池清零（渐进池中奖重置）。

@@ -211,13 +211,21 @@ namespace com.slot
             StartRollCore(amount, false);
         }
 
-        /// <summary>仅显示赢分（不滚动入账），用于"转轮停稳后先亮出赢分，稍后再滚进总分"的第一拍。</summary>
-        public void ShowWinValue(long win)
+        /// <summary>仅显示赢分（不滚动入账），用于"转轮停稳后先亮出赢分，稍后再滚进总分"的第一拍。
+        /// allowBigWin=false 时不播大赢庆祝特效(用于"即将进入小游戏"的赢分显示，避免大赢特效与进小游戏过渡特效重叠)。</summary>
+        public void ShowWinValue(long win, bool allowBigWin = true)
         {
             if (_rolling) FinalizeRoll();   // 先收尾进行中的收分动画，避免被新显示覆盖/丢分
             m_win_num = win;
             RefreshUI();
-            PlayBigWin(win);   // ★ 赢分>阈值时播放庆祝特效(方案A：含 Hold 每轮 respin 临时赢分)
+            if (allowBigWin) PlayBigWin(win);   // ★ 赢分>阈值时播放庆祝特效(方案A：含 Hold 每轮 respin 临时赢分)
+        }
+
+        /// <summary>立即取消大赢庆祝特效(进小游戏过渡前调用，避免大赢特效与进小游戏过渡特效重叠)。</summary>
+        public void CancelBigWin()
+        {
+            if (_bigWinCoroutine != null) { StopCoroutine(_bigWinCoroutine); _bigWinCoroutine = null; }
+            if (m_bigWinEffect != null) m_bigWinEffect.SetActive(false);
         }
 
         /// <summary>赢分> m_bigWinThreshold 时播放庆祝特效，约 m_bigWinDuration 秒后自动隐藏。

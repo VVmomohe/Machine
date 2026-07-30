@@ -129,7 +129,7 @@ namespace com.slot
                 if (m_player != null)
                 {
                     long tw = (long)System.Math.Round(r.totalPayout);
-                    m_player.ShowWinValue(tw);              // 先静态显示基础赢分(进 Mini 期间 HUD 仍可见)
+                    m_player.ShowWinValue(tw, !WillEnterMini(r));   // 先静态显示基础赢分(进 Mini 期间 HUD 仍可见)；若将进 Mini 则不播大赢特效(避免与过渡特效重叠)
                     yield return StartCoroutine(WaitForConfirmKey()); // auto 1s 或手动确认
                     m_player.ResetBet();                    // 清押注显示(原 ApplySpinResult 在滚分结束时会清)
                     _pendingMiniBaseWin = tw;               // ★ 基础赢分延迟到小游戏结算时再滚入，避免与进小游戏动画重叠
@@ -162,7 +162,7 @@ namespace com.slot
             if (m_player != null)
             {
                 long win = (long)System.Math.Round(r.totalPayout);
-                m_player.ShowWinValue(win);              // 先静态显示赢分(进 Mini 期间 HUD 仍可见)
+                m_player.ShowWinValue(win, !WillEnterMini(r));   // 先静态显示赢分(进 Mini 期间 HUD 仍可见)；若将进 Mini 则不播大赢特效(避免与过渡特效重叠)
                 yield return StartCoroutine(WaitForConfirmKey()); // 等待玩家按确认键
                 m_player.ResetBet();                     // 清押注显示(原 ApplySpinResult 在滚分结束时会清)
                 _pendingMiniBaseWin = win;              // ★ 基础赢分延迟到小游戏结算时再滚入，避免与进小游戏动画重叠

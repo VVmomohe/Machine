@@ -11,8 +11,9 @@ namespace com.slot
     public partial class GameManager
     {
         #region Mini 免费小游戏入口
-        public GameObject m_miniEnterEffect;     // 进小游戏前的过渡特效(场景级 overlay，勿挂在 m_miniGame 下)
         public float m_miniEnterDelay = 1f;       // 进小游戏前特效播放时长(秒)
+        public GameObject m_miniEnterEffect;     // 进小游戏前的过渡特效(场景级 overlay，勿挂在 m_miniGame 下)
+
         private long _pendingMiniBaseWin = 0;     // 进 Mini 前延迟入账的基础赢分(由 Flow.cs 两条路径设置；Hold 路径已即时落账故为 0)
 
         bool WillEnterMini(GameResult r)
@@ -33,6 +34,9 @@ namespace com.slot
             r.freeSpinsWin = 0;
             _miniActive = true;   // ★ 立即上锁，避免 1s 过渡演出期间被 Start 键穿透(原同步实现也是此刻上锁)
             Debug.Log($"[MINI-ENTRY] ★ 实际进入小游戏: 次数={(overrideSpins >= 0 ? overrideSpins : r.freeSpinsAwarded)} scatterCount={r.scatterCount}");
+            // ★ 进小游戏：立即收掉可能残留的大赢庆祝特效(火球 respin 局或进 Mini 前的赢分显示若触发过大赢，
+            //   其 3s 特效会盖在进小游戏过渡/小游戏 HUD 上)。主 HUD 小游戏期间仍可见，故必须在此清掉避免重叠。
+            if (m_player != null) m_player.CancelBigWin();
             // ★ 注意：此处【不再】调用 ResetWinDisplay 清 0 —— 基础赢分已用 ShowWinValue 显示在 HUD，
             //   进 Mini 期间主 HUD 仍可见，应保留该赢分显示(用户要求"赢分显示到小游戏赢分中先")，
             //   待小游戏结算(onDone)才把"基础赢分+Mini赢分"一次性滚入总分并刷新显示。
