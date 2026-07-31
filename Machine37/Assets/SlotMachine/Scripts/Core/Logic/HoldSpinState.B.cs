@@ -182,11 +182,12 @@ namespace SlotMachine.Core
             var hc = cfg.holdSpin;
             double r = rng.NextDouble();
 
-            // ★ A 模式(holdMode="Direct") 硬约束：永不生成免费模式火球（FreeSpins），
-            //   即使调用方误传 allowFreeMode=true 或 JSON freeModeRatio>0 也拦截。
-            //   A 模式火球只可能是 倍数(Multiplier) 或 彩金(Mini/Minor/Major/Mega) 两类。
-            if (hc != null && hc.holdMode == "Direct")
-                allowFreeMode = false;
+            // ★ 自 2026-07-30 起 A/B 两模式均为 holdMode="Direct"（直线结算，无 respin 循环）。
+            //   是否生成 FREE 火球完全由调用方 allowFreeMode 决定：
+            //   - B 模式 base-spin 传 allowFreeMode:true，且 JSON freeModeRatio>0 → 可生成 FREE 火球累加免费局（触发 Mini）；
+            //   - A 模式 base-spin 同样传 allowFreeMode:true，但 freeModeRatio=0 → isFree 被 effFreeRatio>0 门控，等价于旧硬约束（不会生成 FREE）；
+            //   - Mini 免费局(HoldSpinState.Start) 传 allowFreeMode:false → 不生成 FREE。
+            //   故此处不再按 holdMode 强制关 FREE，避免 B 模式的 FREE 火球被误杀。
 
             // ① 免费模式火球（仅在主游戏 Hold&Spin 内 allowFreeMode=true 时启用；Mini 不生成）：不派彩，multiplier=0。
             //   分区：r ∈ [0, freeModeRatio) → 免费模式；[freeModeRatio, freeModeRatio+jackpotRatio) → 彩金；其余 → 倍数。

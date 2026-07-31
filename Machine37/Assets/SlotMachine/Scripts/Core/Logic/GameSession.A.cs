@@ -14,9 +14,11 @@ namespace SlotMachine.Core
         void SettleFireballsDirect(List<FireballCell> initial, float bet, GameResult res)
         {
             float fbWin = 0f;
+            int freeCount = 0;
             if (res.wonJackpots == null) res.wonJackpots = new List<string>();
             foreach (var c in initial)
             {
+                if (c.kind == FireballKind.FreeSpins) { freeCount++; continue; }
                 fbWin += bet * c.multiplier;
                 if (c.jackpotTier >= 0 && c.jackpotTier < HoldSpinState.JackpotTierNames.Length)
                 {
@@ -27,6 +29,13 @@ namespace SlotMachine.Core
                 }
             }
             res.featureWin += fbWin;
+            // ★ FREE 火球累加免费次数（B 模式 base-spin 火球可出现 FREE 类型，触发 Mini）。
+            if (freeCount > 0 && _cfg.freeSpins != null)
+            {
+                int award = _cfg.freeSpins.FreeballAwardFor(freeCount);
+                res.freeSpinsAwarded += award;
+                UnityEngine.Debug.Log($"[Fireball-A] 直线结算：{freeCount} 颗 FREE 火球 → +{award} 免费局 (freeSpinsAwarded={res.freeSpinsAwarded})");
+            }
             UnityEngine.Debug.Log($"[Fireball-A] 直线结算：{initial.Count} 火球 → +{fbWin:F2} (featureWin={res.featureWin:F2})");
         }
     }

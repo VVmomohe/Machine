@@ -511,6 +511,7 @@
   "fireLinkSymbolId": 9,
   "maxRows": 8,
   "holdSpin": {
+    "holdMode": "Direct",
     "respinCount": 3,
     "fbProb": 0.108,
     "triggerMin": 1,
