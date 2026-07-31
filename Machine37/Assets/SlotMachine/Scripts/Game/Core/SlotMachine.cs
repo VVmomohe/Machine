@@ -36,7 +36,7 @@ namespace com.slot
                 UnityEngine.Debug.LogError($"[ConfigLoad] Resources.Load('{cfgName}') 失败！回退 Inspector configText，存在误跑其它模式风险。");
             if (configText != null) config = LoadConfig(configText);   // 强制从 JSON 重载，不依赖 config 是否已序列化
             // ★ 根因诊断（非防御）：打印实际加载的场景名 / 配置名 / 是否命中 Resources / 最终 holdMode，
-            //   直接确认 Game1 到底跑的是 A(Direct) 还是 B(ReelFill)。
+            //   直接确认 Game1 到底跑的是 A 还是 B（两模式均为 Direct 直线结算）。
             UnityEngine.Debug.Log($"[ConfigLoad] scene='{sceneName}' cfg='{cfgName}' loaded={(loaded != null)} holdMode={config?.holdSpin?.holdMode}");
             ApplyConfig();
         }

@@ -8,8 +8,7 @@ using Com.Back;   // DataManager（读取 Setting[1].auto 自动结算开关）
 namespace com.slot
 {
     /// <summary>GameManager 一局流程部分（基础局 + 结算 + 辅助）：
-    ///   上锁 → 滚动 → 等停稳 → (Hold&Spin重转循环见 GameManager.Hold.B.cs，仅模式B) → 结算解锁。
-    ///   模式A 专属流程在 GameManager.Flow.A.cs；Hold&Spin(B) 子系统在 GameManager.Hold.B.cs；Mini 在 GameManager.Mini.cs。</summary>
+    ///   上锁 → 滚动 → 等停稳 → 结算解锁。A/B 结算按模式拆分：通用在此文件，模式A 在 GameManager.Flow.A.cs，模式B 在 GameManager.Flow.B.cs；Mini 在 GameManager.Mini.cs。</summary>
     public partial class GameManager
     {
         #region 基础局

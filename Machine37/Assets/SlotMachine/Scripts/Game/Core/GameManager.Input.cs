@@ -20,7 +20,7 @@ namespace com.slot
                 Debug.Log($"[AutoPlay] toggled -> {autoPlay}");
             }
 
-            // ★ autoPlay = 系统自动按 Start 键：开新局 / 推进 Hold&Spin 每轮 / 过确认点。
+            // ★ autoPlay = 系统自动按 Start 键：开新局 / 过确认点（无 Hold&Spin respin 分支）。
             //   转轮正在滚动时(autoStart=false)不触发，避免把正在转的卷轴中途急停；
             //   等它自然停稳后下一帧即自动继续。OnStartKey 内部已对所有状态做守卫(防重复触发)。
             bool autoStart = autoPlay && (m_reelView == null || !m_reelView.IsSpinning());
@@ -41,27 +41,23 @@ namespace com.slot
         #endregion
 
         #region 输入处理
-        /// <summary>开始 / 停止键。Hold&Spin 中→推进一轮；转轮滚动中→急停；否则开新一局。</summary>
+        /// <summary>开始 / 停止键。转轮滚动中→急停；否则开新一局（A/B 基础旋转共用同一条开局路径，无 Hold&Spin respin 分支）。</summary>
         public void OnStartKey()
         {
             // ★ 每次按确认（任何模式 / 任何分支 / 任何守卫前）100% 先跑：滚动之前统一同步计数器。
-            //   用户硬性要求：新基础局 与 Hold&Spin respin 两种模式，滚动之前都必须运行 CheckEngagedAll + HideAllCounters，且只跑一次。
+            //   用户硬性要求：开新基础局前必须运行 CheckEngagedAll + HideAllCounters，且只跑一次。
             //   —— 直接回答"同一个方法为什么运行2次"：原先在 IsRolling 守卫前/后各调一次 HideAllCounters，现合并到顶部唯一一处。
             if (m_reelView != null)
 
-            // ★ 与 CheckEngagedAll 同一时机（任何分支/守卫前）100% 先跑：开新局(含 Hold&Spin respin 续轮)才隐藏上局彩金特效。
-            //   原 hide 写在 _activeHold 早返回之后(line 105)，导致 HOLD respin 推进时跳过→特效残留不隐藏。移到此处修复。
+            // ★ 与 CheckEngagedAll 同一时机（任何分支/守卫前）100% 先跑：开新局才隐藏上局彩金特效。
             if (m_bonus != null)
                 m_bonus.HideAllJackpotEffects();
             else
                 UnityEngine.Debug.LogWarning("[OnStartKey] m_bonus==null! 无法隐藏彩金特效（BonusView 未挂载或未赋值）");
 
-            // ★ Hold&Spin 进行中：Start 键同样 = 新的一轮（用户模型：按确认滚动就是新局）。
-            //   与基础局的唯一区别只是"转的内容"：respin 只转空格、已锁火球保留；而非"是否新局"。
-            //   计数器层面两者已完全统一——上方滚动前都已 CheckEngagedAll + HideAllCounters（先清），
-            //   本分支 AdvanceHoldSpin 内 ApplyRespinStep 会 ActivateCounters 重算（后亮），即"每轮先清后重算"。
-            //   不在此处拦截 IsRolling；但 AdvanceHoldSpin 续轮分支会在 yield break 前等到 m_player.IsRolling（本轮赢分滚动）
-            //   结束才放行下一轮 Start（2026-07-25 拍板"急停+结算完才推进"）——即信用滚动播完前连按不会连开下一轮 respin。
+            // ★ 开新局即一轮基础旋转（用户模型：按确认滚动就是新局）。
+            //   滚动前已统一 CheckEngagedAll + HideAllCounters（先清后亮，即"每轮先清后重算"）。
+            //   不在此处拦截 IsRolling；但下方赢分滚动期间会 return，连按不会穿透打断收分动画。
 
 
             // ★ 赢分数字滚动期间，不允许真正开新局（防穿透 / 防打断收分动画）

@@ -7,7 +7,7 @@ using SlotMachine.Core;
 
 namespace com.slot
 {
-    /// <summary>ReelView 火球 Hold &amp; Spin 核心流程：ShowFeatureState、SpinHoldRound、ApplyRespinStep、Release列。</summary>
+    /// <summary>ReelView 火球 overlay 核心流程：ShowFeatureState（基础局钉持久火球显示）、SpinHoldRound、Release列。</summary>
     public partial class ReelView
     {
         List<GameObject> _fbOverlays = new List<GameObject>();
@@ -17,7 +17,7 @@ namespace com.slot
 
         //   故 StopNow 无法通过 st.spinning 命中。用这两个标志让 StopNow 能识别并提前打断 Hold 滚动。
 
-        // ===== 进入 Hold&Spin =====
+        // ===== 基础局火球钉持久 overlay（原 ShowFeatureState 入口，HOLD respin 已移除）=====
 
         public virtual void ShowFeatureState(HoldSpinState s)
         {

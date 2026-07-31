@@ -8,7 +8,7 @@ using Com.Back;   // DataManager（读取 Setting[1].auto 自动结算开关）
 namespace com.slot
 {
     /// <summary>模式A(China Street / 直线结算 holdMode="Direct") 专属结算：
-    ///   A 不进 Hold&Spin——基础轮落火球即算分（featureWin 已由 GameSession.A.SettleFireballsDirect 计入），
+    ///   A 不进 Hold&Spin——基础轮落火球即算分（featureWin 由逻辑层 SettleFireballsDirect 计入，A/B 共用），
     ///   不把火球钉成持久 overlay（A 无"固定火球收集盘"）。数值结算与收尾共用 Flow.cs 的通用方法。
     ///   与 B 模式(GameManager.Flow.B.cs) 完全分离。</summary>
     public partial class GameManager

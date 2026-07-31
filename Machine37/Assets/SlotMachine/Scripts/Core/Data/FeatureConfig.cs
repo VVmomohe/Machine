@@ -49,7 +49,7 @@ namespace SlotMachine.Core
         // 一颗新火球是彩金类型的概率（否则为倍数火球）
         public float jackpotRatio = 0.110f;
 
-        // 一颗新火球是"免费模式"类型的概率（仅在主游戏 Hold&Spin 内生成；Mini 免费局不生成 FreeSpins，见 HoldSpinState.RollFireball allowFreeMode）。
+        // 一颗新火球是"免费模式"类型的概率（仅在主游戏基础旋转(Direct)内生成；Mini 免费局不生成 FreeSpins，见 HoldSpinState.RollFireball allowFreeMode）。
         // 免费模式火球不派彩，按列收集到一定数量追加免费次数（FireballKind.FreeSpins）。
         public float freeModeRatio = 0.050f;   // 每颗新火球是"免费模式"(FreeSpins)类型的概率；2026-07-30 由 0.053 → 0.050（−0.3pp 让给 Mini，实际运行取值以 JSON 为准）
 
@@ -64,15 +64,15 @@ namespace SlotMachine.Core
         public float fbProb = -1f;
 
         // ===== 模式专用(holdMode 分支) =====
-        public string holdMode = "ReelFill";     // "Direct"=A(基础轮落≥triggerMin火球直接算分,不进Hold&Spin/不锁定/不respin); "ReelFill"=B(收集盘/满列)
+        public string holdMode = "Direct";     // 两模式现均为 "Direct"（直线结算，无 respin 循环）；"ReelFill" 为旧收集盘玩法残留值，已不使用。
         public int fullUnlockFireballs = 20;     // A 行解锁全开阈值：火球总数达此值解锁所有行(起始4行,8火球解第1额外行)
         public bool sequentialWinAnimation = false;  // true=A(China Street):赢线逐条顺序高亮播放(高亮一条→loop→还原→下一条); false=B:所有线同时高亮
     }
 
     /// <summary>免费旋转参数，由 Scatter 触发。奖励次数随 Scatter 数量变化（见 SpinsFor）。
-    /// 免费局(Mini)内由方式 A 追加；方式 B 在主游戏 Hold&Spin 内结算（FreeSpins 火球只在主游戏生成）：
+    /// 免费局(Mini)内由方式 A 追加；方式 B 的 FREE 火球在主游戏基础旋转(Direct)按单列收集累加（FreeSpins 火球只在主游戏生成）：
     ///   A. Scatter 连消：单轮免费旋转棋盘上出现 N 颗 icon 11 → scatterRetrigger 档追加（Mini 内）。
-    ///   B. 火球"免费模式"收集：主游戏 Hold&Spin 按单列收集的 FreeSpins 类型火球数 → freeballTiers 档追加（扩展即将进入的 Mini）。</summary>
+    ///   B. 火球"免费模式"收集：主游戏基础旋转(Direct)按单列收集的 FreeSpins 类型火球数 → freeballTiers 档追加（扩展即将进入的 Mini）。</summary>
     [Serializable]
     public class FreeSpinsConfig
     {

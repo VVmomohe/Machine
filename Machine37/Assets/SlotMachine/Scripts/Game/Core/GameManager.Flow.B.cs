@@ -6,7 +6,7 @@ using SlotMachine.Core;
 
 namespace com.slot
 {
-    /// <summary>模式B(Cash Falls / 收集盘 holdMode="Direct") 专属结算：
+    /// <summary>模式B(Cash Falls / 直线结算 holdMode="Direct") 专属结算：
     ///   基础轮落下的火球钉成持久 overlay(固定火球/收集盘显示)，FREE 火球累加免费次数已在逻辑层算好；
     ///   其余数值结算与收尾与 A 共用 Flow.cs 的通用方法(SettleRoundWins / FinishBaseSettle)。
     ///   与 A 模式(GameManager.Flow.A.cs) 完全分离。</summary>

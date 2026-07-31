@@ -11,7 +11,7 @@ namespace SlotMachine.Core
         Minor = 2,
         Major = 3,
         Mega = 4,
-        FreeSpins = 5,   // 免费模式火球：不派彩，按列收集到一定数量追加免费次数（仅在主游戏 Hold&Spin 内生成）
+        FreeSpins = 5,   // 免费模式火球：不派彩，按列收集到一定数量追加免费次数（仅在主游戏基础旋转(Direct)内生成）
     }
 
     /// <summary>棋盘上的一个火球格。filled=true 表示已被火球占据(锁定)。</summary>
@@ -35,11 +35,11 @@ namespace SlotMachine.Core
         public List<Win> baseWins = new List<Win>(); // 基础连线/ways 中奖明细(含 positions，供视图高亮)
         public float scatterPayout;               // 基础 Scatter 赔付
         public int scatterCount;                  // 基础 Scatter 个数
-        public float featureWin;                  // 特性赢分（Hold&Spin 累计）
+        public float featureWin;                  // 特性赢分（火球等特性累计，A/B 直线结算计入）
         public float freeSpinsWin;                // 免费旋转内全部赢分
         public int freeSpinsAwarded;              // 实际奖励免费转次数
         public float totalPayout;                 // 全部赢分
-        public List<FireballCell> baseFireballs;  // 基础旋转落下的全部火球（每颗已定倍率/彩金档），用于基础轮即显示倍率文字（China Street 类玩法）
-        public List<string> wonJackpots;          // A 模式(直线结算)本局中过的彩金档名("Mini"/"Minor"/"Major"/"Mega")，供显示层播特效（清池已在 GameSession 即时完成）
+        public List<FireballCell> baseFireballs;  // 基础旋转落下的全部火球（每颗已定倍率/彩金档），用于基础轮即显示倍率文字（A/B 基础局火球显示通用）
+        public List<string> wonJackpots;          // 直线结算(A/B 共用)本局中过的彩金档名("Mini"/"Minor"/"Major"/"Mega")，供显示层播特效（清池已在 GameSession 即时完成）
     }
 }

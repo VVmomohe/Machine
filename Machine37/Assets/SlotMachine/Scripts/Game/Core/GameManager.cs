@@ -27,7 +27,7 @@ namespace com.slot
         private bool _spinPending;
 
         /// <summary>【自动游玩】Inspector 勾选（或运行时按 F1）后，系统自动按 Start 键：
-        /// 自动开新局、自动推进 Hold&amp;Spin 每轮 respin、结算确认点自动过、Mini 免费游戏自动续轮。
+        /// 自动开新局、结算确认点自动过、Mini 免费游戏自动续轮。
         /// 转轮正在滚动时不触发（避免把正在转的卷轴急停），等其自然停稳后下一帧自动继续。取消勾选立即回手动。</summary>
         public bool autoPlay = false;
 
@@ -40,8 +40,6 @@ namespace com.slot
         /// 手动确认 / 连续按确认 不受影响（仍纯等确认键）。</summary>
         public float settleAutoShowSeconds = 0.9f;
 
-
-        /// <summary>Hold&amp;Spin 特性进行中的状态（非 null=正在 Hold&Spin，Start 键=推进一轮而非开新局）。</summary>
 
         /// <summary>等待用户按确认键（Start）后才开始滚动赢分到总分。该期间 Start 键不触发新局/respin。</summary>
         private bool _waitingConfirm;
