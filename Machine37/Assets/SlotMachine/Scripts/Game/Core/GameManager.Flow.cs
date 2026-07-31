@@ -25,6 +25,10 @@ namespace com.slot
 
             if (m_reelView != null)
             {
+                // ★ 开新基础局：清掉上局残留的火球 overlay（基础局"固定火球"由本局重新钉出；
+                //   Mini 持久 overlay 已在 MiniGame 结束时自行 ClearFireballOverlays，此处不影响）。
+                m_reelView.ClearFireballOverlays();
+
                 // 落了火球，把倍率传给 ShowGrid，滚动阶段就显示倍率。
                 // ★ 优先用 res.baseFireballs：基础轮落下的全部火球（不论是否触发 Hold&Spin）都已定倍率，一律显示。
                 //   触发 Hold&Spin 时 hs.cells 与 baseFireballs 同源，二者结果一致，fallback 仅作保险。
@@ -51,6 +55,15 @@ namespace com.slot
             // 1) 等转轮停稳（含 waterfall），确保视觉上完全停了才结算
             while (m_reelView != null && m_reelView.IsSpinning())
                 yield return null;
+
+            // ★ 基础局"固定火球"显示：把落下的火球钉成持久 overlay（收集盘/固定火球），
+            //   与旧 Hold&Spin 的 ShowFeatureState 表现一致——火球停在各自格子上、不随下一局卷轴滚走。
+            //   FREE 火球累加的免费次数已在逻辑层(SettleFireballsDirect)算入 r.freeSpinsAwarded，此处只管显示。
+            if (m_reelView != null && r.baseFireballs != null)
+            {
+                foreach (var c in r.baseFireballs)
+                    if (c.filled) m_reelView.ShowFireballOverlay(c.reel, c.row, c, playSound: false);
+            }
 
             // 2) 基础旋转结算（A 模式直线结算 / B 模式共用同一套评估口径）
             {
