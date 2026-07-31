@@ -48,6 +48,10 @@ namespace com.slot
             //   用户硬性要求：开新基础局前必须运行 CheckEngagedAll + HideAllCounters，且只跑一次。
             //   —— 直接回答"同一个方法为什么运行2次"：原先在 IsRolling 守卫前/后各调一次 HideAllCounters，现合并到顶部唯一一处。
             if (m_reelView != null)
+            {
+                m_reelView.CheckEngagedAll();
+                m_reelView.HideAllCounters();
+            }
 
             // ★ 与 CheckEngagedAll 同一时机（任何分支/守卫前）100% 先跑：开新局才隐藏上局彩金特效。
             if (m_bonus != null)
@@ -79,8 +83,6 @@ namespace com.slot
 
             // ★ 开新一局：先清赢分显示(归 0)，让"0"出现在转轮启动这一刻而非上一局漏光时
             m_player.ResetWinDisplay();
-
-            if (m_reelView != null)
 
             m_machine.totalBet = m_player.m_bet_num;
             m_machine.session.Contribute(m_player.m_bet_num);

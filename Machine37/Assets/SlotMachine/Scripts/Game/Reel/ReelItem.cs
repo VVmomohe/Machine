@@ -11,6 +11,7 @@ namespace com.slot
         public FireballKind m_type = FireballKind.Multiplier;
         public float m_rate;
         public int m_id;
+        public int m_num;           // 圈圈数（单列火球倒计时）：新火球=3，无新火球=-1，归零=该列回归滚动队列（ReelFireNum 镜像显示）
         public int m_serial = -1;   // 创建时全局自增编号，用于追踪/调试（区分每个 Item(Clone)）
 
         public Image m_image;

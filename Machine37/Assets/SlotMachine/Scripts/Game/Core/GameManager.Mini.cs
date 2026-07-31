@@ -18,11 +18,17 @@ namespace com.slot
 
         bool WillEnterMini(GameResult r)
         {
-            if (r == null || r.freeSpinsAwarded <= 0) return false;
+            if (r == null) return false;
+            // ★ 触发条件按模式区分：
+            //   · 模式A(China Street)：免费次数>0（Scatter 波动性）即进 Mini。
+            //   · 模式B(Cash Falls)：仅【整列集满】(enterMiniByColumnFill) 才进 Mini（用户硬性要求，避免单颗 FREE 火球就进小游戏）；
+            //     FREE 火球累计的免费次数已在 SettleBaseB 中并入 freeSpinsAwarded，仅作 Mini 局数，不作为 B 的独立触发条件。
+            bool trigger = IsModeB() ? r.enterMiniByColumnFill : (r.freeSpinsAwarded > 0);
+            if (!trigger) return false;
             if (m_miniGame == null)
             {
-                // ★ 防御诊断：freeSpinsAwarded>0 但场景/预制体没拖 MiniGame → 免费游戏将被静默吞掉（"该进没进"最常见根因）。
-                Debug.LogError($"[MINI-MISSING] freeSpinsAwarded={r.freeSpinsAwarded}>0 但 m_miniGame 未赋值（场景/预制体需在 Inspector 拖 MiniGame），免费游戏将无法进入！");
+                // ★ 防御诊断：触发但场景/预制体没拖 MiniGame → 免费游戏将被静默吞掉（"该进没进"最常见根因）。
+                Debug.LogError($"[MINI-MISSING] 触发Mini(IsModeB={IsModeB()}, freeSpinsAwarded={r.freeSpinsAwarded}, enterMiniByColumnFill={r.enterMiniByColumnFill}) 但 m_miniGame 未赋值（场景/预制体需在 Inspector 拖 MiniGame），免费游戏将无法进入！");
                 return false;
             }
             return m_miniGame.GetComponent<MiniGame>() != null;

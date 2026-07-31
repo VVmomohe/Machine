@@ -37,15 +37,6 @@ namespace com.slot
         }
 
 
-        // ===== 滚动一轮 =====
-
-
-        // ===== 滚动结束后结算 =====
-
-        // ===== 释放列 =====
-
-        // ===== 满列收集后释放 =====
-
         public void ReleaseCollectedForNextSpin()
         {
             foreach (var r in _collectedReels) _releaseReels.Add(r);
@@ -65,6 +56,45 @@ namespace com.slot
                 }
             }
             _collectedReels.Clear();
+        }
+
+        // ===== 模式B 收集盘 respin 辅助（轻量，不滚盘）=====
+
+        /// <summary>重播某列的 tong（夹子/桶）动画：新火球落入 / 满列收集时调用。</summary>
+        void PlayTong(int reel)
+        {
+            if (m_tongs != null && reel >= 0 && reel < m_tongs.Length && m_tongs[reel] != null)
+                m_tongs[reel].Play();
+        }
+
+        /// <summary>销毁某列(reel)全部火球 overlay（释放列时调用，使其从屏上消失）。</summary>
+        public void ClearColumnFireballs(int reel)
+        {
+            for (int i = _fbOverlays.Count - 1; i >= 0; i--)
+            {
+                var go = _fbOverlays[i];
+                if (go == null) { _fbOverlays.RemoveAt(i); continue; }
+                if (ParseReelRow(go.name, out int r, out _))
+                {
+                    if (r == reel) { Destroy(go); _fbOverlays.RemoveAt(i); }
+                }
+            }
+            RefreshColumnEffects();
+        }
+
+        /// <summary>释放列“回归滚动队列”：该列火球位底层符号换回普通符（不再显示火球图标），计数器由调用方隐藏。
+        /// 收集盘 respin 中 counter 归零的列调用——视觉上该列回到正常（下一局自然滚动）。</summary>
+        public void ReleaseColumnToSpinQueue(int reel)
+        {
+            if (reel < 0 || reel >= _reels.Count) return;
+            var st = _reels[reel];
+            for (int k = m_buf; k < m_buf + st.rows && k < st.cells.Count; k++)
+            {
+                int logicalRow = k - m_buf;
+                int sym = (st.finalSyms != null && logicalRow < st.finalSyms.Length) ? st.finalSyms[logicalRow] : 0;
+                if (sym == m_fireballSymbolId) sym = RandNormalSymbol();  // 火球位换普通符（回归滚动队列）
+                SetCell(st, k, sym);
+            }
         }
     }
 }

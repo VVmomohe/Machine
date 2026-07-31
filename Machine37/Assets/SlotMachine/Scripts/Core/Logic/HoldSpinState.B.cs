@@ -32,14 +32,20 @@ namespace SlotMachine.Core
         public bool[] released;         // 该列是否已释放
         public float accumulated;       // 特性累计赢分（含倍数火球 + 彩金火球，统一按 ×bet 累加）
         public List<string> wonJackpots = new List<string>();  // 本特性中已中的彩金档名（"Mini"/"Minor"/"Major"/"Mega"，可重复/多档）
+        // ★ 模式B 收集盘 FREE 火球单列累计（respin 跨轮持久）：freeCountByCol[reel]=该列已落 FREE 火球数；
+        //   prevFreeAward[reel]=已授予的免费次数（升档只补差额，避免每轮重复授予）。
+        public Dictionary<int, int> freeCountByCol = new Dictionary<int, int>();
+        public Dictionary<int, int> prevFreeAward = new Dictionary<int, int>();
         public bool active;
         /// <summary>渐进彩金池（Mini/Minor/Major/Mega → 当前累积值，单位=信用点）。
         /// 彩金火球的 multiplier = Pots[tier] / bet（信用→倍率统一，使 ReelSum 结果 ×bet 恰为池值）。</summary>
         public IReadOnlyDictionary<string, float> Pots;
 
-        /// <summary>从基础旋转落下的初始火球创建特性态。无火球的列直接标记 released。</summary>
+        /// <summary>从基础旋转落下的初始火球创建特性态。无火球的列直接标记 released。
+        /// payOnStart=true（默认，Mini 用）：初始即满列直接派彩+清池；
+        /// payOnStart=false（模式B 收集盘 respin 用）：初始火球派彩由调用方逐颗处理（RespinHoldSpin / CheckFireballHoldSpin），此处只放置+置计数。</summary>
         public static HoldSpinState Start(ReelConfig cfg, ISlotRng rng, float bet, List<FireballCell> initial,
-            IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false)
+            IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false, bool payOnStart = true)
         {
             var st = new HoldSpinState
             {
@@ -81,14 +87,14 @@ namespace SlotMachine.Core
                         st.cells[f.reel][f.row] = f;
                     }
 
-            StartReelFill(st, cfg, rc, bet);
+            StartReelFill(st, cfg, rc, bet, payOnStart);
 
             st.active = AnyActive(st);
             return st;
         }
 
-        /// <summary>B 模式(ReelFill)状态初始化：逐列倒计时 + 初始即满列直接派彩（原逻辑原样保留，零回归）。</summary>
-        static void StartReelFill(HoldSpinState st, ReelConfig cfg, int rc, float bet)
+        /// <summary>B 模式(ReelFill)状态初始化：逐列倒计时 + 初始即满列直接派彩（payOnStart=true 时；模式B respin 传 false 由调用方逐颗派彩）。</summary>
+        static void StartReelFill(HoldSpinState st, ReelConfig cfg, int rc, float bet, bool payOnStart)
         {
             for (int r = 0; r < st.reels; r++)
             {
@@ -99,7 +105,8 @@ namespace SlotMachine.Core
                 else { st.counter[r] = 0; st.released[r] = true; }
             }
 
-            // 初始即满列 → 直接派彩
+            // 初始即满列 → 直接派彩（仅 payOnStart=true，如 Mini；模式B respin 由 CheckFireballHoldSpin 逐颗派彩）
+            if (!payOnStart) return;
             for (int r = 0; r < st.reels; r++)
                 if (!st.isFull[r] && ReelFull(st, r))
                 {

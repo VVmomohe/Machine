@@ -261,6 +261,35 @@ namespace SlotMachine.Core
             int minTrigger = (_cfg.holdSpin.triggerMin > 0) ? _cfg.holdSpin.triggerMin : 1;
             if (initial.Count < minTrigger) return;
 
+            // ★ 模式B(Cash Falls 收集盘)：进入 respin（显示+动画，火球逐颗 ×bet 派彩，不滚盘），不直线结算。
+            //   初始火球落定即派彩（每颗 multiplier×bet，与 A 直线结算同口径）；彩金火球落定即中+即时清池；
+            //   FREE 火球不派彩、按单列累计到 hs.freeCountByCol（respin 内升档追加免费次数）。
+            //   holdSpinState 存到 res，由 GameManager.Flow.B 驱动 respin 循环（落新火球/减圈/满列/释放）。
+            if (IsModeB())
+            {
+                var hs = HoldSpinState.Start(_cfg, _rng, bet, initial, _pots, allowFreeMode: true, payOnStart: false);
+                foreach (var f in initial)
+                {
+                    if (!f.filled) continue;
+                    if (f.kind == FireballKind.FreeSpins)
+                    {
+                        if (!hs.freeCountByCol.ContainsKey(f.reel)) hs.freeCountByCol[f.reel] = 0;
+                        hs.freeCountByCol[f.reel]++;
+                        continue;
+                    }
+                    hs.accumulated += bet * f.multiplier;
+                    if (f.jackpotTier >= 0 && f.jackpotTier < HoldSpinState.JackpotTierNames.Length)
+                    {
+                        string t = HoldSpinState.JackpotTierNames[f.jackpotTier];
+                        hs.wonJackpots.Add(t);
+                        ResetJackpot(t);   // 彩金火球落定即中 + 即时清池
+                    }
+                }
+                res.holdSpinState = hs;
+                UnityEngine.Debug.Log($"[Fireball-B] 进入收集盘 respin：{initial.Count} 颗初始火球 → hs.accumulated={hs.accumulated:F2}");
+                return;
+            }
+
             // ★ A 模式(直线结算：holdMode="Direct")：落 ≥triggerMin 火球直接在基础轮算分，不进 Hold&Spin、不锁定、不 respin。
             //   所有火球倍率之和 ×bet 计入 featureWin；彩金火球落定即中(即时清池)，中奖档记 res.wonJackpots 供显示层播特效。
             //   ★ 逻辑抽到 GameSession.A.cs 的 SettleFireballsDirect（A/B 共用，内部按 IsModeB() 区分：A=全局≥triggerMin，B=单列收集 FREE）。
