@@ -72,7 +72,11 @@ namespace com.slot
             ShowDirectJackpotEffects(r);
 
             // 先显示赢分 → 等按确认键 → 再滚动到总分
-            LogMiniEntry("基础局Scatter触发", r, r.freeSpinsAwarded, 0, null);
+            // ★ 来源按实际授予拆分（Scatter / FREE 火球单列收集），避免把火球触发的局误标成 Scatter。
+            string miniSrc = (r.freeSpinsFromScatter > 0 && r.freeSpinsFromFireball > 0) ? "基础局Scatter+火球"
+                           : (r.freeSpinsFromFireball > 0) ? "基础局火球(FreeSpins单列)"
+                           : "基础局Scatter";
+            LogMiniEntry(miniSrc, r, r.freeSpinsFromScatter, r.freeSpinsFromFireball, null);
             if (WillEnterMini(r))
             {
                 r.freeSpinsWin = 0;
@@ -193,8 +197,8 @@ namespace com.slot
             Debug.Log($"[结算:{tag}] 压分={bet:F0} 赢分={win:F0} 总分={credit}");
         }
 
-        /// <summary>进 Mini 之前的来源 LOG：区分是「Scatter 触发」还是「Hold&Spin 收集 FreeSpins 火球」触发，
-        /// 并统计实际的 FreeSpins 火球格数，便于排查"莫名进入免费小游戏"。</summary>
+        /// <summary>进 Mini 之前的来源 LOG：区分「Scatter 触发」与「FREE 火球单列收集触发」（A 全局≥triggerMin / B 单列收集），
+        /// 各自授予的免费次数已拆到 GameResult.freeSpinsFromScatter / freeSpinsFromFireball，便于排查"莫名进入免费小游戏"。</summary>
         void LogMiniEntry(string whence, GameResult r, int scatterOrig, int freeballOrig, HoldSpinState hs = null)
         {
             if (r == null) return;

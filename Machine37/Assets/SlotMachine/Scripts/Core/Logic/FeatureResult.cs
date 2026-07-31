@@ -37,7 +37,9 @@ namespace SlotMachine.Core
         public int scatterCount;                  // 基础 Scatter 个数
         public float featureWin;                  // 特性赢分（火球等特性累计，A/B 直线结算计入）
         public float freeSpinsWin;                // 免费旋转内全部赢分
-        public int freeSpinsAwarded;              // 实际奖励免费转次数
+        public int freeSpinsAwarded;              // 实际奖励免费转次数（= freeSpinsFromScatter + freeSpinsFromFireball，A/B 基础局共用）
+        public int freeSpinsFromScatter;          // 仅由 Scatter(数量分档)授予的免费次数（SpinsFor 结果，triggerScatter 未达则为 0）
+        public int freeSpinsFromFireball;         // 仅由 FREE 火球(单列收集)追加的免费次数（SettleFireballsDirect 累加，无火球则为 0）
         public float totalPayout;                 // 全部赢分
         public List<FireballCell> baseFireballs;  // 基础旋转落下的全部火球（每颗已定倍率/彩金档），用于基础轮即显示倍率文字（A/B 基础局火球显示通用）
         public List<string> wonJackpots;          // 直线结算(A/B 共用)本局中过的彩金档名("Mini"/"Minor"/"Major"/"Mega")，供显示层播特效（清池已在 GameSession 即时完成）

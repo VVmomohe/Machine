@@ -39,7 +39,7 @@ namespace com.slot
         {
             r.freeSpinsWin = 0;
             _miniActive = true;   // ★ 立即上锁，避免 1s 过渡演出期间被 Start 键穿透(原同步实现也是此刻上锁)
-            Debug.Log($"[MINI-ENTRY] ★ 实际进入小游戏: 次数={(overrideSpins >= 0 ? overrideSpins : r.freeSpinsAwarded)} scatterCount={r.scatterCount}");
+            Debug.Log($"[MINI-ENTRY] ★ 实际进入小游戏: 次数={(overrideSpins >= 0 ? overrideSpins : r.freeSpinsAwarded)} scatterCount={r.scatterCount} 来自Scatter={r.freeSpinsFromScatter} 来自火球={r.freeSpinsFromFireball}");
             // ★ 进小游戏：立即收掉可能残留的大赢庆祝特效(火球 respin 局或进 Mini 前的赢分显示若触发过大赢，
             //   其 3s 特效会盖在进小游戏过渡/小游戏 HUD 上)。主 HUD 小游戏期间仍可见，故必须在此清掉避免重叠。
             if (m_player != null) m_player.CancelBigWin();

@@ -170,6 +170,7 @@ namespace SlotMachine.Core
                     : _cfg.freeSpins.SpinsFor(sc);
             }
             res.freeSpinsAwarded = fsAward;
+            res.freeSpinsFromScatter = fsAward;   // ★ 仅 Scatter 授予的部分（火球追加在 CheckFireballHoldSpin 内累加）
             // 注：res.freeSpinsWin 恒为 0（免费游戏赢分由 Mini 统计火球后经回调 AddFeatureWin 入账）。
 
             // 4) 火球检测：基础旋转落了火球？→ 直线结算（holdMode="Direct"，A/B 共用）。
@@ -177,6 +178,8 @@ namespace SlotMachine.Core
             //      res.freeSpinsAwarded（+=），若先于此处赋值会被覆盖归零。
             if (_cfg.fireballSymbolId > 0)
                 CheckFireballHoldSpin(grid, bet, res);
+            // ★ 火球追加后，反推火球授予部分 = 总数 − Scatter 部分（≥0 保护）。
+            res.freeSpinsFromFireball = System.Math.Max(0, res.freeSpinsAwarded - res.freeSpinsFromScatter);
 
             res.totalPayout = res.baseWin + res.scatterPayout + res.featureWin + res.freeSpinsWin;
             return res;
