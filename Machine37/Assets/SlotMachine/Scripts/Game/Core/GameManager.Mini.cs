@@ -18,7 +18,13 @@ namespace com.slot
 
         bool WillEnterMini(GameResult r)
         {
-            if (r == null || r.freeSpinsAwarded <= 0 || m_miniGame == null) return false;
+            if (r == null || r.freeSpinsAwarded <= 0) return false;
+            if (m_miniGame == null)
+            {
+                // ★ 防御诊断：freeSpinsAwarded>0 但场景/预制体没拖 MiniGame → 免费游戏将被静默吞掉（"该进没进"最常见根因）。
+                Debug.LogError($"[MINI-MISSING] freeSpinsAwarded={r.freeSpinsAwarded}>0 但 m_miniGame 未赋值（场景/预制体需在 Inspector 拖 MiniGame），免费游戏将无法进入！");
+                return false;
+            }
             return m_miniGame.GetComponent<MiniGame>() != null;
         }
 

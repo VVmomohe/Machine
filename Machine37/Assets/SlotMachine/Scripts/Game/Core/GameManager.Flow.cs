@@ -127,6 +127,26 @@ namespace com.slot
                         m_player.ResetBet();                          // 消费本局押注：清 m_bet_num=0（下一轮 respin 的 TryDeductRoundBet 会重新 LastBet 扣压分）
                         _holdAppliedWin = baseWinTotal;               // 计入已落账，收尾不重复加
                     }
+
+                    // ★ 免费游戏优先于 Hold：基础转同时有≥3 Scatter → 先进 Mini（免费小游戏），
+                    //   Hold 火球收集保留到 Mini 结束再恢复。用户诉求："只要结算收集到三个Scatter以上
+                    //   就该准备进小游戏，不管Hold局还是正常局"。复用 Hold 中途进 Mini 的"保留 _activeHold"机制。
+                    if (WillEnterMini(r))
+                    {
+                        int awardSpins = r.freeSpinsAwarded;
+                        r.freeSpinsAwarded = 0;
+                        _holdScatterSpins = 0;          // Scatter 奖励已由本次 Mini 消耗，Hold 期间 FREE 火球追加从 0 起算
+                        _pendingMiniBaseWin = 0;        // Hold 路径基础赢分已即时落账，Mini 结束不再重复滚入
+                        if (m_reelView != null) m_reelView.HideAllCounters();
+                        LogMiniEntry("基础局Scatter→先Mini后Hold", r, 0, awardSpins, r.holdSpinState);
+                        EnterMiniNow(r, () =>
+                        {
+                            _activeHold = r.holdSpinState;   // 恢复 Hold（EnterHoldSpin 已显示初始锁定）
+                            if (m_reelView != null) m_reelView.ShowFeatureState(r.holdSpinState);
+                        }, awardSpins);
+                        yield break;
+                    }
+
                     yield break;
                 }
 

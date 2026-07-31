@@ -337,9 +337,6 @@ namespace com.slot
                 int k = m_buf + row;
                 if (k >= st.cells.Count) continue;
                 int sym = st.finalSyms[row];
-                // ★ 百搭约束：不能在第一列(reel0)、不能在顶行(row=rows-1，即屏幕第一行；row0 是底行)——与数据层拦截一致的双保险
-                if (sym == m_wildId && (st.reelIdx == 0 || row == st.rows - 1))
-                    sym = RandNormalSymbol();
                 SetCell(st, k, sym, true);
                 // ★ 火球：定格时也挂倍率（与减速阶段衔接，无跳变；停稳后 ShowFeatureState 的 overlay 在最上层盖住、视觉一致）。
                 //   Mini 持久 overlay 模式也挂——位置/文字与 overlay 完全一致，无重影。

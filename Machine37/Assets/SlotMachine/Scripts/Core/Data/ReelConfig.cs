@@ -42,7 +42,7 @@ namespace SlotMachine.Core
             // 实现：baseSpin.specialProb = 目标「每格」是特殊符号(章鱼/免费/火球)的占比 f；
             //   普通ICON = 1 - f。特殊符号内部按 specialWeights=[章鱼,免费,火球] 加权选一种。
             //   生成时按当前列 cap 把 f 折算成「每段触发特殊概率」(抵消普通游程稀释)，保证每列每格特殊率≈f。
-            //   百搭(wild)由 DecideWildPlan 另算、以覆盖式落格（期望≈2%），不计入 specialProb。
+            //   百搭(wild)在纯随机架构下与其它符号同权（见 OutcomeGenerator.Spin，每格 1/12 均匀），不再单独规划。
             public BaseSpinConfig baseSpin;
 
         public SymbolPay GetSymbol(int id)

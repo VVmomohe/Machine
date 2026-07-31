@@ -313,7 +313,7 @@ namespace SlotMachine.Core
 
             // ★ 百搭预先决定（写一次，不事后替换）：最多 maxWildsPerSpin 颗，排除第一列/顶行/已锁定(火球)格。
             //   旧逻辑把 wild 放进 specialPool 每格 12% 随机、再靠 LimitWildsOnBoard 事后砍到 1（"中途换"），该方法已删除。
-            //   现改为生成前定点，与基础旋转 DecideWildPlan 同源。respin 不应用 wildSpawnChance 门控
+            //   基础旋转现已改为纯随机生成（见 OutcomeGenerator.Spin，每格 1/12 均匀、无定点百搭），respin 仍由本函数定点生成百搭。
             //   （旧行为几乎每轮必有 1 颗百搭，门控会降低出现率），只要有合法空格就放满 maxWilds 颗。
             var wildTargets = new HashSet<int>();
             {
