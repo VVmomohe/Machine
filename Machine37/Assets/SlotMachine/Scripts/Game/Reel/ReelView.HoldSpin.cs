@@ -17,7 +17,9 @@ namespace com.slot
 
         //   故 StopNow 无法通过 st.spinning 命中。用这两个标志让 StopNow 能识别并提前打断 Hold 滚动。
 
-        // ===== 进入 Hold&Spin =====        public virtual void ShowFeatureState(HoldSpinState s)
+        // ===== 进入 Hold&Spin =====
+
+        public virtual void ShowFeatureState(HoldSpinState s)
         {
             ClearFireballOverlays();
 

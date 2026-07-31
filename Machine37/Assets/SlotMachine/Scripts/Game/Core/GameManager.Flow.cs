@@ -44,7 +44,9 @@ namespace com.slot
         }
         #endregion
 
-        #region 结算        IEnumerator SettleAfterReelsStop(GameResult r)
+        #region 结算
+
+        IEnumerator SettleAfterReelsStop(GameResult r)
         {
             // 1) 等转轮停稳（含 waterfall），确保视觉上完全停了才结算
             while (m_reelView != null && m_reelView.IsSpinning())
