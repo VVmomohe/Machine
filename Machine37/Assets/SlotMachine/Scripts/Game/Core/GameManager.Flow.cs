@@ -38,7 +38,8 @@ namespace com.slot
                         if (c.filled) fireMults[c.reel * 100 + c.row] = c;
 
                 m_reelView.ShowGrid(r.baseGrid, fireMults.Count > 0 ? fireMults : null);
-                StartCoroutine(SettleAfterReelsStop(r));
+                // ★ 按模式分流结算：A → SettleBaseA(Flow.A.cs)，B → SettleBaseB(Flow.B.cs)，通用步骤在 Flow.cs。
+                StartCoroutine(IsModeB() ? SettleBaseB(r) : SettleBaseA(r));
             }
             else
             {
@@ -48,41 +49,30 @@ namespace com.slot
         }
         #endregion
 
-        #region 结算
+        #region 结算（通用 + 模式分发）
 
-        IEnumerator SettleAfterReelsStop(GameResult r)
+        bool IsModeB()
         {
-            // 1) 等转轮停稳（含 waterfall），确保视觉上完全停了才结算
+            return m_machine != null && m_machine.config != null
+                && m_machine.config.modeName != null
+                && m_machine.config.modeName.IndexOf("ModeB", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        IEnumerator WaitReelsStop()
+        {
             while (m_reelView != null && m_reelView.IsSpinning())
                 yield return null;
+        }
 
-            // ★ 基础局"固定火球"显示：把落下的火球钉成持久 overlay（收集盘/固定火球），
-            //   与旧 Hold&Spin 的 ShowFeatureState 表现一致——火球停在各自格子上、不随下一局卷轴滚走。
-            //   FREE 火球累加的免费次数已在逻辑层(SettleFireballsDirect)算入 r.freeSpinsAwarded，此处只管显示。
-            if (m_reelView != null && r.baseFireballs != null)
-            {
-                foreach (var c in r.baseFireballs)
-                    if (c.filled) m_reelView.ShowFireballOverlay(c.reel, c.row, c, playSound: false);
-            }
-
-            // 2) 基础旋转结算（A 模式直线结算 / B 模式共用同一套评估口径）
-            {
-                int sc;
-                float bw = SettleRoundWins(r.baseGrid, m_machine.totalBet, out sc);
-                r.baseWin = bw;
-                r.scatterCount = sc;
-                if (m_machine.config != null && m_machine.config.freeSpins != null
-                    && !(m_machine.config.holdSpin != null && m_machine.config.holdSpin.holdMode == "Direct"))
-                    r.freeSpinsAwarded = m_machine.config.freeSpins.SpinsFor(sc);
-            }
-
+        IEnumerator FinishBaseSettle(GameResult r)
+        {
             if (m_player != null)
                 LogSettle("基础", m_machine.totalBet, r.baseWin + r.scatterPayout + r.featureWin);
 
-            // A 模式(直线结算)落定的彩金档播特效
+            // 基础局通用彩金特效：火球里的彩金档落定即中（清池已在 GameSession 即时完成），A/B 模式都播。
             ShowDirectJackpotEffects(r);
 
-            // 3) 先显示赢分 → 等按确认键 → 再滚动到总分
+            // 先显示赢分 → 等按确认键 → 再滚动到总分
             LogMiniEntry("基础局Scatter触发", r, r.freeSpinsAwarded, 0, null);
             if (WillEnterMini(r))
             {
@@ -98,10 +88,20 @@ namespace com.slot
                 _pendingMiniBaseWin = win;
             }
 
-            // 4) 免费游戏触发 → 进入 Mini；否则正常结算解锁
+            // 免费游戏触发 → 进入 Mini；否则正常结算解锁
             if (MaybeEnterMini(r)) { _spinPending = false; yield break; }
             Settle(r);
             _spinPending = false;
+        }
+
+        /// <summary>基础局通用彩金特效（A/B 模式都播）：火球里的彩金档落定即中（清池已在 GameSession 即时完成），此处仅播特效。
+        /// 在 FinishBaseSettle 内调用。</summary>
+        void ShowDirectJackpotEffects(GameResult r)
+        {
+            if (r == null || r.wonJackpots == null || r.wonJackpots.Count == 0 || m_bonus == null) return;
+            foreach (var t in r.wonJackpots)
+                if (System.Enum.TryParse<FireballKind>(t, out var fk))
+                    m_bonus.ShowJackpotEffect(fk, persistent: true);   // 中了一直播放，开新局才隐藏
         }
 
         /// <summary>
