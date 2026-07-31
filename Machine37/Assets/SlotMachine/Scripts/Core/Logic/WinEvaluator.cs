@@ -45,6 +45,7 @@ namespace SlotMachine.Core
             // ★ 与 B 模式(RowEvaluator)口径一致：每条连线赔付 = mult × totalBet（不除以线数）。
             //   之前用 totalBet/lines 导致低倍连线被取整成 0（如 0.2×1=0.2→0）。
             float betPerLine = totalBet;
+            int wildId = cfg.WildId();
 
             for (int li = 0; li < lines; li++)
             {
@@ -60,14 +61,19 @@ namespace SlotMachine.Core
                     int sym = s.symbolId;
                     int minM = cfg.MinMatchFor(sym);
                     int run = 0;
+                    int realCnt = 0;   // 命中前缀中真实(非百搭)符号数量
                     for (int reel = 0; reel < cfg.reelCount; reel++)
                     {
                         int g = grid[reel][line[reel]];
                         var sp = cfg.GetSymbol(g);
+                        if (g == sym) realCnt++;
                         if (g == sym || (sp != null && sp.wild)) run++;
                         else break;                       // 非连续 → 断
                     }
                     if (run < minM) continue;
+                    // ★ 百搭不能凭空凑成奖：整条命中前缀全是百搭、没有一颗真实符号 → 不成立
+                    //   （如 2 颗百搭被当成 2 连章鱼 pay=6）。百搭只应替已有真实符号凑更长连数，不能无中生有。
+                    if (realCnt == 0 && sym != wildId) continue;
                     float mult = cfg.PayMult(sym, run);
                     if (mult <= 0f) continue;
                     // 选赔付最高；同赔付选符号 id 更大者
@@ -165,6 +171,7 @@ namespace SlotMachine.Core
         {
             var wins = new List<Win>();
             float perWay = totalBet / cfg.totalWays;
+            int wildId = cfg.WildId();
 
             for (int pi = 0; pi < cfg.paytable.Count; pi++)
             {
@@ -174,6 +181,7 @@ namespace SlotMachine.Core
                 int sym = sp.symbolId;
 
                 int[] counts = new int[cfg.reelCount];
+                int realTotal = 0;   // 命中列中真实(非百搭)符号数量
                 for (int r = 0; r < cfg.reelCount; r++)
                 {
                     int c = 0;
@@ -181,6 +189,7 @@ namespace SlotMachine.Core
                     {
                         int s = grid[r][row];
                         var sp2 = cfg.GetSymbol(s);
+                        if (s == sym) realTotal++;
                         if (s == sym || (sp2 != null && sp2.wild)) c++;
                     }
                     counts[r] = c;
@@ -191,6 +200,8 @@ namespace SlotMachine.Core
                 int matched = k;
                 if (matched >= cfg.MinMatchFor(sym))
                 {
+                    // ★ 百搭不能凭空凑成奖：命中列全是百搭、无真实符号 → 不成立。
+                    if (realTotal == 0 && sym != wildId) continue;
                     long ways = 1;
                     for (int i = 0; i < matched; i++) ways *= counts[i];
                     float mult = cfg.PayMult(sym, matched);
@@ -246,6 +257,7 @@ namespace SlotMachine.Core
                 int sym = s.symbolId;
 
                 int match = 0;
+                int realCnt = 0;   // 命中列中真实(非百搭)符号数量
                 var positions = new List<int>();
                 for (int reel = 0; reel < cfg.reelCount; reel++)
                 {
@@ -254,6 +266,7 @@ namespace SlotMachine.Core
                     {
                         int gid = grid[reel][row];
                         var sp = cfg.GetSymbol(gid);
+                        if (gid == sym) realCnt++;
                         if (gid == sym || (sp != null && sp.wild))
                         {
                             has = true;
@@ -266,6 +279,8 @@ namespace SlotMachine.Core
 
                 int minM = cfg.MinMatchFor(sym);
                 if (match < minM) continue;
+                // ★ 百搭不能凭空凑成奖：该符号命中前缀全是百搭、无真实符号 → 不成立。
+                if (realCnt == 0 && sym != wildId) continue;
                 float mult = cfg.PayMult(sym, match);
                 if (mult <= 0f) continue;
 
