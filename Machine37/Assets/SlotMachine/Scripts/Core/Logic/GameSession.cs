@@ -260,7 +260,7 @@ namespace SlotMachine.Core
 
             // ★ A 模式(直线结算：holdMode="Direct")：落 ≥triggerMin 火球直接在基础轮算分，不进 Hold&Spin、不锁定、不 respin。
             //   所有火球倍率之和 ×bet 计入 featureWin；彩金火球落定即中(即时清池)，中奖档记 res.wonJackpots 供显示层播特效。
-            //   ★ 逻辑抽到 GameSession.A.cs（模式A 专属，与 B 的 HoldSpinState.Start 分支彻底分离）。
+            //   ★ 逻辑抽到 GameSession.A.cs 的 SettleFireballsDirect（A/B 共用，内部按 IsModeB() 区分：A=全局≥triggerMin，B=单列收集 FREE）。
             if (_cfg.holdSpin.holdMode == "Direct")
             {
                 SettleFireballsDirect(initial, bet, res);
