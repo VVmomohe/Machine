@@ -14,11 +14,19 @@ namespace SlotMachine.Core
         void SettleFireballsDirect(List<FireballCell> initial, float bet, GameResult res)
         {
             float fbWin = 0f;
-            int freeCount = 0;
+            // ★ "一列收集"：FREE 火球按【单列】收集数累加免费次数（而非全盘总数）。
+            //   记录每列(c.reel)落下的 FREE 火球数，取"收集最多的一列"作为档位依据，
+            //   对应 freeballTiers[1,2,3]→freeballAwards[2,5,10]（freeModeRatio 由 JSON 控制出现概率）。
+            var freeByCol = new Dictionary<int, int>();
             if (res.wonJackpots == null) res.wonJackpots = new List<string>();
             foreach (var c in initial)
             {
-                if (c.kind == FireballKind.FreeSpins) { freeCount++; continue; }
+                if (c.kind == FireballKind.FreeSpins)
+                {
+                    if (!freeByCol.ContainsKey(c.reel)) freeByCol[c.reel] = 0;
+                    freeByCol[c.reel]++;
+                    continue;
+                }
                 fbWin += bet * c.multiplier;
                 if (c.jackpotTier >= 0 && c.jackpotTier < HoldSpinState.JackpotTierNames.Length)
                 {
@@ -30,11 +38,17 @@ namespace SlotMachine.Core
             }
             res.featureWin += fbWin;
             // ★ FREE 火球累加免费次数（B 模式 base-spin 火球可出现 FREE 类型，触发 Mini）。
-            if (freeCount > 0 && _cfg.freeSpins != null)
+            //   仅当某列至少收集到 1 颗 FREE 火球才计入；档位按"单列收集数"取最高列（freeballTiers:1/2/3 → 2/5/10）。
+            if (_cfg.freeSpins != null && freeByCol.Count > 0)
             {
-                int award = _cfg.freeSpins.FreeballAwardFor(freeCount);
-                res.freeSpinsAwarded += award;
-                UnityEngine.Debug.Log($"[Fireball-A] 直线结算：{freeCount} 颗 FREE 火球 → +{award} 免费局 (freeSpinsAwarded={res.freeSpinsAwarded})");
+                int bestCol = 0;
+                foreach (var kv in freeByCol) if (kv.Value > bestCol) bestCol = kv.Value;
+                int award = _cfg.freeSpins.FreeballAwardFor(bestCol);
+                if (award > 0)
+                {
+                    res.freeSpinsAwarded += award;
+                    UnityEngine.Debug.Log($"[Fireball-A] 直线结算：单列收集 {bestCol} 颗 FREE 火球 → +{award} 免费局 (freeSpinsAwarded={res.freeSpinsAwarded})");
+                }
             }
             UnityEngine.Debug.Log($"[Fireball-A] 直线结算：{initial.Count} 火球 → +{fbWin:F2} (featureWin={res.featureWin:F2})");
         }
