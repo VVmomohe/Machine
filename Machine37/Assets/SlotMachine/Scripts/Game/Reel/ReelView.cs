@@ -32,8 +32,6 @@ namespace com.slot
         [Header("5 列容器")]
         public GameObject m_fireNode;
         public GameObject[] m_node;
-        public ReelFireNum[] m_numObjs;
-        public ReelTong[] m_tongs;
 
         [Header("符号 prefab：挂 ReelItem（m_image=图标, m_text=火球倍率）。留空则自动创建纯 Image")]
         public GameObject m_symbolPrefab;
@@ -120,98 +118,14 @@ namespace com.slot
             if (!_initDone)
             {
                 InitStaticGrid();    // 见 ReelView.Reels.cs
-                InitCounters();      // 运行时确保 m_numObjs（火球倍率/倒计时计数器）已创建
                 _initDone = true;
             }
         }
 
         // ===== 计数器(m_numObjs：火球倍率/倒计时) 运行时确保创建 =====
 
-        /// <summary>运行时确保 m_numObjs 已创建：从场景现有 ReelFireNum（m_numObjs 已绑定的 + 自身子级）收集模板，
-        /// 不足则复制补齐。场景里至少要有 1 个 ReelFireNum 作模板（挂在 ReelView 下或绑进 m_numObjs）。</summary>
-        void InitCounters()
-        {
-            // ★ 计数器按“列(reel)”建：5 列 = 5 个，与 tong / 火球掉落一一对应。
-            //   不要按 maxRows（模式 B 是 8 行）建，否则会多生成 3 个无用的计数器。
-            int reelCount = (m_reelRows != null) ? m_reelRows.Count : 0;
-            if (reelCount <= 0) return;
-
-            // 若已足够且全部非空，跳过
-            if (m_numObjs != null && m_numObjs.Length >= reelCount)
-            {
-                bool allOk = true;
-                for (int i = 0; i < reelCount; i++) if (m_numObjs[i] == null) { allOk = false; break; }
-                if (allOk) return;
-            }
-
-            // 收集场景里已有 ReelFireNum（m_numObjs 已绑定的 + 自身子级）
-            var existing = new System.Collections.Generic.List<ReelFireNum>();
-            if (m_numObjs != null)
-                foreach (var n in m_numObjs)
-                    if (n != null && !existing.Contains(n)) existing.Add(n);
-            foreach (var c in GetComponentsInChildren<ReelFireNum>())
-                if (!existing.Contains(c)) existing.Add(c);
-
-            if (existing.Count == 0)
-            {
-                Debug.LogError("[ReelView] 场景里没有可用的 ReelFireNum 对象，请先在场景里放一个（火球倍率/倒计时计数器）！");
-                return;
-            }
-
-            var newArray = new ReelFireNum[reelCount];
-            Transform parent = existing[0].transform.parent;
-
-            for (int i = 0; i < reelCount; i++)
-            {
-                if (i < existing.Count)
-                {
-                    newArray[i] = existing[i];
-                }
-                else
-                {
-                    var template = existing[existing.Count - 1];
-                    var go = Instantiate(template.gameObject, parent);
-                    go.name = $"ReelFireNum_Reel{i}";
-                    newArray[i] = go.GetComponent<ReelFireNum>();
-                }
-                if (newArray[i] != null)
-                {
-                    newArray[i].name = $"ReelFireNum_Reel{i}";
-                    newArray[i].ResetMultiplier();   // 复位（隐藏倍率文本、恢复三圈）
-                    // ★ 修复：计数器(ReelFireNum)若压在底部火球格(view-row0≈m_rowBaseY)上，会遮挡该列第4颗火球，
-                    //   导致"满列(4颗)却只见3颗+计数器X25、误以为没满就播下落动画"的观感。
-                    //   判定：计数器当前 Y 与底行中心 Y 差 < 半格 → 视为压在底部格 → 下移一格到列下方。
-                    //   若场景里已正确放在列下方(abs差≥半格)则不动（幂等，不破坏正确布局）。
-                    var crt = newArray[i].transform as RectTransform;
-                    if (crt != null && Mathf.Abs(crt.anchoredPosition.y - m_rowBaseY) < m_cellSize * 0.5f)
-                        crt.anchoredPosition = new Vector2(crt.anchoredPosition.x, m_rowBaseY - m_cellSize);
-                }
-            }
-
-            m_numObjs = newArray;
-
-            // ★ 销毁多余的 ReelFireNum：场景里可能残留旧"按行"模式放的对象，
-            //   不在 m_numObjs 数组内的全部清理掉，避免底部露出多余数字。
-            foreach (var c in GetComponentsInChildren<ReelFireNum>())
-                if (!existingInArray(c, newArray))
-                    Destroy(c.gameObject);
-        }
-
-        static bool existingInArray(ReelFireNum fn, ReelFireNum[] arr)
-        {
-            if (arr == null) return false;
-            for (int i = 0; i < arr.Length; i++)
-                if ((object)arr[i] == (object)fn) return true;
-            return false;
-        }
-
 #if UNITY_EDITOR
         [ContextMenu("排列计数器（按列）")]
-        public void EnsureCounterRows()
-        {
-            InitCounters();
-            UnityEditor.EditorUtility.SetDirty(this);
-        }
 #endif
 
         void Update()
@@ -250,7 +164,6 @@ namespace com.slot
         {
             for (int i = 0; i < _reels.Count; i++)
                 if (_reels[i].spinning || _reels[i].stopping) return true;
-            if (_holdSpinning) return true;   // ★ Hold&amp;Spin 视觉 respin 滚动也算"在转"
             return false;
         }
 

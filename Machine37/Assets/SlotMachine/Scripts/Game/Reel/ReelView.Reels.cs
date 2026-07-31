@@ -42,7 +42,6 @@ namespace com.slot
         {
             if (m_node == null || m_node.Length == 0) return;
             ReleaseCollectedForNextSpin();   // 特性结束→基础局：把已收集满列的 80% 幽灵并入待释放列，随本局卷轴滚走
-            HideAllCounters();               // ★ 火球回归滚动的那一刻隐藏 ReelFireNum（含已收集列的累计 X）。
                                              //   此前放在"按确认"处但生效路径被绕过；改在 ShowGrid 入口——
                                              //   新基础局卷轴一开始转、火球 ghost 随之下滚，计数器恰好同步消失。
             ClearAll();
@@ -352,14 +351,7 @@ namespace com.slot
 
         public void StopNow()
         {
-            // ★ Hold&Spin 模式下 respin 滚动不走基础 _reels[i].spinning，故优先用 Hold 标志拦截：
-            //   置 _holdStopRequested → SpinHoldRound 下一帧转入平滑减速（m_quickDecel）到预定停位，
-            //   手感与普通局 StopNow 急停一致（不再瞬间定格）。
-            if (_holdSpinning)
-            {
-                _holdStopRequested = true;
-                return;
-            }
+
 
             for (int i = 0; i < _reels.Count; i++)
             {

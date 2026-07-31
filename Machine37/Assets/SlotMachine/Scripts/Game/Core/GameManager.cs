@@ -42,10 +42,6 @@ namespace com.slot
 
 
         /// <summary>Hold&amp;Spin 特性进行中的状态（非 null=正在 Hold&Spin，Start 键=推进一轮而非开新局）。</summary>
-        private HoldSpinState _activeHold;
-        private GameResult _holdResult;      // 挂起的本局结果，Hold&Spin 结束后才最终结算
-        private bool _holdRolling;           // 本轮 respin 是否正在滚动（防狂按穿透）
-        private int _holdScatterSpins;       // 进入 HoldSpin 时 Scatter 触发的原始免费次数（不含 FREE 火球追加），用于区分 collectedFree
 
         /// <summary>等待用户按确认键（Start）后才开始滚动赢分到总分。该期间 Start 键不触发新局/respin。</summary>
         private bool _waitingConfirm;
@@ -83,7 +79,6 @@ namespace com.slot
 
             InitPots();        // 起手初始化四档渐进奖池并显示
             SyncReelConfig();  // 把当前棋盘模式(行数/符号带/火球id)交给 ReelView
-            if (m_reelView != null) m_reelView.HideAllCounters();  // 起手隐藏全部 respin 计数文本(次数=0不显示)
 
             FMODSoundMgr.Instance.PlayBGM("event:/Sounds/11");
         }

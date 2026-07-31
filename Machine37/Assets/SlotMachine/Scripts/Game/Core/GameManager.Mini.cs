@@ -92,7 +92,7 @@ namespace com.slot
         bool MaybeEnterMini(GameResult r)
         {
             if (!WillEnterMini(r)) return false;
-            r.totalPayout = r.baseWin + r.scatterPayout + r.featureWin + r.respinLineWin;
+            r.totalPayout = r.baseWin + r.scatterPayout + r.featureWin;
             Settle(r);   // 日志 + 奖池脉冲（不含免费赢分）
             EnterMiniNow(r);
             return true;

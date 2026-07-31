@@ -30,8 +30,6 @@ public class MiniGame : MonoBehaviour
     [Header("Mini 棋盘：独立的 ReelView 实例（挂在本 GameObject 下，GameManager 单例提供其余引用）")]
     public ReelView m_reelView;
 
-    [Header("计数器模板（从主游戏拖一个 ReelFireNum 过来作克隆模板）")]
-    public ReelFireNum m_counterTemplate;
 
     [Header("UI")]
     public UnityEngine.UI.Text m_remainingText;   // 剩余免费次数显示（拖场景里的 Text）
@@ -145,8 +143,6 @@ public class MiniGame : MonoBehaviour
         // 5 列节点（若未绑定则运行时创建，并沿用主棋盘列布局）
         if (rv.m_node == null || rv.m_node.Length < 5) BuildColumns(rv);
         // 5 个计数器（克隆模板）
-        if (rv.m_numObjs == null || rv.m_numObjs.Length < 5) BuildCounters(rv);
-        rv.m_tongs = null;   // Mini 不接桶：掉桶动画回退到底部消失（不影响火球统计）
     }
 
     /// <summary>构建 Mini 专用配置副本：仅 reelRows 改为 8×5（其余字段共享主配置引用，Mini 只读不写）。</summary>
@@ -197,25 +193,6 @@ public class MiniGame : MonoBehaviour
             }
             rt.sizeDelta = new Vector2(rv.m_cellSize, rv.m_cellSize * 8);
             rv.m_node[i] = col;
-        }
-    }
-
-    void BuildCounters(ReelView rv)
-    {
-        if (m_counterTemplate == null)
-        {
-            Debug.LogError("[MiniGame] 未设置 m_counterTemplate（从主游戏拖一个 ReelFireNum 作克隆模板）");
-            return;
-        }
-        rv.m_numObjs = new ReelFireNum[5];
-        for (int i = 0; i < 5; i++)
-        {
-            var go = Instantiate(m_counterTemplate.gameObject, rv.transform);
-            go.name = $"MiniCounter_{i}";
-            var fn = go.GetComponent<ReelFireNum>();
-            if (fn != null) fn.ResetMultiplier();
-            go.SetActive(false);
-            rv.m_numObjs[i] = fn;
         }
     }
 
@@ -319,26 +296,20 @@ public class MiniGame : MonoBehaviour
         if (GameManager.Instance?.m_machine?.session != null && result.jackpots != null && result.jackpots.Count > 0)
             foreach (var tierName in result.jackpots)
                 GameManager.Instance.m_machine.session.ResetJackpot(tierName);
-    }
+    }        IEnumerator ShowFinalMultiplier(float totalMult)
+        {
+            if (m_remainingText != null && totalMult > 0f)
+            {
+                m_remainingText.text = $"X{totalMult:F1}";
+                yield return new WaitForSeconds(m_finalShowTime);
+                m_remainingText.text = "";
+            }
+            else
+            {
+                yield return new WaitForSeconds(m_finalShowTime);
+            }
+        }
 
-    /// <summary>结算展示：用计数器模板(Counter Template)显示本次免费游戏的最终总倍数（如 "X21.5"），停留约 m_finalShowTime 秒。</summary>
-    IEnumerator ShowFinalMultiplier(float totalMult)
-    {
-        if (m_counterTemplate != null && totalMult > 0f)
-        {
-            m_counterTemplate.gameObject.SetActive(true);
-            m_counterTemplate.ResetMultiplier();          // 归 0 + 恢复内部初始态
-            m_counterTemplate.AddMultiplier(totalMult);   // 显示 "X" + 最终总倍数（同时隐藏倒计时圈，仅留文字）
-            yield return new WaitForSeconds(m_finalShowTime);
-            m_counterTemplate.ResetMultiplier();
-            m_counterTemplate.gameObject.SetActive(false);
-        }
-        else
-        {
-            // 无计数器 / 无火球：不展示，但仍停留 m_finalShowTime 秒保持节奏一致
-            yield return new WaitForSeconds(m_finalShowTime);
-        }
-    }
 
     /// <summary>结算结束后：隐藏 Mini 棋盘、恢复主棋盘并回调交还结果。</summary>
         void RestoreMainBoard(MiniResult result)
@@ -466,7 +437,6 @@ public class MiniGame : MonoBehaviour
             var hs = HoldSpinState.Start(cfg, GameManager.Instance.m_machine.rng, bet, _allFires, pots);
             m_reelView.ClearWinHighlight();
             m_reelView.ShowFeatureState(hs);
-            m_reelView.HideAllCounters();
         }
 
         // ★ 每轮不结算也不触发彩金特效——全部攒到 Mini 结束时统一结算 + 统一播特效。

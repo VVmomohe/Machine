@@ -48,7 +48,6 @@ namespace com.slot
             //   用户硬性要求：新基础局 与 Hold&Spin respin 两种模式，滚动之前都必须运行 CheckEngagedAll + HideAllCounters，且只跑一次。
             //   —— 直接回答"同一个方法为什么运行2次"：原先在 IsRolling 守卫前/后各调一次 HideAllCounters，现合并到顶部唯一一处。
             if (m_reelView != null)
-                m_reelView.CheckEngagedAll();    // m_num<=0 → 清 engaged（无火球列不残留）
 
             // ★ 与 CheckEngagedAll 同一时机（任何分支/守卫前）100% 先跑：开新局(含 Hold&Spin respin 续轮)才隐藏上局彩金特效。
             //   原 hide 写在 _activeHold 早返回之后(line 105)，导致 HOLD respin 推进时跳过→特效残留不隐藏。移到此处修复。
@@ -63,28 +62,7 @@ namespace com.slot
             //   本分支 AdvanceHoldSpin 内 ApplyRespinStep 会 ActivateCounters 重算（后亮），即"每轮先清后重算"。
             //   不在此处拦截 IsRolling；但 AdvanceHoldSpin 续轮分支会在 yield break 前等到 m_player.IsRolling（本轮赢分滚动）
             //   结束才放行下一轮 Start（2026-07-25 拍板"急停+结算完才推进"）——即信用滚动播完前连按不会连开下一轮 respin。
-            if (_activeHold != null)
-            {
-                // ★ 正在 respin 视觉滚动（_holdSpinning，已纳入 IsSpinning）→ 像普通局一样：按确认 = 急停。
-                //   普通局 OnStartKey 下方也是"IsSpinning 时 StopNow"，这里把 Hold 模式统一到同一条路，不再分两套。
-                //   之前 Hold 分支在滚动时直接 return（no-op），导致"按确认停下"在 Hold 无效——已修。
-                if (m_reelView != null && m_reelView.IsSpinning())
-                {
-                    m_reelView.StopNow();
-                    return;
-                }
-                // 否则（等确认 / 满列掉落动画等静默期）：不在协程内才启动 AdvanceHoldSpin，
-                // 否则交给 WaitForConfirmKey 内部推进下一轮（原逻辑不变，防重入）。
-                // ★ 防重入关键：_holdRolling 必须在 StartCoroutine【之前】同步置位——Unity 的 StartCoroutine 只是注册，
-                //   协程首行(_holdRolling=true)要下一帧才执行，若不提前置位，同一帧狂按会继续/确认键会注册多个
-                //   AdvanceHoldSpin 协程同时跑（多 SpinHoldRound 并发）→ 表现「疯狂」。提前置位即可堵死这一帧窗口。
-                if (!_holdRolling)                       // 完全不在协程内才启动（防重入）
-                {
-                    _holdRolling = true;                 // 同步置位，挡同一帧狂按导致的多协程
-                    StartCoroutine(AdvanceHoldSpin());   // ★ 每轮 respin 的扣压分已移进 AdvanceHoldSpin 的 while 循环内（每轮各扣一次）
-                }
-                return;
-            }
+
 
             // ★ 赢分数字滚动期间，不允许真正开新局（防穿透 / 防打断收分动画）
             if (m_player != null && m_player.IsRolling) return;
@@ -107,7 +85,6 @@ namespace com.slot
             m_player.ResetWinDisplay();
 
             if (m_reelView != null)
-                m_reelView.HideAllCounters();    // 归零并整体隐藏（开新局 / 特性每轮重算前都先清）
 
             m_machine.totalBet = m_player.m_bet_num;
             m_machine.session.Contribute(m_player.m_bet_num);
