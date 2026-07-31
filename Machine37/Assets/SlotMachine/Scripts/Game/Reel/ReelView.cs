@@ -122,12 +122,6 @@ namespace com.slot
             }
         }
 
-        // ===== 计数器(m_numObjs：火球倍率/倒计时) 运行时确保创建 =====
-
-#if UNITY_EDITOR
-        [ContextMenu("排列计数器（按列）")]
-#endif
-
         void Update()
         {
             for (int i = 0; i < _reels.Count; i++)

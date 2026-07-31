@@ -245,23 +245,4 @@ namespace SlotMachine.Core
             return w.Count - 1;
         }
     }
-
-    /// <summary>一轮 respin 的增量结果。</summary>
-    public class HoldSpinStep
-    {
-        public List<FireballCell> newFireballs = new List<FireballCell>();
-        public List<int> reelSpun = new List<int>();
-        public List<FullReelInfo> fullReels = new List<FullReelInfo>();
-        public int[] counters;
-        public bool active;
-        public int[][] respinGrid;  // [reel][row]
-    }
-
-    /// <summary>某列集满的派彩信息。</summary>
-    public class FullReelInfo
-    {
-        public int reel;
-        public float payout;
-        public float sum;
-    }
 }

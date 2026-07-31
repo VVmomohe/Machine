@@ -11,7 +11,6 @@ namespace com.slot
         public FireballKind m_type = FireballKind.Multiplier;
         public float m_rate;
         public int m_id;
-        public int m_num;
         public int m_serial = -1;   // 创建时全局自增编号，用于追踪/调试（区分每个 Item(Clone)）
 
         public Image m_image;
