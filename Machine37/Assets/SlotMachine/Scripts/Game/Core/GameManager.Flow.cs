@@ -49,7 +49,7 @@ namespace com.slot
                     if (r.holdSpinState != null)
                     {
                         var hs0 = r.holdSpinState;
-                        int n = Math.Min(hs0.reels, m_reelView.CounterCount());
+                        int n = Mathf.Min(hs0.reels, m_reelView.CounterCount());
                         for (int rr = 0; rr < n; rr++)
                         {
                             if (hs0.isFull[rr])
