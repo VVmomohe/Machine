@@ -69,6 +69,19 @@ namespace com.slot
                 if (m_numObjs[i] != null) m_numObjs[i].CheckEngaged();
         }
 
+        /// <summary>计数器列数（= 棋盘列数 reelCount），供 GameManager 安全遍历（避免 m_numObjs 为 null 时遍历崩溃）。</summary>
+        public int CounterCount()
+        {
+            return (m_numObjs != null) ? m_numObjs.Length : 0;
+        }
+
+        /// <summary>读取某列计数器对象（诊断用；越界/未初始化返回 null，不抛异常）。</summary>
+        public ReelFireNum GetCounter(int reel)
+        {
+            if (m_numObjs == null || reel < 0 || reel >= m_numObjs.Length) return null;
+            return m_numObjs[reel];
+        }
+
         /// <summary>读取各列计数器 engaged 状态（m_engaged）。
         /// 注意：模式B 释放判定现由逻辑层(GameSession.AdvanceHoldBoard)按"该列倒计时归零且未集满"直接驱动，
         /// 不再回读显示层 m_engaged；此处仅作调试/兜底用途。</summary>
