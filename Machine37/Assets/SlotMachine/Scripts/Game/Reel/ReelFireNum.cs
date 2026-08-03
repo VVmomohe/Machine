@@ -7,7 +7,7 @@ namespace com.slot
 {
     /// <summary>单列火球倒计时计数器（ReelFireNum）。
     ///
-    /// ★ 显示 / 统计组件（用户拍板 2026-07-25）：本组件【单向】由游戏逻辑写入（SetCount/AddMultiplier），
+    /// ★ 显示 / 统计组件（用户拍板 2026-07-25）：本组件【单向】由游戏逻辑写入（SetCount），
     ///   倒计时 3→2→1→0 由 HoldSpinState.counter 镜像显示（跨局持有：每开一局减一，不滚盘）。
     ///   释放判定现由逻辑层(GameSession.AdvanceHoldBoard)按"该列倒计时归零且未集满"直接驱动（不再回读 m_engaged），
     ///   使"圈圈显示"与"火球离场"彻底同步；m_engaged 仅作兜底（m_num<=0 时被 CheckEngaged 清掉）。
@@ -26,7 +26,7 @@ namespace com.slot
     ///   数据清零时机：结算完成【不清零】——num/rate 保留显示到玩家按确认开新局；
     ///            开新局 ResetAll() 才把状态归零并彻底隐藏（含满列 X 倍列）。
     ///
-    /// 外部只调（均为"游戏→显示"单向写入）：Activate / SetCount / AddMultiplier / ResetMultiplier / ResetAll。</summary>
+    /// 外部只调（均为"游戏→显示"单向写入）：Activate / SetCount / ResetMultiplier / ResetAll。</summary>
     public class ReelFireNum : MonoBehaviour
     {
 
@@ -72,15 +72,6 @@ namespace com.slot
                 m_engaged = true;
 
             m_num = count;
-            Refresh();
-        }
-
-        /// <summary>累加倍数火球倍率：显示累计 X 文本。彩金档(Mini/Minor/Major/Mega)只显档名、不计入倍率。</summary>
-        public void AddMultiplier(float mult, FireballKind kind = FireballKind.Multiplier)
-        {
-            if (kind == FireballKind.Mini || kind == FireballKind.Minor || kind == FireballKind.Major || kind == FireballKind.Mega)
-                return;
-            m_rate += mult;
             Refresh();
         }
 

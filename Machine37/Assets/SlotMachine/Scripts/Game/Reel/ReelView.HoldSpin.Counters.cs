@@ -9,13 +9,6 @@ namespace com.slot
     /// 模型极简：显示 = (有火球[active] 或 有倍率)；隐藏 = 开新局(active=false)。</summary>
     public partial class ReelView
     {
-        /// <summary>把火球倍率累加到该列(reel)的计数器文本（ReelFireNum.AddMultiplier）。kind 透传给计数器：彩金档显示档名而非裸数字。</summary>
-        public void AddFireballToCounter(int reel, float mult, FireballKind kind = FireballKind.Multiplier)
-        {
-            if (m_numObjs == null || reel < 0 || reel >= m_numObjs.Length || m_numObjs[reel] == null) return;
-            m_numObjs[reel].AddMultiplier(mult, kind);
-        }
-
         /// <summary>设置某列(reel)的 respin 倒计时圈数（0..N）。可见性由 ReelFireNum 推导：active 且 (有圈 或 有倍率) 才显示。
         /// 新火球→3（ShowFeatureState/驱动调用）；无新火球→递减(3→2→1)；归零由 HideCounterRow 隐藏。</summary>
         public void SetRespinCounterRow(int reel, int count)

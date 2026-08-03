@@ -183,7 +183,7 @@ namespace SlotMachine.Core
                 {
                     string t = JackpotTierNames[c.jackpotTier];
                     st.wonJackpots.Add(t);
-                    UnityEngine.Debug.Log($"[RecordJackpots] reel={r} row={row} 记录中奖档={t} → wonJackpots=[{string.Join(",", st.wonJackpots)}]");
+                    if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[RecordJackpots] reel={r} row={row} 记录中奖档={t} → wonJackpots=[{string.Join(",", st.wonJackpots)}]");
                 }
             }
         }

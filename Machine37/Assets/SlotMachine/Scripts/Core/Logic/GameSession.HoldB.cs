@@ -69,7 +69,7 @@ namespace SlotMachine.Core
                 res.featureWin = holdBoard.accumulated;   // 首局：仅满列派彩（无满列则为0）
                 res.wonJackpots = newJ;
                 res.holdSpinState = holdBoard;
-                UnityEngine.Debug.Log($"[Fireball-B] 新建收集盘：{initial.Count} 颗 → featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
+                if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Fireball-B] 新建收集盘：{initial.Count} 颗 → featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
                 return;
             }
 
@@ -156,8 +156,9 @@ namespace SlotMachine.Core
             res.featureWin = holdBoard.accumulated - before;   // ★ 本局增量（避免跨局累计重复付）
             res.wonJackpots = newJ;                             // 仅本局新中彩金（旧档已由持久特效/上一局处理）
             res.holdSpinState = holdBoard;
-            UnityEngine.Debug.Log($"[Fireball-B] 收集盘推进：新火球={hasNew} 本局featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
-            // ★ 诊断：按列打印 newInCol / counter / released / isFull / filled 数（核对"r1 有火球无圈圈"是否 newInCol 漏标记）
+            if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Fireball-B] 收集盘推进：新火球={hasNew} 本局featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
+            // ★ 诊断：按列打印 newInCol / counter / released / isFull / filled 数（核对"r1 有火球无圈圈"是否 newInCol 漏标记）；受 SlotDebug.VerboseLogs 开关控制。
+            if (SlotDebug.VerboseLogs)
             {
                 var sbDiag = new System.Text.StringBuilder("[Fireball-B-cols]");
                 for (int r = 0; r < holdBoard.reels; r++)

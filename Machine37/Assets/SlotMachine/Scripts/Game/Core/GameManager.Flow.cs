@@ -74,7 +74,8 @@ namespace com.slot
                             if (fbReels.Contains(rr)) m_reelView.SetRespinCounterRow(rr, rc);
                             else m_reelView.HideCounterRow(rr);
                     }
-                    // ★ 诊断：旋转期每列计数器最终可见性（核对"有圈圈列是否真的显示了圈"）。
+                    // ★ 诊断：旋转期每列计数器最终可见性（核对"有圈圈列是否真的显示了圈"）；受 SlotDebug.VerboseLogs 开关控制。
+                    if (SlotDebug.VerboseLogs)
                     {
                         var sb = new System.Text.StringBuilder($"[StartBaseSpin-diag] modeB hold={(r.holdSpinState != null)} baseFb={(r.baseFireballs != null ? r.baseFireballs.Count : 0)}");
                         int n = m_reelView.CounterCount();
@@ -193,6 +194,8 @@ namespace com.slot
             //   用于定位「屏幕某行有 K(5) 却算成 5 连 10」争议：逐列(Rows)模式下，
             //   只要 reel3 的 6 行里任意一行有 ID2(数字10) 整列即命中 → 5 连合法；
             //   若 [WIN-Grid] 显示 reel3 全列无 ID2 却仍 5 连，才是真 bug（K 被错算进 10）。
+            //   ★ 受 SlotDebug.VerboseLogs 开关控制（生产默认关闭，调试置 true 恢复）。
+            if (SlotDebug.VerboseLogs)
             {
                 var sbG = new System.Text.StringBuilder("[WIN-Grid] ");
                 for (int ri = 0; ri < grid.Length; ri++)

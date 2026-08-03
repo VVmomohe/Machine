@@ -116,7 +116,7 @@ namespace SlotMachine.Core
             {
                 string key = WinKey(w.positions);
                 if (seenLines.Add(key)) deduped.Add(w);
-                else UnityEngine.Debug.Log($"[Win-Dedup] 重复连线(同格子)忽略：line={w.lineIndex} sym={w.symbolId} pos={key}");
+                else if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Win-Dedup] 重复连线(同格子)忽略：line={w.lineIndex} sym={w.symbolId} pos={key}");
             }
 
             // ★ 子集去重：按 count 降序排列后，对每条赢线检查是否有更长(同符号)的赢线包含它
@@ -131,7 +131,7 @@ namespace SlotMachine.Core
                     if (IsSubset(deduped[i].positions, deduped[j].positions))
                     {
                         isSubset = true;
-                        UnityEngine.Debug.Log($"[Win-Subset] 短线被子集忽略：line={deduped[i].lineIndex} sym={deduped[i].symbolId} cnt={deduped[i].count} pos={WinKey(deduped[i].positions)} ⊂ line={deduped[j].lineIndex} cnt={deduped[j].count}");
+                        if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Win-Subset] 短线被子集忽略：line={deduped[i].lineIndex} sym={deduped[i].symbolId} cnt={deduped[i].count} pos={WinKey(deduped[i].positions)} ⊂ line={deduped[j].lineIndex} cnt={deduped[j].count}");
                         break;
                     }
                 }

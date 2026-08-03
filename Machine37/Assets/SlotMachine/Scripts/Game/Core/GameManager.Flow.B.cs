@@ -45,7 +45,8 @@ namespace com.slot
                 for (int rr = 0; rr < hs.reels; rr++)
                     if (hs.isFull[rr]) maxTong = Mathf.Max(maxTong, m_reelView.GetTongDuration(rr));
                 if (maxTong > 0f) yield return new WaitForSeconds(maxTong);
-                // ★ 诊断：停轮后每列收集盘状态 + 计数器预期可见性（核对"有圈圈列是否真的显示了圈"）
+                // ★ 诊断：停轮后每列收集盘状态 + 计数器预期可见性（核对"有圈圈列是否真的显示了圈"）；受 SlotDebug.VerboseLogs 开关控制。
+                if (SlotDebug.VerboseLogs)
                 {
                     var sb = new System.Text.StringBuilder($"[SettleBaseB-diag] reels={hs.reels}");
                     for (int rr = 0; rr < hs.reels; rr++)
@@ -131,7 +132,7 @@ namespace com.slot
 
             // ★ 诊断：列出"屏幕显示为火球"的全部位置 + 该位置 ReelItem 的 m_id / m_image.enabled / m_fire.activeInHierarchy
             //   确认"数据层=12"与"视觉火球"严格一致。合并源 = hs.cells ∪ baseFireballs，遍历后输出每颗的视觉状态。
-            if (merged && fbId > 0)
+            if (merged && fbId > 0 && SlotDebug.VerboseLogs)
             {
                 var sbDiag = new System.Text.StringBuilder($"[SettleBaseB-fbdiag] 合并后火球位置:");
                 var seen = new HashSet<int>();
