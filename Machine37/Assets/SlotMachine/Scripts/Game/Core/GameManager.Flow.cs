@@ -37,10 +37,25 @@ namespace com.slot
                         if (c.filled) fireMults[c.reel * 100 + c.row] = c;
 
                 m_reelView.ShowGrid(r.baseGrid, fireMults.Count > 0 ? fireMults : null);
-                // ★ 模式B：旋转期即钉住「跨局持有火球」，使收集盘整局持续可见（本局新落火球已由 ShowGrid 底层卷轴显示，跳过避免重影）。
-                //   解决"有圈圈时火球没固定"——开新局 ClearAll 清掉上局 overlay，若只等停轮后 ShowFeatureState 重钉，旋转期持有火球不可见。
+                // ★ 模式B：旋转期即钉住「跨局持有火球」+ 恢复计数器圈数（OnStartKey 的 HideAllCounters 清了，需在旋转期重建），
+                //   使收集盘火球与圈数整局持续可见（本局新落火球已由 ShowGrid 底层卷轴显示，跳过避免重影）。
+                //   解决"有圈圈时火球/计数器没固定"——开新局 ClearAll/HideAllCounters 清掉上局，若只等停轮后 ShowFeatureState 重钉，旋转期不可见。
                 if (IsModeB() && r.holdSpinState != null)
+                {
                     m_reelView.ShowHeldFireballs(r.holdSpinState, r.baseFireballs);
+                    // ★ 旋转期恢复计数器圈数（与停轮后 SettleBaseB 同逻辑，但不含 PlayTong/释放列清理等停轮后才做的视觉演出）
+                    m_reelView.ActivateCounters();
+                    var hs0 = r.holdSpinState;
+                    for (int rr = 0; rr < hs0.reels; rr++)
+                    {
+                        if (hs0.isFull[rr])
+                            m_reelView.SetRespinCounterRow(rr, 0);
+                        else if (!hs0.released[rr] && hs0.counter[rr] > 0)
+                            m_reelView.SetRespinCounterRow(rr, hs0.counter[rr]);
+                        else
+                            m_reelView.HideCounterRow(rr);
+                    }
+                }
                 // ★ 按模式分流结算：A → SettleBaseA(Flow.A.cs)，B → SettleBaseB(Flow.B.cs)，通用步骤在 Flow.cs。
                 StartCoroutine(IsModeB() ? SettleBaseB(r) : SettleBaseA(r));
             }
