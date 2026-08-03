@@ -83,8 +83,11 @@ namespace SlotMachine.Core
                 res.featureWin = holdBoard.accumulated;   // 首局：仅满列派彩（无满列则为0）
                 res.wonJackpots = newJ;
                 res.holdSpinState = holdBoard;
-                if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Fireball-B] 新建收集盘：{initial.Count} 颗 → featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
-                UnityEngine.Debug.Log($"[Fireball-countdown] 新建盘: {CountdownStr(holdBoard)}");
+                if (SlotDebug.VerboseLogs)
+                {
+                    UnityEngine.Debug.Log($"[Fireball-B] 新建收集盘：{initial.Count} 颗 → featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
+                    UnityEngine.Debug.Log($"[Fireball-countdown] 新建盘: {CountdownStr(holdBoard)}");
+                }
                 return;
             }
 
@@ -111,11 +114,10 @@ namespace SlotMachine.Core
                     holdBoard.released[r] = false;
                 if (holdBoard.released[r]) continue;
 
-                // ★ 释放判定（旧火球到点回归滚动队列）：
-                //   counter==0 表示已显示过"0"帧、本应回归队列。此时【无论本局是否落新火球】，旧火球都必须释放——
-                //   修复 BUG：旧逻辑"本局落新火球→重置3"会把圈圈已到0的列误当作刷新、旧火球永不回归
-                //   （"圈圈0了但该列本局将出火球就不回归队列"）。若本局落了新火球，则旧火球释放后，
-                //   新火球作为【全新捕获】重新入盘(counter=respinCount)，二者互不影响。
+                // 释放判定：counter==0 即已显示过"0"帧、本应回归滚动队列。
+                // 此时无论本局是否落新火球，旧火球都必须释放（修复：旧逻辑"落新火球→重置3"会把已到0的列
+                // 误判为刷新、旧火球永不回归）。若本局落了新火球，旧火球释放后新火球作为全新捕获重新入盘，
+                // 二者独立计数。
                 bool releasePending = holdBoard.counter[r] == 0;
 
                 if (releasePending)
@@ -198,9 +200,12 @@ namespace SlotMachine.Core
             res.featureWin = holdBoard.accumulated - before;   // ★ 本局增量（避免跨局累计重复付）
             res.wonJackpots = newJ;                             // 仅本局新中彩金（旧档已由持久特效/上一局处理）
             res.holdSpinState = holdBoard;
-            if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Fireball-B] 收集盘推进：新火球={hasNew} 本局featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
-            UnityEngine.Debug.Log($"[Fireball-countdown] 推进: {CountdownStr(holdBoard)}");
-            // ★ 诊断：按列打印 newInCol / counter / released / isFull / filled 数（核对"r1 有火球无圈圈"是否 newInCol 漏标记）；受 SlotDebug.VerboseLogs 开关控制。
+            if (SlotDebug.VerboseLogs)
+            {
+                UnityEngine.Debug.Log($"[Fireball-B] 收集盘推进：新火球={hasNew} 本局featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
+                UnityEngine.Debug.Log($"[Fireball-countdown] 推进: {CountdownStr(holdBoard)}");
+            }
+            // 按列诊断（受 SlotDebug.VerboseLogs 开关控制）：newInCol / counter / released / isFull / filled 数。
             if (SlotDebug.VerboseLogs)
             {
                 var sbDiag = new System.Text.StringBuilder("[Fireball-B-cols]");

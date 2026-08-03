@@ -308,9 +308,10 @@ namespace com.slot
         }
 
         /// <summary>本局出什么：逐列打印基础棋盘符号 ID（Scatter 标 S）、本局火球位置/种类/倍率、以及 Mini 触发关键字段。
-        /// 总是打印（不依赖 VerboseLogs），便于核对"这局到底出了什么"——例如排查 Scatter 触发次数与屏上符号是否一致。</summary>
+        /// 受 SlotDebug.VerboseLogs 控制（默认 false 不喷），需逐局核对棋盘时设 SlotDebug.VerboseLogs=true 即恢复。</summary>
         void LogRoundOutput(GameResult r)
         {
+            if (!SlotDebug.VerboseLogs) return;
             if (r == null || r.baseGrid == null) return;
             int scId = (m_machine != null && m_machine.config != null) ? m_machine.config.ScatterId() : -1;
             var sb = new System.Text.StringBuilder("[本局出什么] ");
