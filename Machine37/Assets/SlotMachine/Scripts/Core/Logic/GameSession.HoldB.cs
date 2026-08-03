@@ -90,68 +90,86 @@ namespace SlotMachine.Core
 
             // 已有收集盘：合并本局新火球 + 每列减一个圈圈（有新火球则重置为 respinCount）
             float before = holdBoard.accumulated;
-            // ★ 关键修复：按【列】统计本局是否落了火球（任何位置），而不是按【格子】。
-            //   旧逻辑用 !holdBoard.cells[reel][row].filled 判定入盘：若同位置重复落入，cells[reel][row] 已 filled，
-            //   不再入盘也不置 newInCol[r]=true → 该列被当作"无新火球"减圈到 0 释放 → released=true → cells 清空。
-            //   但 baseGrid 该位置仍是火球符号（r.baseFireballs 含），屏上仍显示火球，且 SettleBaseB 因 released 隐藏圈圈——
-            //   表现为"r1 火球固定了但没有圈圈"。修正：只要本局有火球落到该列（任意位置），就视为该列有新火球→counter 重置 3。
+            // ★ 按【列】统计本局是否落了火球（任何位置）。
             var newInCol = new bool[holdBoard.reels];
-            var fbReels = new HashSet<int>();
+            var fbByReel = new Dictionary<int, List<FireballCell>>();   // 本局新火球按列分组（释放旧火球后用于重新入盘）
             if (hasNew)
                 foreach (var f in initial)
                 {
                     if (!f.filled) continue;
-                    fbReels.Add(f.reel);
-                    if (!holdBoard.cells[f.reel][f.row].filled)
-                        holdBoard.cells[f.reel][f.row] = f;   // 入盘（f 已定倍率/档/FREE）—— 不派彩，整列集满才付
-                                                                //   同位置重复落入：保留已有（避免重复派彩）；仍标记该列有新火球
+                    newInCol[f.reel] = true;
+                    if (!fbByReel.ContainsKey(f.reel)) fbByReel[f.reel] = new List<FireballCell>();
+                    fbByReel[f.reel].Add(f);
                 }
-            for (int r = 0; r < holdBoard.reels; r++)
-                if (fbReels.Contains(r)) newInCol[r] = true;
 
             int respinCount = (_cfg.holdSpin != null) ? _cfg.holdSpin.respinCount : 3;
             for (int r = 0; r < holdBoard.reels; r++)
             {
                 if (holdBoard.isFull[r]) continue;
-                // ★ 本局有新火球落到该列：清掉上一局留下的 released 标记（cells 已被 released 清空，本局新火球会入盘）
+                // 本局有新火球落到该列：清掉上一局留下的 released 标记（cells 已空，本局新火球会重新入盘）
                 if (newInCol[r] && holdBoard.released[r])
-                {
                     holdBoard.released[r] = false;
-                }
                 if (holdBoard.released[r]) continue;
-                // ★ 上一局已扣到 -1（本局仍无新火球）→ 本局彻底释放隐藏（圈圈 0 已显示过一局，再下一局才消失）
-                if (!newInCol[r] && holdBoard.counter[r] < 0)
+
+                // ★ 释放判定（旧火球到点回归滚动队列）：
+                //   counter==0 表示已显示过"0"帧、本应回归队列。此时【无论本局是否落新火球】，旧火球都必须释放——
+                //   修复 BUG：旧逻辑"本局落新火球→重置3"会把圈圈已到0的列误当作刷新、旧火球永不回归
+                //   （"圈圈0了但该列本局将出火球就不回归队列"）。若本局落了新火球，则旧火球释放后，
+                //   新火球作为【全新捕获】重新入盘(counter=respinCount)，二者互不影响。
+                bool releasePending = holdBoard.counter[r] == 0;
+
+                if (releasePending)
                 {
+                    // 释放旧火球（清空本列 cells = 回归滚动队列）
+                    for (int row = 0; row < holdBoard.cells[r].Length; row++)
+                        holdBoard.cells[r][row] = new FireballCell { reel = r, row = row };
                     holdBoard.released[r] = true;
+                    holdBoard.counter[r] = 0;
+                    if (newInCol[r])
+                    {
+                        // 旧火球已释放；新火球作为全新捕获重新入盘（刚清空必为空，入盘不派彩）
+                        holdBoard.released[r] = false;
+                        if (fbByReel.ContainsKey(r))
+                            foreach (var f in fbByReel[r])
+                                if (!holdBoard.cells[f.reel][f.row].filled)
+                                    holdBoard.cells[f.reel][f.row] = f;
+                        holdBoard.counter[r] = respinCount;
+                    }
+                    // 满列判定（重新入盘后可能集满）
+                    if (!holdBoard.isFull[r] && HoldSpinState.ReelFull(holdBoard, r))
+                    {
+                        holdBoard.isFull[r] = true;
+                        holdBoard.counter[r] = 0;
+                        filledCols.Add(r);
+                        for (int row = 0; row < holdBoard.cells[r].Length; row++)
+                            PayFireball(holdBoard.cells[r][row], bet, holdBoard, newJ);
+                        res.enterMiniByColumnFill = true;
+                        _holdEnded = true;
+                    }
                     continue;
                 }
-        if (newInCol[r])
-        {
-            holdBoard.counter[r] = respinCount;       // 新火球 → 重置圈圈为 3
-        }
-        else
-        {
-            holdBoard.counter[r] -= 1;                 // 无新火球 → 减一个圈圈（允许 3→2→1→0→-1）
-            if (holdBoard.counter[r] < 0)
-            {
-                // ★ 用户口径：扣到 -1 才真正释放——火球回归滚动队列(cells 清空) + 圈圈隐藏，**两者同步**。
-                // ★ 关键修复（与圈圈显示 0 同类问题）：火球离场(cells 清空)必须跟 released 一起发生，
-                //   不能在 counter<=0 时提前清空 cells——否则火球会在圈圈显示 0 之前就离场，
-                //   与"圈圈 3→2→1→0 仍可见"不同步。现在：counter=0 当轮 cells 仍 filled（火球在屏），
-                //   counter<0 才 released + 清空，火球与圈圈一起消失（同步）。
-                for (int row = 0; row < holdBoard.cells[r].Length; row++)
-                    holdBoard.cells[r][row] = new FireballCell { reel = r, row = row };
-                holdBoard.released[r] = true;
-                holdBoard.counter[r] = 0;             // 归零，避免 SettleBaseB 显示负数
-            }
-        }
-                // 满列判定（优先于释放）：某列集满所有格 → 对该列所有火球统一派彩 + 进 Mini
+
+                // ★ 正常推进：counter>0
+                if (newInCol[r])
+                {
+                    // 新火球 → 重置圈圈为 3（旧火球仍在持有窗口内，新火球并入同列 cells）
+                    if (fbByReel.ContainsKey(r))
+                        foreach (var f in fbByReel[r])
+                            if (!holdBoard.cells[f.reel][f.row].filled)
+                                holdBoard.cells[f.reel][f.row] = f;
+                    holdBoard.counter[r] = respinCount;
+                }
+                else
+                {
+                    holdBoard.counter[r] -= 1;                 // 无新火球 → 减一个圈圈（3→2→1→0，0 为"待释放"下一局回归）
+                }
+
+                // 满列判定
                 if (!holdBoard.isFull[r] && HoldSpinState.ReelFull(holdBoard, r))
                 {
                     holdBoard.isFull[r] = true;
                     holdBoard.counter[r] = 0;
-                    filledCols.Add(r);   // ★ 记录集满列（仅此列授予 FREE 火球免费次数）
-                    // ★ 收集模式：整列集满才对该列所有火球派彩（倍数/彩金/FREE 统一生效）
+                    filledCols.Add(r);
                     for (int row = 0; row < holdBoard.cells[r].Length; row++)
                         PayFireball(holdBoard.cells[r][row], bet, holdBoard, newJ);
                     res.enterMiniByColumnFill = true;
