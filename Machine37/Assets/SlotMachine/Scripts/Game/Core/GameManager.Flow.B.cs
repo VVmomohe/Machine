@@ -34,7 +34,7 @@ namespace com.slot
                     if (hs.isFull[rr])
                     {
                         m_reelView.SetRespinCounterRow(rr, 0);
-                        yield return m_reelView.PlayTongAndWait(rr);   // 满列 tong 演出（等播完再继续，单步串行避免被截断）
+                        yield return m_reelView.CollectFullReelAnimation(rr);   // 满列：火球逐颗掉入桶 + 桶逐颗反应（替代孤立的一次 PlayTongAndWait）
                     }
                     else if (!hs.released[rr])
                         m_reelView.SetRespinCounterRow(rr, hs.counter[rr]);   // 显示当前圈数（含 0：3→2→1→0）
@@ -100,6 +100,7 @@ namespace com.slot
                     for (int rr = 0; rr < hs.reels && rr < r.baseGrid.Length; rr++)
                     {
                         if (hs.released[rr]) continue;   // 释放列已回归滚动队列，保留 spun 符号
+                        if (hs.isFull[rr]) continue;     // ★ 满列已进入收集演出（火球逐颗掉进桶），底层不再强制火球图，避免收走后残留火球
                         for (int row = 0; row < hs.cells[rr].Length && row < r.baseGrid[rr].Length; row++)
                             if (hs.cells[rr][row].filled)
                             {
@@ -116,6 +117,7 @@ namespace com.slot
                         if (c == null || !c.filled) continue;
                         if (c.reel < 0 || c.reel >= r.baseGrid.Length) continue;
                         if (c.row < 0 || c.row >= r.baseGrid[c.reel].Length) continue;
+                        if (r.holdSpinState != null && c.reel < r.holdSpinState.isFull.Length && r.holdSpinState.isFull[c.reel]) continue;  // 满列不强制火球图
                         r.baseGrid[c.reel][c.row] = fbId;
                         merged = true;
                     }

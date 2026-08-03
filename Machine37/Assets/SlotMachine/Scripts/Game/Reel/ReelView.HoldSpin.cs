@@ -107,6 +107,81 @@ namespace com.slot
             yield return m_tongs[reel].WaitDone();
         }
 
+        /// <summary>满列收集演出：该列火球【一个一个向下掉入桶(tong)】，桶对每个落入的火球播放一次收取反应，
+        /// 最后一个落入后等桶动画播完再返回。替换旧“直接 PlayTongAndWait 一次”的孤立播放，使收集过程有“逐颗落入”的观感。
+        /// 仅销毁本列 overlay（其余列持有火球保持钉住，不碰）。</summary>
+        public IEnumerator CollectFullReelAnimation(int reel)
+        {
+            if (reel < 0 || reel >= _reels.Count) yield break;
+
+            // 1) 收集该列所有火球 overlay，按 row 从大到小（底部先掉，避免下落过程穿过仍在的火球）
+            var list = new List<GameObject>();
+            foreach (var go in _fbOverlays)
+            {
+                if (go == null) continue;
+                if (ParseReelRow(go.name, out int r, out _ ) && r == reel)
+                    list.Add(go);
+            }
+            list.Sort((a, b) =>
+            {
+                ParseReelRow(a.name, out _, out int ra);
+                ParseReelRow(b.name, out _, out int rb);
+                return rb.CompareTo(ra);   // 大 row（底部）在前
+            });
+            if (list.Count == 0) yield break;
+
+            ReelTong tong = (m_tongs != null && reel < m_tongs.Length) ? m_tongs[reel] : null;
+            Vector3 barrelPos = (tong != null) ? tong.transform.position : GetColumnBottomWorld(reel);
+
+            float barrelDur = (tong != null) ? tong.PlayDuration() : 0.5f;
+            float fallDur = 0.3f;
+            float interval = Mathf.Max(fallDur + 0.1f, barrelDur * 0.9f);   // 相邻两颗落入的起始间隔（>=桶时长则每颗桶动画都能播完）
+
+            Debug.Log($"[COLLECT] r{reel} 满列收集：{list.Count} 颗火球逐颗掉入桶（桶对每颗反应一次）");
+            foreach (var go in list)
+            {
+                yield return AnimateFireballDrop(go, barrelPos, fallDur);
+                if (tong != null) tong.Play();                 // 桶对每个落入火球反应一次（不再“只播一次”）
+                _fbOverlays.Remove(go);
+                Destroy(go);
+                yield return new WaitForSeconds(interval - fallDur);   // 间隔到下一颗开始
+            }
+
+            // 最后一个桶动画播完再返回（避免被进 Mini 截断）
+            if (tong != null) yield return tong.WaitDone();
+            RefreshColumnEffects();
+        }
+
+        /// <summary>取某列最底部世界坐标（桶未绑定时兜底掉落目标）。</summary>
+        Vector3 GetColumnBottomWorld(int reel)
+        {
+            if (reel < 0 || reel >= _reels.Count) return Vector3.zero;
+            int rows = _reels[reel].rows;
+            return (m_node != null && reel < m_node.Length && m_node[reel] != null)
+                ? m_node[reel].transform.TransformPoint(0f, RowToY(rows - 1) - m_cellSize, 0f)
+                : this.transform.TransformPoint(0f, RowToY(rows - 1) - m_cellSize, 0f);
+        }
+
+        /// <summary>火球从当前位置 ease-in（加速）掉落到目标世界坐标，落点处轻微缩小（“掉进桶”观感）。</summary>
+        IEnumerator AnimateFireballDrop(GameObject go, Vector3 targetWorld, float dur)
+        {
+            var rt = go.transform as RectTransform;
+            if (rt == null) yield break;
+            Vector3 start = rt.position;
+            float t = 0;
+            while (t < 1f)
+            {
+                t += Time.deltaTime / dur;
+                float e = t * t;   // ease-in：加速下落（重力感）
+                rt.position = Vector3.Lerp(start, targetWorld, Mathf.Clamp01(e));
+                float s = Mathf.Lerp(1f, 0.35f, Mathf.Clamp01(e));
+                rt.localScale = new Vector3(s, s, 1f);
+                yield return null;
+            }
+            rt.position = targetWorld;
+            rt.localScale = new Vector3(0.35f, 0.35f, 1f);
+        }
+
         /// <summary>销毁某列(reel)全部火球 overlay（释放列时调用，使其从屏上消失）。</summary>
         public void ClearColumnFireballs(int reel)
         {
