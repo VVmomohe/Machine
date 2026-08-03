@@ -133,11 +133,27 @@ namespace com.slot
             }
             if (m_player != null)
             {
+                bool toMini = WillEnterMini(r);
                 long win = (long)System.Math.Round(r.totalPayout);
-                m_player.ShowWinValue(win, !WillEnterMini(r));
+                m_player.ShowWinValue(win, !toMini);
                 yield return StartCoroutine(WaitForConfirmKey());
                 m_player.ResetBet();
-                _pendingMiniBaseWin = win;
+
+                // ★★ 修"赢分没有加到总分"：ShowWinValue 只负责【显示】，不入账。
+                //   原代码无条件把 win 塞进 _pendingMiniBaseWin 就完事——只有"进 Mini"那条路会在小游戏结束时
+                //   一次性滚进余额；【不进 Mini 的普通局】没有任何地方调 AddWinToCredit/ApplySpinResult，
+                //   赢分就永远只是显示，总分不动（且 _pendingMiniBaseWin 残留，下次进 Mini 会被重复付一次）。
+                if (toMini)
+                {
+                    _pendingMiniBaseWin = win;   // 延迟到 Mini 结算时与 Mini 赢分一次性入账
+                }
+                else
+                {
+                    _pendingMiniBaseWin = 0;     // 清残留，避免下次进 Mini 重复入账
+                    long before = m_player.m_credit_num;
+                    m_player.AddWinToCredit(win);   // 普通局：确认后立刻滚进总分（m_win_num 保持显示值不变）
+                    Debug.Log($"[入账] 基础局赢分={win} 滚入总分：{before} → {before + win}");
+                }
             }
 
             // 免费游戏触发 → 进入 Mini；否则正常结算解锁

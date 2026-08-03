@@ -44,25 +44,13 @@ namespace com.slot
         /// <summary>开始 / 停止键。转轮滚动中→急停；否则开新一局（A/B 基础旋转共用同一条开局路径，无 Hold&Spin respin 分支）。</summary>
         public void OnStartKey()
         {
-            // ★ 每次按确认（任何模式 / 任何分支 / 任何守卫前）100% 先跑：滚动之前统一同步计数器。
-            //   用户硬性要求：开新基础局前必须运行 CheckEngagedAll + HideAllCounters，且只跑一次。
-            //   —— 直接回答"同一个方法为什么运行2次"：原先在 IsRolling 守卫前/后各调一次 HideAllCounters，现合并到顶部唯一一处。
-            if (m_reelView != null)
-            {
-                m_reelView.CheckEngagedAll();
-                m_reelView.HideAllCounters();
-            }
-
-            // ★ 与 CheckEngagedAll 同一时机（任何分支/守卫前）100% 先跑：开新局才隐藏上局彩金特效。
-            if (m_bonus != null)
-                m_bonus.HideAllJackpotEffects();
-            else
-                UnityEngine.Debug.LogWarning("[OnStartKey] m_bonus==null! 无法隐藏彩金特效（BonusView 未挂载或未赋值）");
-
-            // ★ 开新局即一轮基础旋转（用户模型：按确认滚动就是新局）。
-            //   滚动前已统一 CheckEngagedAll + HideAllCounters（先清后亮，即"每轮先清后重算"）。
-            //   不在此处拦截 IsRolling；但下方赢分滚动期间会 return，连按不会穿透打断收分动画。
-
+            // ★★ 顺序修正（修"圈圈没到零但按确认就消失"）：
+            //   HideAllCounters / HideAllJackpotEffects 原先放在所有守卫之【前】无条件执行 —— 但下面任一守卫
+            //   (IsRolling / IsSpinning / _spinPending / 无押注) 都会 return 而【不开新局】，
+            //   结果是"清了计数器却没有新局去重建" → 玩家一按确认，收集盘的圈圈就整片消失（火球还留着）。
+            //   尤其：确认键 Down 可能跨帧持续，第 1 帧被 _waitingConfirm 吃掉、第 2 帧落到这里，
+            //   此时 _spinPending 仍为 true → 清完就 return，圈圈永久消失。
+            //   修法：所有守卫先跑，确认"真的要开新一局"了，再统一清一次（仍满足"开新基础局前只跑一次"）。
 
             // ★ 赢分数字滚动期间，不允许真正开新局（防穿透 / 防打断收分动画）
             if (m_player != null && m_player.IsRolling) return;
@@ -80,6 +68,17 @@ namespace com.slot
             // 没押注则先自动加最小押注（余额不足则跳过）
             if (m_player.m_bet_num <= 0) m_player.LastBet();
             if (m_player.m_bet_num <= 0) return;
+
+            // ★ 到这里已确定要开新一局：统一同步 + 清理上局残留（整个开局路径只跑一次）。
+            if (m_reelView != null)
+            {
+                m_reelView.CheckEngagedAll();
+                m_reelView.HideAllCounters();
+            }
+            if (m_bonus != null)
+                m_bonus.HideAllJackpotEffects();
+            else
+                UnityEngine.Debug.LogWarning("[OnStartKey] m_bonus==null! 无法隐藏彩金特效（BonusView 未挂载或未赋值）");
 
             // ★ 开新一局：先清赢分显示(归 0)，让"0"出现在转轮启动这一刻而非上一局漏光时
             m_player.ResetWinDisplay();
