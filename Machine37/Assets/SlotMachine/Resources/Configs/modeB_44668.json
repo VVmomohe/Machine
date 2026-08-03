@@ -526,14 +526,14 @@
     "jackpotWeights": [95, 12, 2, 1],
     "freeModeRatio": 0.050,
     "multipliers": [
-      0.5,
-      0.75,
       1,
-      1.25,
-      1.5,
-      2.5,
+      2,
       3,
-      5
+      5,
+      10,
+      20,
+      50,
+      100
     ],
     "multiplierWeights": [
       32,
