@@ -374,11 +374,19 @@ public class MiniGame : MonoBehaviour
         }
 
         // 1.5) 方式 A：本局棋盘上出现 N 颗 Scatter(icon 11) → 追加免费次数（3→+2 / 4→+5 / 5→+10）
-        if (cfg.freeSpins != null)
+        //    ★ 必须尊重 config 的 retrigger 开关：retrigger=false 时（如 modeB_44668 配置）Mini 内【不】追加，
+        //      免费局严格等于进入时的 freeSpinsAwarded 次数（避免"本应 5 次却莫名涨到 8 次"）。
+        //      BuildMiniConfig 已让 m_miniCfg.freeSpins 与主配置共享同一 FreeSpinsConfig 实例，
+        //      故此处读到的 retrigger 即 JSON 中所设值（false）。
+        if (cfg.freeSpins != null && cfg.freeSpins.retrigger)
         {
             int sc = ScatterUtil.Count(grid, cfg);
             int add = cfg.freeSpins.ScatterAwardFor(sc);
             if (add > 0) AwardExtraSpins(add, "Scatter x" + sc);
+        }
+        else if (cfg.freeSpins != null && !cfg.freeSpins.retrigger && SlotDebug.VerboseLogs)
+        {
+            Debug.Log($"[MiniGame] retrigger=false，本局 Scatter 不追加免费次数（保持进入次数 {_freeSpinsLeft}）");
         }
 
         // 2) 新火球检测（在 ShowGrid 之前，因为 ShowGrid→ClearAll 会销毁 overlay）
