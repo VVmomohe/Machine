@@ -66,6 +66,41 @@ namespace com.slot
             }
         }
 
+        /// <summary>Scatter 触发免费游戏时高亮所有 Scatter 格（使用 m_scatter 专属中奖美术），持续 dur 秒后自动清除。
+        /// 进 Mini 前调用，让玩家明确看到"是这些 Scatter 触发了免费游戏"。</summary>
+        public void HighlightScatterCells(int[][] grid, float dur)
+        {
+            if (grid == null) return;
+            const int SCATTER_ID = 11;
+            bool any = false;
+            for (int reel = 0; reel < grid.Length && reel < _reels.Count; reel++)
+            {
+                var st = _reels[reel];
+                for (int row = 0; row < grid[reel].Length && row < st.shownSym.Length; row++)
+                {
+                    if (grid[reel][row] != SCATTER_ID) continue;
+                    int k = m_buf + row;
+                    if (k < 0 || k >= st.cellItems.Count) continue;
+                    var item = st.cellItems[k];
+                    if (item != null && item.ShowWinArt(SCATTER_ID))
+                    {
+                        _winArtItems.Add(item);
+                        any = true;
+                    }
+                }
+            }
+            if (any && dur > 0f)
+                StartCoroutine(ClearScatterWinArtAfter(dur));
+        }
+
+        IEnumerator ClearScatterWinArtAfter(float dur)
+        {
+            yield return new WaitForSeconds(dur);
+            foreach (var it in _winArtItems)
+                if (it != null) it.HideWinArt();
+            _winArtItems.Clear();
+        }
+
         /// <summary>高亮单条 Win 的所有格子（起逐格循环动画协程，记入 _winCoroutines）。</summary>
         void HighlightSingleWin(Win w)
         {

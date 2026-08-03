@@ -66,12 +66,27 @@ namespace com.slot
             //   进 Mini 期间主 HUD 仍可见，应保留该赢分显示(用户要求"赢分显示到小游戏赢分中先")，
             //   待小游戏结算(onDone)才把"基础赢分+Mini赢分"一次性滚入总分并刷新显示。
 
+            // ★ Scatter 触发：高亮所有 Scatter 格，让玩家看到"是这些符号触发了免费游戏"
+            if (m_reelView != null && r.freeSpinsFromScatter > 0)
+                m_reelView.HighlightScatterCells(r.baseGrid, m_miniEnterDelay);
+
             // ★ 进小游戏过渡特效：先激活，约 m_miniEnterDelay 秒后隐藏，再真正进入小游戏
             if (m_miniEnterEffect != null)
             {
+                Debug.Log($"[MINI-EFFECT] 播放进小游戏高亮特效: {m_miniEnterEffect.name}, delay={m_miniEnterDelay}s");
+                // 先关再开，保证 Animator/ParticleSystem 从第 0 帧重播（避免已 active 时动画不重启）
+                m_miniEnterEffect.SetActive(false);
                 m_miniEnterEffect.SetActive(true);
+                var anim = m_miniEnterEffect.GetComponent<Animator>();
+                if (anim != null) { anim.Rebind(); anim.Update(0f); }
+                var ps = m_miniEnterEffect.GetComponentInChildren<ParticleSystem>(true);
+                if (ps != null) { ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); ps.Play(true); }
                 yield return new WaitForSeconds(m_miniEnterDelay);
                 m_miniEnterEffect.SetActive(false);
+            }
+            else
+            {
+                Debug.Log("[MINI-EFFECT] 进小游戏高亮特效未配置(m_miniEnterEffect=null)，跳过过渡特效");
             }
 
             // 进入小游戏：切换 BGM 到 event:/Sounds/8（PlayBGM 内部自动停掉主游戏 BGM）
