@@ -36,6 +36,30 @@ namespace com.slot
             RefreshColumnEffects(s);   // 近满列(差1火球)→亮整列 m_effect
         }
 
+        /// <summary>模式B 旋转期提前钉住「跨局持有」火球（不含本局新落火球；本局火球由 ShowGrid 底层卷轴滚动显示，避免重影）。
+        /// 解决"有圈圈时火球没固定"：开新局 ShowGrid→ClearAll 会清掉上局 overlay，若只等停轮后 ShowFeatureState 重钉，
+        /// 则旋转期间持有火球不可见，观感像没固定。此处让它整局持续可见（固定 overlay 盖在滚动卷轴之上，不随卷轴漂移）。</summary>
+        public void ShowHeldFireballs(HoldSpinState s, List<FireballCell> currentGame)
+        {
+            if (s == null) return;
+            // 本局新落火球已由底层卷轴(finalSyms=baseGrid 含 fbId)显示，跳过其位置，避免"滚动火球 + 固定 overlay"重影。
+            var skip = new HashSet<int>();
+            if (currentGame != null)
+                foreach (var c in currentGame)
+                    if (c != null && c.filled) skip.Add(c.reel * 100 + c.row);
+
+            for (int r = 0; r < s.reels && r < _reels.Count; r++)
+            {
+                for (int row = 0; row < s.cells[r].Length; row++)
+                {
+                    var c = s.cells[r][row];
+                    if (c.filled && !skip.Contains(r * 100 + row))
+                        ShowFireballOverlay(r, row, c, playSound: false);
+                }
+            }
+            RefreshColumnEffects(s);
+        }
+
 
         public void ReleaseCollectedForNextSpin()
         {

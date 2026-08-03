@@ -37,6 +37,10 @@ namespace com.slot
                         if (c.filled) fireMults[c.reel * 100 + c.row] = c;
 
                 m_reelView.ShowGrid(r.baseGrid, fireMults.Count > 0 ? fireMults : null);
+                // ★ 模式B：旋转期即钉住「跨局持有火球」，使收集盘整局持续可见（本局新落火球已由 ShowGrid 底层卷轴显示，跳过避免重影）。
+                //   解决"有圈圈时火球没固定"——开新局 ClearAll 清掉上局 overlay，若只等停轮后 ShowFeatureState 重钉，旋转期持有火球不可见。
+                if (IsModeB() && r.holdSpinState != null)
+                    m_reelView.ShowHeldFireballs(r.holdSpinState, r.baseFireballs);
                 // ★ 按模式分流结算：A → SettleBaseA(Flow.A.cs)，B → SettleBaseB(Flow.B.cs)，通用步骤在 Flow.cs。
                 StartCoroutine(IsModeB() ? SettleBaseB(r) : SettleBaseA(r));
             }
