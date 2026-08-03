@@ -125,6 +125,7 @@ namespace com.slot
 
             bool showText = m_rate > 0f;
             bool showCircles = !showText && m_num > 0;   // 有倍率时优先显文本；否则按 num 亮圈
+            bool showZero = !showText && m_num <= 0;      // 圈圈归零(0)：显示“0”文本，体现 3→2→1→0 的最终态
 
             if (m_items != null)
                 for (int i = 0; i < m_items.Length; i++)
@@ -135,6 +136,11 @@ namespace com.slot
                 if (showText)
                 {
                     m_text.text = "X" + m_rate.ToString("0.##");
+                    m_text.gameObject.SetActive(true);
+                }
+                else if (showZero)
+                {
+                    m_text.text = "0";
                     m_text.gameObject.SetActive(true);
                 }
                 else m_text.gameObject.SetActive(false);

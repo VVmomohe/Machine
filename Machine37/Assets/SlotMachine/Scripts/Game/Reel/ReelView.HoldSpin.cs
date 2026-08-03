@@ -98,12 +98,13 @@ namespace com.slot
                 m_tongs[reel].Play();
         }
 
-        /// <summary>返回某列 tong 动画时长（秒）。供流程层在满列收集演出后「等待动画播完」再进 Mini。
-        /// 无 tong / 越界则返回 0（调用方跳过等待）。</summary>
-        public float GetTongDuration(int reel)
+        /// <summary>播放某列 tong 演出并【等其真正播完】再返回（协程）。
+        /// 满列收集演出后阻塞流程，确保动画播完才进 Mini（替换一次性 PlayTong + 估算时长等待）。</summary>
+        public IEnumerator PlayTongAndWait(int reel)
         {
-            if (m_tongs == null || reel < 0 || reel >= m_tongs.Length || m_tongs[reel] == null) return 0f;
-            return m_tongs[reel].PlayDuration();
+            if (m_tongs == null || reel < 0 || reel >= m_tongs.Length || m_tongs[reel] == null) yield break;
+            m_tongs[reel].Play();
+            yield return m_tongs[reel].WaitDone();
         }
 
         /// <summary>销毁某列(reel)全部火球 overlay（释放列时调用，使其从屏上消失）。</summary>

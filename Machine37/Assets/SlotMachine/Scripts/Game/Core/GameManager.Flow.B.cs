@@ -27,24 +27,20 @@ namespace com.slot
                 var hs = r.holdSpinState;
                 m_reelView.ShowFeatureState(hs);   // 钉全部已收集火球（覆盖基础局 + 历史跨局持有）
                 m_reelView.ActivateCounters();
+                // ★ 问题1/2 修复：满列 tong 演出必须【真正播完】才能进 Mini（PlayTongAndWait 内部等 Mecanim+序列帧+超时兜底），
+                //   且圈圈显示 3→2→1→0（counter=0 时 ReelFireNum 显示“0”，不再用 counter>0 才显示）。
                 for (int rr = 0; rr < hs.reels; rr++)
                 {
                     if (hs.isFull[rr])
                     {
                         m_reelView.SetRespinCounterRow(rr, 0);
-                        m_reelView.PlayTong(rr);                 // 满列 tong 演出
+                        yield return m_reelView.PlayTongAndWait(rr);   // 满列 tong 演出（等播完再继续，单步串行避免被截断）
                     }
-                    else if (!hs.released[rr] && hs.counter[rr] > 0)
-                        m_reelView.SetRespinCounterRow(rr, hs.counter[rr]);   // 显示当前圈数（本局已 −1）
+                    else if (!hs.released[rr])
+                        m_reelView.SetRespinCounterRow(rr, hs.counter[rr]);   // 显示当前圈数（含 0：3→2→1→0）
                     else
-                        m_reelView.HideCounterRow(rr);          // 已释放/无火球列：隐藏计数器
+                        m_reelView.HideCounterRow(rr);          // 已释放列：隐藏计数器
                 }
-                // ★ 问题1 修复：满列 tong 演出必须播完才能进 Mini（否则"动画没播完就进免费小游戏"）。
-                //   各满列已在上面 PlayTong；此处统一等待最长 tong 时长（多列满则并发演出，取最大值）。
-                float maxTong = 0f;
-                for (int rr = 0; rr < hs.reels; rr++)
-                    if (hs.isFull[rr]) maxTong = Mathf.Max(maxTong, m_reelView.GetTongDuration(rr));
-                if (maxTong > 0f) yield return new WaitForSeconds(maxTong);
                 // ★ 诊断：停轮后每列收集盘状态 + 计数器预期可见性（核对"有圈圈列是否真的显示了圈"）；受 SlotDebug.VerboseLogs 开关控制。
                 if (SlotDebug.VerboseLogs)
                 {
@@ -53,7 +49,7 @@ namespace com.slot
                     {
                         int filled = 0;
                         for (int row = 0; row < hs.cells[rr].Length; row++) if (hs.cells[rr][row].filled) filled++;
-                        bool showCounter = !hs.released[rr] && hs.counter[rr] > 0;
+                        bool showCounter = !hs.released[rr] && hs.counter[rr] >= 0;
                         sb.Append($" | r{rr}:filled={filled}/{hs.cells[rr].Length} cnt={hs.counter[rr]} rel={hs.released[rr]} full={hs.isFull[rr]} =>counterShown={showCounter}");
                     }
                     UnityEngine.Debug.Log(sb.ToString());

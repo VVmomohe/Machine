@@ -104,6 +104,12 @@ namespace SlotMachine.Core
                     holdBoard.released[r] = false;
                 }
                 if (holdBoard.released[r]) continue;
+                // ★ 上一局已到 0（本局仍无新火球）→ 本局彻底释放隐藏（圈圈 0 → 消失）
+                if (!newInCol[r] && holdBoard.counter[r] <= 0)
+                {
+                    holdBoard.released[r] = true;
+                    continue;
+                }
                 if (newInCol[r])
                 {
                     holdBoard.counter[r] = respinCount;       // 新火球 → 重置圈圈为 3
@@ -113,9 +119,10 @@ namespace SlotMachine.Core
                     holdBoard.counter[r] -= 1;                 // 无新火球 → 减一个圈圈
                     if (holdBoard.counter[r] <= 0)
                     {
-                        // 倒计时归零且未集满 → 释放：清掉该列火球，回归滚动队列
+                        // 倒计时归零且未集满：清掉该列火球，回归滚动队列（火球离场）。
+                        // ★ 修正：不再立即 released 隐藏——让本局显示 0（圈圈经历 3→2→1→0），
+                        //   真正的隐藏推迟到下一局 AdvanceHoldBoard（检测 counter<=0 且本局无新火球 → released=true）。
                         holdBoard.counter[r] = 0;
-                        holdBoard.released[r] = true;
                         for (int row = 0; row < holdBoard.cells[r].Length; row++)
                             holdBoard.cells[r][row] = new FireballCell { reel = r, row = row };
                         continue;
