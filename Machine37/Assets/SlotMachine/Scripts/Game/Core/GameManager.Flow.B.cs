@@ -66,10 +66,32 @@ namespace com.slot
                     if (c.filled) m_reelView.ShowFireballOverlay(c.reel, c.row, c, playSound: false);
             }
 
-            // ★ 模式B：把跨局持有火球合并进 baseGrid（held 位置置为 fireballSymbolId），使结算/日志的 grid
-            //   与视觉 overlay 一致。held 火球锁定的格子不参与连线（Cash Falls 语义：收集盘格子是火球，不是线符号）。
-            //   ShowGrid(StartBaseSpin) 已用原始 baseGrid 渲染卷轴 + ShowHeldFireballs 钉 overlay，此处只改数据层(eval/log)。
-            if (r.holdSpinState != null && r.baseGrid != null)
+            // ★ 模式B：把本局火球合并进 baseGrid（filled 位置置为 fireballSymbolId），使结算/日志的 grid
+            //   与视觉 overlay 一致。火球锁定的格子不参与连线（Cash Falls 语义：收集盘格子是火球，不是线符号）。
+            //   ★ 关键：用 r.baseFireballs 作为合并源（不论 r.holdSpinState 是否为 null），覆盖未触发收集盘的
+            //     单局火球显示分支（line 62-67 只钉 overlay、不合并 baseGrid → 旧 bug：m_id 仍为 spun 符号 9、
+            //     屏幕却显示火球）。触发收集盘时 baseFireballs 与 hs.cells 同源（都是本局所有火球），结果一致。
+            if (r.baseGrid != null && r.baseFireballs != null && r.baseFireballs.Count > 0)
+            {
+                int fbId = (m_machine.config != null) ? m_machine.config.fireballSymbolId : 0;
+                if (fbId > 0)
+                {
+                    foreach (var c in r.baseFireballs)
+                    {
+                        if (c == null || !c.filled) continue;
+                        if (c.reel < 0 || c.reel >= r.baseGrid.Length) continue;
+                        if (c.row < 0 || c.row >= r.baseGrid[c.reel].Length) continue;
+                        r.baseGrid[c.reel][c.row] = fbId;
+                    }
+                }
+                // ★ 视觉兜底：把合并后的 baseGrid 同步渲染回底层卷轴格，确保"逻辑 id=12(火球)"的位置屏幕上确实显示火球，
+                //   不被底层 spun 普通符号覆盖（不再依赖 ShowFeatureState 的 overlay 恰好盖住该格）。
+                //   overlay(ShowFeatureState / baseFireballs 兜底) 仍负责倍率/彩金文字，叠在最上层；此处保证即便 overlay 因任何原因没盖住，底层也是火球。
+                m_reelView.SyncBoardFromGrid(r.baseGrid);
+            }
+            // 触发收集盘时额外合并：把跨局持有火球（非本局新落、baseFireballs 不含的）也置 12。
+            //   实际场景下持有火球=历史已落火球也已被本局 baseFireballs 包含（每局都重 spin），但保险起见保留对 hs.cells 的合并。
+            else if (r.holdSpinState != null && r.baseGrid != null)
             {
                 var hs = r.holdSpinState;
                 int fbId = (m_machine.config != null) ? m_machine.config.fireballSymbolId : 0;
@@ -77,15 +99,12 @@ namespace com.slot
                 {
                     for (int rr = 0; rr < hs.reels && rr < r.baseGrid.Length; rr++)
                     {
-                        if (hs.released[rr]) continue;   // 释放列已回归滚动队列，保留 spun 符号
+                        if (hs.released[rr]) continue;
                         for (int row = 0; row < hs.cells[rr].Length && row < r.baseGrid[rr].Length; row++)
                             if (hs.cells[rr][row].filled)
                                 r.baseGrid[rr][row] = fbId;
                     }
                 }
-                // ★ 视觉兜底：把合并后的 baseGrid 同步渲染回底层卷轴格，确保"逻辑 id=12(火球)"的位置屏幕上确实显示火球，
-                //   不被底层 spun 普通符号覆盖（不再依赖 ShowFeatureState 的 overlay 恰好盖住该格）。
-                //   overlay(ShowFeatureState) 仍负责倍率/彩金文字，叠在最上层；此处保证即便 overlay 因任何原因没盖住，底层也是火球。
                 m_reelView.SyncBoardFromGrid(r.baseGrid);
             }
 
