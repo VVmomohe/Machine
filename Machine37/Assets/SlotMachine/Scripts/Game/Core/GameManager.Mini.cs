@@ -21,9 +21,11 @@ namespace com.slot
             if (r == null) return false;
             // ★ 触发条件按模式区分：
             //   · 模式A(China Street)：免费次数>0（Scatter 波动性）即进 Mini。
-            //   · 模式B(Cash Falls)：仅【整列集满】(enterMiniByColumnFill) 才进 Mini（用户硬性要求，避免单颗 FREE 火球就进小游戏）；
-            //     FREE 火球累计的免费次数已在 SettleBaseB 中并入 freeSpinsAwarded，仅作 Mini 局数，不作为 B 的独立触发条件。
-            bool trigger = IsModeB() ? r.enterMiniByColumnFill : (r.freeSpinsAwarded > 0);
+            //   · 模式B(Cash Falls)：【整列集满】或【Scatter 触发免费次数】都进 Mini；
+            //     仅单颗/单列 FREE 火球（未集满）不单独触发，避免"没收集到一列也进 Mini"。
+            bool trigger = IsModeB()
+                ? (r.enterMiniByColumnFill || r.freeSpinsFromScatter > 0)
+                : (r.freeSpinsAwarded > 0);
             if (!trigger) return false;
             if (m_miniGame == null)
             {

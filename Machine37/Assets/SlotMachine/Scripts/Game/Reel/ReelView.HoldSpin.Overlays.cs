@@ -55,8 +55,18 @@ namespace com.slot
             var item = go.GetComponent<ReelItem>();
             if (item != null)
             {
+                // ★ 防御：倍数火球 multiplier 不应<=0（配置最小0.5）。若数据异常导致0，给保底倍率并告警，
+                //   避免"火球没文字"（ApplyFireballText 对空label会隐藏 text）。
+                float safeRate = cell.multiplier;
+                if (cell.kind == FireballKind.Multiplier && safeRate <= 0f)
+                {
+                    safeRate = PickMultiplierFallback();
+                    UnityEngine.Debug.LogWarning($"[ShowFireballOverlay] 倍数火球 multiplier<=0(reel={reel} row={row})，强制兜底={safeRate}");
+                }
                 item.m_type = cell.kind;
-                item.m_rate = cell.multiplier;
+                item.m_rate = safeRate;
+                // 数据层也同步成安全值，避免后续按 cell.multiplier 读取仍为0
+                cell.multiplier = safeRate;
                 // ★ 免费外观严格按火球自身 kind 决定：FreeSpins 类型才显示免费火球(m_freeFire)，
                 //   倍数/彩金火球一律显示普通火球(m_fire)。不再参考 m_inFreeSpins（该字段全工程从未被置 true，是死代码，
                 //   且会错误地让倍数火球在"免费游戏"全局开关下变成免费火球外观）。

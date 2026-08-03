@@ -85,6 +85,12 @@ namespace com.slot
                 return;
             }
             string label = FireballLabel(cell);
+            // ★ 防御：若 label 为空但火球本身是倍数火球，至少显示"x1"，避免完全没文字。
+            if (string.IsNullOrEmpty(label) && cell.kind == FireballKind.Multiplier)
+            {
+                label = "x1";
+                UnityEngine.Debug.LogWarning($"[ApplyFireballText] 倍数火球 label 为空，强制兜底=x1 (kind={cell.kind} mult={cell.multiplier})");
+            }
             bool show = !string.IsNullOrEmpty(label);
             txt.text = label;
             txt.gameObject.SetActive(show);

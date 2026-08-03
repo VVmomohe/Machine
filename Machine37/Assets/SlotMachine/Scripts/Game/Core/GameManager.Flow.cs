@@ -30,11 +30,28 @@ namespace com.slot
 
                 // 落了火球，把倍率传给 ShowGrid，滚动阶段就显示倍率。
                 // ★ 优先用 res.baseFireballs：基础轮落下的全部火球（不论是否触发 Hold&Spin）都已定倍率，一律显示。
-                //   触发 Hold&Spin 时 hs.cells 与 baseFireballs 同源，二者结果一致，fallback 仅作保险。
+                //   模式B 收集盘还需把【跨局持有火球】(holdSpinState.cells) 也写入 fireMults：
+                //   否则这些火球位置的底层格 id=12 但 m_text 为空，表现为"火球没倍数/彩金档"。
+                //   同位置若已有持有火球，本局新落同位置会被 ShowHeldFireballs 跳过（保留旧火球），
+                //   故 fireMults 中同位置优先保留持有火球倍率，再用 baseFireballs 补全新位置。
                 var fireMults = new Dictionary<int, FireballCell>();
+                if (IsModeB() && r.holdSpinState != null)
+                {
+                    var hs = r.holdSpinState;
+                    for (int rr = 0; rr < hs.reels; rr++)
+                        for (int row = 0; row < hs.cells[rr].Length; row++)
+                        {
+                            var c = hs.cells[rr][row];
+                            if (c.filled) fireMults[c.reel * 100 + c.row] = c;
+                        }
+                }
                 if (r.baseFireballs != null)
                     foreach (var c in r.baseFireballs)
-                        if (c.filled) fireMults[c.reel * 100 + c.row] = c;
+                        if (c.filled)
+                        {
+                            int key = c.reel * 100 + c.row;
+                            if (!fireMults.ContainsKey(key)) fireMults[key] = c;
+                        }
 
                 m_reelView.ShowGrid(r.baseGrid, fireMults.Count > 0 ? fireMults : null);
                 // ★ 模式B：旋转期即钉住「跨局持有火球」+ 恢复计数器圈数（OnStartKey 的 HideAllCounters 清了，需在旋转期重建），
@@ -54,8 +71,8 @@ namespace com.slot
                         {
                             if (hs0.isFull[rr])
                                 m_reelView.SetRespinCounterRow(rr, 0);
-                            else if (!hs0.released[rr] && hs0.counter[rr] > 0)
-                                m_reelView.SetRespinCounterRow(rr, hs0.counter[rr]);
+                            else if (!hs0.released[rr] && hs0.counter[rr] >= 0)
+                                m_reelView.SetRespinCounterRow(rr, hs0.counter[rr]);   // 含 0（3→2→1→0）
                             else
                                 m_reelView.HideCounterRow(rr);
                         }
