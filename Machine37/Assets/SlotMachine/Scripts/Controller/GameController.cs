@@ -58,7 +58,11 @@ namespace Com.Controller
 
             if (m_keys[(int)InputAction.DebugUpCoin] == (int)InputPhase.Down)
             {
-                GameManager.Instance.m_player.AddCredits(100);
+                var gm = GameManager.Instance;
+                if (gm != null && !gm.IsBusy() && gm.m_player != null)
+                    gm.m_player.AddCredits(100);
+                else if (gm != null && gm.IsBusy())
+                    Debug.Log("[GameController] F3 调试上分被忽略：游戏进行中/结算中禁止压分(上分)");
             }
 
             // F12 进入 / 退出后台（插件原生：MagicMenu 自动托管各屏为独立菜单）
@@ -69,13 +73,22 @@ namespace Com.Controller
             }
         }
 
-        /// <summary>MCU → 安卓：投币键按下（KEY PUSH）时给玩家加币。</summary>
+        /// <summary>MCU → 安卓：投币键按下（KEY PUSH）时给玩家加币。游戏进行中/结算中（IsBusy）忽略，禁止压分(上分)。</summary>
         private void OnMcuKey(MbMessages.KeyPush key)
         {
             if (key.keyId == KEY_COIN_IN)
             {
-                GameManager.Instance.m_player.AddCredits(100);
-                Debug.Log($"[GameController] MCU 投币 +100 credits (keyId=0x{key.keyId:X2})");
+                var gm = GameManager.Instance;
+                if (gm != null && gm.IsBusy())
+                {
+                    Debug.Log("[GameController] MCU 投币被忽略：游戏进行中/结算中禁止压分(上分)");
+                    return;
+                }
+                if (gm != null && gm.m_player != null)
+                {
+                    gm.m_player.AddCredits(100);
+                    Debug.Log($"[GameController] MCU 投币 +100 credits (keyId=0x{key.keyId:X2})");
+                }
             }
         }
 

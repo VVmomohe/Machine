@@ -92,6 +92,8 @@ namespace com.slot
 
         void OnEnhanceKey()
         {
+            // ★ 游戏进行中/结算中禁止改注(压分)：街机规则，避免中途改注导致账目/手感歧义
+            if (IsBusy()) return;
             m_player.BetUp();
             m_machine.totalBet = m_player.m_bet_num;
             // ★ 加注不注水：渐进池只在真正下注(Start)时 Contribute（Contribute 末尾自动刷新 BonusView）

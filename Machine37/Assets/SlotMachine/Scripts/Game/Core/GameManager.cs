@@ -48,6 +48,20 @@ namespace com.slot
         private bool _miniActive = false;
         #endregion
 
+        #region 忙碌态判定
+        /// <summary>游戏是否正忙：转轮滚动 / 火球掉落 / 结算(赢分展示·确认等待·赢分滚动入账) / Mini 免费小游戏 期间为 true。
+        /// 用途：街机规则——游戏进行中与结算中禁止『压分』(改注)与投币上分，避免中途改注/上分导致账目歧义。</summary>
+        public bool IsBusy()
+        {
+            if (_miniActive) return true;                                       // Mini 免费小游戏进行中
+            if (_spinPending) return true;                                      // 基础旋转/火球掉落/结算流程尚未解锁
+            if (_waitingConfirm) return true;                                   // 赢分展示·等待确认键
+            if (m_reelView != null && m_reelView.IsSpinning()) return true;     // 转轮仍在滚
+            if (m_player != null && m_player.IsRolling) return true;             // 赢分正滚动入账
+            return false;
+        }
+        #endregion
+
         #region 单例
         private static GameManager _instance;
         public static GameManager Instance
