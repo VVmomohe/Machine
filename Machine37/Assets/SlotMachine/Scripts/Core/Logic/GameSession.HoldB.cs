@@ -12,7 +12,7 @@ namespace SlotMachine.Core
         /// <summary>模式B 收集盘推进（跨局持有，纯逻辑，不依赖 Unity）：
         /// 把本局基础火球(initial)合并进持久 holdBoard；每列倒计时按"新火球→3 / 否则−1"推进；
         /// 归零→释放(火球回归滚动队列)；整列集满→对该列所有火球统一派彩(倍数/彩金/FREE)+enterMiniByColumnFill（进 Mini）。
-        /// ★ 收集模式语义：火球入盘不付，整列集满才付。进 Mini 后下一局清空收集盘(_holdEnded)。
+        /// ★ 收集模式语义：火球入盘不付，整列集满才付。进 Mini 后下一局仅清空「集满的那一列」(_holdEnded)，其余持有列继续保留。
         /// FREE 火球单列累计仅在进 Mini 时并入 freeSpinsAwarded。</summary>
         /// <summary>把收集盘各列倒计时压成一行（r0=3 r1=- r2=F...），供 [Fireball-countdown] 直观确认"扣几次"。</summary>
         static string CountdownStr(HoldSpinState hs)
@@ -30,8 +30,23 @@ namespace SlotMachine.Core
 
         void AdvanceHoldBoard(List<FireballCell> initial, float bet, GameResult res)
         {
-            // 进 Mini 后：清空收集盘，下一局从零开始
-            if (_holdEnded) { holdBoard = null; _holdEnded = false; }
+            // 进 Mini 后：仅清空「整列集满」的 THAT 列（已派彩 + 火球滚回卷轴），其余持有列跨 Mini 继续保留、圈圈不被清零。
+            // 旧实现 holdBoard = null 会连其它列一起清空 → 用户反馈「小游戏出来后全部列圈圈都清零了」。
+            if (_holdEnded && holdBoard != null)
+            {
+                for (int r = 0; r < holdBoard.reels; r++)
+                {
+                    if (!holdBoard.isFull[r]) continue;          // 只动集满的那一列
+                    for (int row = 0; row < holdBoard.cells[r].Length; row++)
+                        holdBoard.cells[r][row] = new FireballCell { reel = r, row = row };   // 清空本列火球
+                    holdBoard.isFull[r] = false;
+                    holdBoard.released[r] = false;
+                    holdBoard.counter[r] = 0;
+                    if (holdBoard.freeCountByCol.ContainsKey(r)) holdBoard.freeCountByCol[r] = 0;   // FREE 计数重置，便于重新收集
+                    if (holdBoard.prevFreeAward.ContainsKey(r)) holdBoard.prevFreeAward[r] = 0;
+                }
+                _holdEnded = false;
+            }
 
             bool hasNew = initial != null && initial.Count > 0;
 
