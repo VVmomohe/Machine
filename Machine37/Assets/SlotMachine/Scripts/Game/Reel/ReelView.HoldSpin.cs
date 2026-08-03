@@ -155,7 +155,7 @@ namespace com.slot
                 SetOverlayAlpha(faller, 1f);                    // 新火球保持原亮度
 
                 // (b) 原火球原地变暗（旧 HOLD：火球会变暗，留在原位）——保留在 _fbOverlays，不删除
-                SetOverlayAlpha(ov, 0.4f);
+                SetOverlayAlpha(ov, 0.8f);                    // 变暗到 80% 不透明（轻微变暗，不过度透明）
 
                 // (c) 新火球掉入桶 + 桶对每个落入火球反应一次（不再“只播一次”）
                 yield return AnimateFireballDrop(faller, barrelPos, fallDur);
