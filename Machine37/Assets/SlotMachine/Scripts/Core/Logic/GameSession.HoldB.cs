@@ -3,7 +3,8 @@ using System.Collections.Generic;
 namespace SlotMachine.Core
 {
     /// <summary>模式B(Cash Falls / 收集盘) 收集盘 respin 一轮推进的产出（逻辑层，不依赖 Unity）。
-    /// 仅做数据推进：落新火球 / 减圈 / 满列 / 释放 / FREE 单列累计免费次数 / 每颗火球 ×bet 派彩。
+    /// 仅做数据推进（纯 HOLD，不随机补火球）：减圈 / 满列 / 释放 / FREE 单列累计免费次数；
+    /// 每颗火球派彩已在基础局落定时计入 hs.accumulated（此处不再落新火球 ×bet）。
     /// 显示与动画（钉 overlay / tong / 计数器 / 满列演出）由 GameManager.Flow.B 驱动协程完成。</summary>
     public class RespinStep
     {
@@ -18,20 +19,17 @@ namespace SlotMachine.Core
 
     public partial class GameSession
     {
-        /// <summary>模式B 收集盘 respin 一轮推进（不滚盘，纯逻辑）：
-        /// 每个活跃列(reel)的【每个空位】按 fireballHitProb 独立落新火球（RollFireball allowFreeMode）；
-        /// 该列有新火球 → counter=respinCount；否则 −1；counter 归零 → 释放（清该列火球，回归滚动队列）；
-        /// 集满该列所有格 → 标记 isFull（不额外派彩，因每颗火球已按 ×bet 支付）。
-        /// FREE 火球按【单列】累计 freeCountByCol，升档补差追加免费次数（freeballTiers[1,2,3]→[2,5,10]）。
-        /// 每颗非 FREE 火球立即派彩（multiplier × bet 累加到 hs.accumulated）；彩金火球记 wonJackpots 并回传 newJackpots（清池由驱动调用 ResetJackpot）。
+        /// <summary>模式B 收集盘 respin 一轮推进（不滚盘、纯 HOLD，不随机补火球，纯逻辑）：
+        /// 每个活跃列(reel)只做【圈圈数倒计时】：counter −1；counter 归零 → 释放（清该列火球，回归滚动队列）；
+        /// 满列判定：仅当基础局本身就落出整列火球（hs.cells 初始即满）才标记 isFull（进 Mini）。
+        /// 不在 respin 期间往空格补新火球（杜绝从 1~2 颗种子凭空补满整列 → 进 Mini）。
+        /// FREE 火球按【单列】累计 freeCountByCol（仅来自基础局落定的 FREE 火球），升档补差追加免费次数（freeballTiers[1,2,3]→[2,5,10]）。
         /// 不在此处清彩金池，保证逻辑层可独立测试。</summary>
         public static RespinStep RespinHoldSpin(HoldSpinState hs, ReelConfig cfg, ISlotRng rng, float bet, bool allowFreeMode)
         {
             var step = new RespinStep();
             step.newCounters = new int[hs.reels];
             var hc = cfg.holdSpin;
-            float hitProb = (hc != null) ? hc.fireballHitProb : 0.32f;
-            int respinCount = (hc != null) ? hc.respinCount : 3;
             float before = hs.accumulated;
 
             for (int r = 0; r < hs.reels; r++)
@@ -40,38 +38,10 @@ namespace SlotMachine.Core
                 if (hs.isFull[r] || hs.released[r]) continue;
                 if (hs.counter[r] <= 0) { hs.released[r] = true; step.releasedReels.Add(r); continue; }
 
-                bool gotNew = false;
-                for (int row = 0; row < hs.cells[r].Length; row++)
-                {
-                    if (hs.cells[r][row].filled) continue;
-                    if (rng.NextDouble() < hitProb)
-                    {
-                        var fb = HoldSpinState.RollFireball(cfg, rng, bet, hs.Pots, allowFreeMode);
-                        fb.reel = r; fb.row = row; fb.filled = true;
-                        hs.cells[r][row] = fb;
-                        step.newFireballs.Add(fb);
-                        gotNew = true;
-                        if (fb.kind == FireballKind.FreeSpins)
-                        {
-                            if (!hs.freeCountByCol.ContainsKey(r)) hs.freeCountByCol[r] = 0;
-                            hs.freeCountByCol[r]++;
-                        }
-                        else
-                        {
-                            hs.accumulated += bet * fb.multiplier;
-                            if (fb.jackpotTier >= 0 && fb.jackpotTier < HoldSpinState.JackpotTierNames.Length)
-                            {
-                                string t = HoldSpinState.JackpotTierNames[fb.jackpotTier];
-                                hs.wonJackpots.Add(t);
-                                step.newJackpots.Add(t);
-                            }
-                        }
-                    }
-                }
-
-                // 计数器：有新火球→重置为 respinCount；否则 −1
-                if (gotNew) hs.counter[r] = respinCount;
-                else hs.counter[r] -= 1;
+                // ★ 纯 HOLD（不滚盘、不随机补火球）：respin 期间只做"锁定显示 + 圈圈数倒计时 + tong/释放演出"。
+                //   不在空格补新火球（避免从 1~2 颗种子凭空补满整列 → 进 Mini）。
+                //   满列判定：仅当基础局本身就落出整列火球（hs.cells 初始即满）才标记 isFull → 进 Mini。
+                hs.counter[r] -= 1;
 
                 // 满列判定（优先于释放）
                 if (!hs.isFull[r] && HoldSpinState.ReelFull(hs, r))

@@ -43,17 +43,6 @@ namespace com.slot
                     var step = GameSession.RespinHoldSpin(hs, m_machine.config, m_machine.rng,
                         m_machine.totalBet, allowFreeMode: true);
 
-                    // 新火球：钉 overlay + tong + 计数器=3（新火球即重置倒计时）+ 倍率累加
-                    if (step.newFireballs != null)
-                        foreach (var fb in step.newFireballs)
-                        {
-                            m_reelView.ShowFireballOverlay(fb.reel, fb.row, fb, playSound: true);
-                            m_reelView.SetRespinCounterRow(fb.reel, 3);
-                            m_reelView.PlayTong(fb.reel);
-                            if (fb.kind != FireballKind.FreeSpins)
-                                m_reelView.AddFireballToCounter(fb.reel, fb.multiplier, fb.kind);
-                        }
-
                     // 释放列(counter 归零)：清 overlay + 底层符号回归普通(下一局自然滚) + 隐藏该列计数器
                     if (step.releasedReels != null)
                         foreach (int rel in step.releasedReels)
@@ -77,15 +66,6 @@ namespace com.slot
                         for (int rr = 0; rr < step.newCounters.Length; rr++)
                             if (!hs.isFull[rr] && !hs.released[rr] && hs.counter[rr] > 0)
                                 m_reelView.SetRespinCounterRow(rr, hs.counter[rr]);
-
-                    // 本轮新中彩金：即时清池 + 记 wonJackpots（供 ShowDirectJackpotEffects 播特效）
-                    if (step.newJackpots != null)
-                        foreach (var t in step.newJackpots)
-                        {
-                            m_machine.session.ResetJackpot(t);
-                            if (r.wonJackpots == null) r.wonJackpots = new List<string>();
-                            if (!r.wonJackpots.Contains(t)) r.wonJackpots.Add(t);
-                        }
 
                     // 本轮 FREE 火球(单列收集)累计的免费次数：先累计，待「整列集满」开 Mini 时再并入（防单颗 FREE 就进小游戏）
                     freeFromFireball += step.freeSpinsAdded;
