@@ -61,7 +61,7 @@ namespace com.slot
         // ===== 模式B 收集盘 respin 辅助（轻量，不滚盘）=====
 
         /// <summary>重播某列的 tong（夹子/桶）动画：新火球落入 / 满列收集时调用。</summary>
-        void PlayTong(int reel)
+        public void PlayTong(int reel)
         {
             if (m_tongs != null && reel >= 0 && reel < m_tongs.Length && m_tongs[reel] != null)
                 m_tongs[reel].Play();

@@ -10,7 +10,7 @@ namespace com.slot
     public partial class ReelView
     {
         /// <summary>把火球倍率累加到该列(reel)的计数器文本（ReelFireNum.AddMultiplier）。kind 透传给计数器：彩金档显示档名而非裸数字。</summary>
-        void AddFireballToCounter(int reel, float mult, FireballKind kind = FireballKind.Multiplier)
+        public void AddFireballToCounter(int reel, float mult, FireballKind kind = FireballKind.Multiplier)
         {
             if (m_numObjs == null || reel < 0 || reel >= m_numObjs.Length || m_numObjs[reel] == null) return;
             m_numObjs[reel].AddMultiplier(mult, kind);
