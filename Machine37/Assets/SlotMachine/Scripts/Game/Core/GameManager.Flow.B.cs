@@ -153,6 +153,25 @@ namespace com.slot
                     }
                 }
                 UnityEngine.Debug.Log(sbDiag.ToString());
+
+                // ★ 诊断：再打印每个火球 overlay 的 m_text 状态——若 overlay 没显示文字而底层格显示了，
+                //   就能定位是 overlay 路径(prefab 子物体顺序/font/层级)还是底层格路径问题。
+                if (m_reelView != null)
+                {
+                    var sbOvl = new System.Text.StringBuilder($"[SettleBaseB-ovldiag] overlay 文字状态:");
+                    foreach (var go in m_reelView.GetFireballOverlays())
+                    {
+                        if (go == null) continue;
+                        var item = go.GetComponent<ReelItem>();
+                        if (item == null) continue;
+                        bool textOn = item.m_text != null && item.m_text.gameObject != null && item.m_text.gameObject.activeInHierarchy;
+                        string txtVal = (item.m_text != null) ? item.m_text.text : "";
+                        bool fontOk = item.m_text != null && item.m_text.font != null;
+                        int fontSz = (item.m_text != null) ? item.m_text.fontSize : 0;
+                        sbOvl.Append($" | {go.name}:kind={item.m_type} rate={item.m_rate:F2} txt={textOn} txtVal='{txtVal}' font={(fontOk?"OK":"NULL")} size={fontSz}");
+                    }
+                    UnityEngine.Debug.Log(sbOvl.ToString());
+                }
             }
 
             // 数值结算（与 A 共用同一套评估口径）

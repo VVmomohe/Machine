@@ -61,6 +61,13 @@ namespace com.slot
         }
 
 
+        /// <summary>返回当前所有火球 overlay（供诊断/外部查询）。返回 List 只读引用，外部不要修改。</summary>
+        public List<GameObject> GetFireballOverlays()
+        {
+            if (_fbOverlays == null) _fbOverlays = new List<GameObject>();
+            return _fbOverlays;
+        }
+
         public void ReleaseCollectedForNextSpin()
         {
             foreach (var r in _collectedReels) _releaseReels.Add(r);

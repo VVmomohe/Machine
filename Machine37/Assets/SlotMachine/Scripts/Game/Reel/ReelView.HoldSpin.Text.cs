@@ -63,13 +63,20 @@ namespace com.slot
             }
         }
 
-        /// <summary>在 go 上显示火球文字：优先用 ReelItem.m_text，缺失时按层级查找子 Text。</summary>
+        /// <summary>在 go 上显示火球文字：优先用 ReelItem.m_text，缺失时按层级查找子 Text。
+        /// ★ 防御性：force-set color=white + enabled=true + raycastTarget=false + 字体保底；保证 prefab
+        ///   实例化后任何子物体顺序/font/material 默认值不会让"x3"被 m_fire 遮住或不可见。</summary>
         void ApplyFireballText(GameObject go, FireballCell cell)
         {
             if (go == null || cell == null) return;
             var item = go.GetComponent<ReelItem>();
             var txt = (item != null && item.m_text != null) ? item.m_text : go.GetComponentInChildren<UnityEngine.UI.Text>();
-            if (txt == null) return;
+            if (txt == null)
+            {
+                // ★ 诊断：prefab 缺 m_text / GetComponentInChildren 也找不到 → 该火球无法显示倍率文字
+                Debug.LogWarning($"[ApplyFireballText] 无 Text 组件(reelItem={(item!=null)} kind={cell.kind} rate={cell.multiplier})");
+                return;
+            }
             if (cell.kind == FireballKind.FreeSpins)
             {
                 txt.text = "";
@@ -83,6 +90,11 @@ namespace com.slot
             txt.gameObject.SetActive(show);
             txt.enabled = show;
             txt.color = Color.white;
+            // ★ 防御：避免 prefab 默认值遮蔽文字（半透明/无字体/被 raycastTarget 屏蔽都不至于让 x3 消失）
+            var c2 = txt.color; c2.a = 1f; txt.color = c2;
+            if (txt.raycastTarget) txt.raycastTarget = false;
+            if (txt.font == null) txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (txt.fontSize <= 0) txt.fontSize = 36;
         }
 
         /// <summary>取火球 overlay 携带的倍率（ReelItem.m_rate）。</summary>

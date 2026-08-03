@@ -217,7 +217,9 @@ namespace com.slot
 
         /// <summary>停轮后把基础卷轴格同步到权威数据网格（r.baseGrid）：逻辑 id=火球(12) 的格屏幕上确实显示火球，
         /// 使"数据显示火球"与"视觉火球"严格一致——不依赖 ShowFeatureState 的 overlay 去覆盖底层普通符号。
-        /// 普通符号位置幂等不变（SetCell 内部会跳过未变化的格）。overlay 仍负责倍率/彩金文字，叠在最上层。</summary>
+        /// 普通符号位置幂等不变（SetCell 内部会跳过未变化的格）。overlay 仍负责倍率/彩金文字，叠在最上层。
+        /// ★ 同时按 _baseFireMults 重写底层火球格的 m_text(倍率/彩金文字)，保证底层格"x3"等文字一定可见——即使
+        ///   overlay 因任何原因（prefab 子物体顺序、字体缺失、Canvas 层级）未显示文字，底层格也能兜底显示。</summary>
         public void SyncBoardFromGrid(int[][] grid)
         {
             if (grid == null) return;
@@ -234,6 +236,12 @@ namespace com.slot
                     // ★ syncId=true：把 m_id 也对齐到权威网格（避免"逻辑 id=12 但 m_id 是底层 spun 符号"的误读），
                     //   并触发 ShowFire(true) 让火球格显示 m_fire、隐藏 m_image。
                     SetCell(st, k, id, syncId: true);
+                    // ★ 火球：兜底写回 m_text 文字（即使 overlay 没显示，底层格也确保"x3"等可见）
+                    if (id == m_fireballSymbolId && _baseFireMults != null)
+                    {
+                        if (_baseFireMults.TryGetValue(st.reelIdx * 100 + row, out var cell) && cell != null)
+                            SetCellFireballMult(st, k, cell);
+                    }
                 }
             }
         }
