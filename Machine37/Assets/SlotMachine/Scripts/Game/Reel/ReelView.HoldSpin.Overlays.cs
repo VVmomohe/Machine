@@ -215,13 +215,19 @@ namespace com.slot
             if (removed) RefreshColumnEffects();
         }
 
-        /// <summary>设置 overlay 及其子节点的透明度（CanvasGroup）。</summary>
+        /// <summary>设置 overlay 及其所有子节点(UI Graphic 与 SpriteRenderer)的透明度——递归改 color.alpha，
+        /// 兼容 Image/Text(UI) 与 SpriteRenderer(精灵) 两种视觉，避免根节点 CanvasGroup 对 SpriteRenderer/子物体不变暗的坑（"变暗"不可见）。</summary>
         void SetOverlayAlpha(GameObject go, float alpha)
         {
             if (go == null) return;
-            var cg = go.GetComponent<CanvasGroup>();
-            if (cg == null) cg = go.AddComponent<CanvasGroup>();
-            cg.alpha = alpha;
+            foreach (var g in go.GetComponentsInChildren<Graphic>(true))
+            {
+                var c = g.color; c.a = alpha; g.color = c;
+            }
+            foreach (var s in go.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                var c = s.color; c.a = alpha; s.color = c;
+            }
         }
 
         // ===== 列预警特效 =====

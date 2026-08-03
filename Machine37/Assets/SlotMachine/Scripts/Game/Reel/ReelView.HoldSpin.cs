@@ -107,9 +107,9 @@ namespace com.slot
             yield return m_tongs[reel].WaitDone();
         }
 
-        /// <summary>满列收集演出：复刻旧 HOLD 手感——每颗火球【原地变暗(ghost)】的同时【新生成一个火球掉入桶(tong)】，
-        /// 桶对每个落入的火球播放一次收取反应；顺序与旧 HOLD 一致——【先掉下面(row 小=底部)】，再往上。
-        /// 仅清理本列 overlay（其余列持有火球保持钉住，不碰）。</summary>
+        /// <summary>满列收集演出：复刻旧 HOLD 手感——每颗火球【原地变暗】的同时【新生成一个火球掉入桶(tong)】，
+        /// 原火球随后【向下滚回滚动队列(回归卷轴)】(旧 HOLD 不删除、回归滚动队列)；桶对每个落入的火球播放一次收取反应；
+        /// 顺序与旧 HOLD 一致——【先掉下面(row 小=底部)】，再往上。仅清理本列 overlay（其余列持有火球保持钉住，不碰）。</summary>
         public IEnumerator CollectFullReelAnimation(int reel)
         {
             if (reel < 0 || reel >= _reels.Count) yield break;
@@ -143,21 +143,24 @@ namespace com.slot
             {
                 ParseReelRow(ov.name, out _, out int row);
 
-                // (a) 原地火球变暗：克隆一个 ghost 留在原格(dim)，原 ov 当成“新生成”的火球掉入桶（复刻旧 HOLD 观感）
-                var ghost = Instantiate(ov, ov.transform.parent);
-                ghost.name = $"FBGhost_{reel}_{row}";
-                ghost.transform.SetAsLastSibling();
-                SetOverlayAlpha(ghost, 0.65f);   // ★ 变暗
+                // (a) 新生成一个火球掉入桶（旧 HOLD：新生成一个火球而下落）——克隆原火球、保持原亮度
+                var faller = Instantiate(ov, ov.transform.parent);
+                faller.name = $"FBFaller_{reel}_{row}";
+                faller.transform.SetAsLastSibling();
+                SetOverlayAlpha(faller, 1f);                    // 新火球保持原亮度
 
-                // (b) 新火球(原 ov，保持原亮度)掉入桶
-                yield return AnimateFireballDrop(ov, barrelPos, fallDur);
-                if (tong != null) tong.Play();                 // 桶对每个落入火球反应一次（不再“只播一次”）
+                // (b) 原火球原地变暗（旧 HOLD：火球会变暗，留在原位）；移出追踪列表，避免被 TrackFireballOverlays 锁回格子
+                SetOverlayAlpha(ov, 0.4f);
                 _fbOverlays.Remove(ov);
-                Destroy(ov);
 
-                // (c) 原地变暗火球淡出销毁（本列已收集，不再保留；旧 HOLD 是恢复亮度续 re-spin，本模式B列收走即清空）
-                SetOverlayAlpha(ghost, 0f);
-                Destroy(ghost);
+                // (c) 新火球掉入桶 + 桶对每个落入火球反应一次（不再“只播一次”）
+                yield return AnimateFireballDrop(faller, barrelPos, fallDur);
+                if (tong != null) tong.Play();
+                Destroy(faller);
+
+                // (d) 原火球「回归滚动队列」：向下滚回卷轴（旧 HOLD 不删除、回归滚动队列），淡出后销毁
+                yield return AnimateFireballRollToReel(ov, fallDur);
+                Destroy(ov);
 
                 yield return new WaitForSeconds(interval - fallDur);   // 间隔到下一颗开始
             }
@@ -195,6 +198,25 @@ namespace com.slot
             }
             rt.position = targetWorld;
             rt.localScale = new Vector3(0.35f, 0.35f, 1f);
+        }
+
+        /// <summary>原火球「回归滚动队列」：向下滚回卷轴（旧 HOLD 手感，不删除、回归滚动队列），同时淡出，由调用方随后 Destroy。</summary>
+        IEnumerator AnimateFireballRollToReel(GameObject go, float dur)
+        {
+            var rt = go.transform as RectTransform;
+            if (rt == null) yield break;
+            Vector3 start = rt.position;
+            Vector3 end = start - new Vector3(0f, m_cellSize * 1.5f, 0f);   // 向下滚回卷轴
+            float t = 0;
+            while (t < 1f)
+            {
+                t += Time.deltaTime / dur;
+                float e = 1f - (1f - Mathf.Clamp01(t)) * (1f - Mathf.Clamp01(t));   // ease-out：缓出滚走
+                rt.position = Vector3.Lerp(start, end, e);
+                SetOverlayAlpha(go, Mathf.Lerp(0.4f, 0f, e));   // 边滚边淡出
+                yield return null;
+            }
+            rt.position = end;
         }
 
         /// <summary>销毁某列(reel)全部火球 overlay（释放列时调用，使其从屏上消失）。</summary>
