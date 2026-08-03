@@ -168,10 +168,18 @@ namespace SlotMachine.Core
             if (_cfg.freeSpins != null)
             {
                 // A 模式(useVolatility)：Free Games 符号在指定列(freeGameReels)各出现 1 个 → 波动性选局数+倍率；
-                // B 模式：按 Scatter 数量分档(3→2/4→5/5+→10)。两者都只记次数，免费局由 MiniGame 运行。
-                fsAward = _cfg.freeSpins.useVolatility
-                    ? PickVolatilityFreeSpins(grid)
-                    : _cfg.freeSpins.SpinsFor(sc);
+                // B 模式：Scatter 触发改为「左到右连续相邻」口径（reel0 起连续列每列≥1个，长度≥triggerScatter=3），
+                //   不再全盘任意位置凑够 3 个。两者都只记次数，免费局由 MiniGame 运行。
+                if (_cfg.freeSpins.useVolatility)
+                {
+                    fsAward = PickVolatilityFreeSpins(grid);
+                }
+                else
+                {
+                    int scL2R = ScatterUtil.CountLeftToRight(grid, _cfg);
+                    res.scatterL2R = scL2R;
+                    fsAward = _cfg.freeSpins.SpinsFor(scL2R);
+                }
             }
             res.freeSpinsAwarded = fsAward;
             res.freeSpinsFromScatter = fsAward;   // ★ 仅 Scatter 授予的部分（火球追加在 CheckFireballHoldSpin 内累加）

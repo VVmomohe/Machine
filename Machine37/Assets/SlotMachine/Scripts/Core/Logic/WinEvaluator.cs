@@ -21,6 +21,26 @@ namespace SlotMachine.Core
             return c;
         }
 
+        /// <summary>从左到右连续相邻统计（模式B Scatter 触发口径）：
+        /// 从 reel0 起，连续相邻 reel 每列含 ≥1 个 Scatter 才累加，遇到第一列不含 Scatter 即断开（不跳跃）。
+        /// 返回连续长度（即「左到右」有效 Scatter 列数）。例：reel0/1/2 含 → 3（触发）；reel0/1 含、reel2 不含 → 2（不触发）；reel0 不含 → 0。
+        /// 与 Count(全盘任意位置) 区分：本方法用于触发免费游戏，Count 用于显示/赔付统计。</summary>
+        public static int CountLeftToRight(int[][] grid, ReelConfig cfg)
+        {
+            int sid = cfg.ScatterId();
+            if (sid < 0) return 0;
+            int consec = 0;
+            for (int r = 0; r < grid.Length; r++)
+            {
+                bool has = false;
+                for (int row = 0; row < grid[r].Length; row++)
+                    if (grid[r][row] == sid) { has = true; break; }
+                if (has) consec++;
+                else break;   // 断档即停：必须连续相邻、从 reel0 起
+            }
+            return consec;
+        }
+
         public static float Payout(int count, ReelConfig cfg, float totalBet)
         {
             if (count >= 0 && count < cfg.scatterPays.Count)

@@ -34,7 +34,8 @@ namespace SlotMachine.Core
         public float baseWin;                     // 基础连线/ways 赢分
         public List<Win> baseWins = new List<Win>(); // 基础连线/ways 中奖明细(含 positions，供视图高亮)
         public float scatterPayout;               // 基础 Scatter 赔付
-        public int scatterCount;                  // 基础 Scatter 个数
+        public int scatterCount;                  // 基础 Scatter 个数（全盘总数，用于显示/赔付/日志）
+        public int scatterL2R;                    // 模式B：从左到右连续相邻的有效 Scatter 列数（左到右触发口径）
         public float featureWin;                  // 特性赢分（火球等特性累计，A/B 直线结算计入）
         public float freeSpinsWin;                // 免费旋转内全部赢分
         public int freeSpinsAwarded;              // 实际奖励免费转次数（= freeSpinsFromScatter + freeSpinsFromFireball，A/B 基础局共用）

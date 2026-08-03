@@ -304,7 +304,7 @@ namespace com.slot
             // ★ 关键：willEnter=false 时此局【不会】真正进 Mini（常见根因：m_miniGame 未拖/丢失 MiniGame 组件，
             //   详见 WillEnterMini 内的 [MINI-MISSING] 报错）。标签区分「将进入 / 仅候选」避免误导。
             string tag = willEnter ? "[MINI-ENTRY] ★将进入小游戏" : "[MINI-CANDIDATE] 仅候选·不进入";
-            Debug.Log($"{tag} 来源={whence} | scatterCount={r.scatterCount} Scatter触发={scatterOrig} FreeSpins火球追加={freeballOrig} 进入次数(freeSpinsAwarded)={r.freeSpinsAwarded} enterMiniByColumnFill={r.enterMiniByColumnFill} freeSpinsFromScatter={r.freeSpinsFromScatter} freeSpinsFromFireball={r.freeSpinsFromFireball}{fbCells}");
+            Debug.Log($"{tag} 来源={whence} | scatterCount={r.scatterCount}(左到右={r.scatterL2R}) Scatter触发={scatterOrig} FreeSpins火球追加={freeballOrig} 进入次数(freeSpinsAwarded)={r.freeSpinsAwarded} enterMiniByColumnFill={r.enterMiniByColumnFill} freeSpinsFromScatter={r.freeSpinsFromScatter} freeSpinsFromFireball={r.freeSpinsFromFireball}{fbCells}");
         }
 
         /// <summary>本局出什么：逐列打印基础棋盘符号 ID（Scatter 标 S）、本局火球位置/种类/倍率、以及 Mini 触发关键字段。
@@ -332,7 +332,7 @@ namespace com.slot
                     fbsb.Append($"({c.reel},{c.row},{c.kind},{c.multiplier})");
                 sb.Append(fbsb.ToString());
             }
-            sb.Append($" | scatterCount={r.scatterCount} freeSpinsFromScatter={r.freeSpinsFromScatter} freeSpinsFromFireball={r.freeSpinsFromFireball} enterMiniByColumnFill={r.enterMiniByColumnFill}");
+            sb.Append($" | scatterCount={r.scatterCount} scatterL2R={r.scatterL2R} freeSpinsFromScatter={r.freeSpinsFromScatter} freeSpinsFromFireball={r.freeSpinsFromFireball} enterMiniByColumnFill={r.enterMiniByColumnFill}");
             UnityEngine.Debug.Log(sb.ToString());
         }
 
