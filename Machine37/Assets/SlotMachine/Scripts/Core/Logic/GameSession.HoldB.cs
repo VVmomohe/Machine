@@ -14,6 +14,20 @@ namespace SlotMachine.Core
         /// 归零→释放(火球回归滚动队列)；整列集满→对该列所有火球统一派彩(倍数/彩金/FREE)+enterMiniByColumnFill（进 Mini）。
         /// ★ 收集模式语义：火球入盘不付，整列集满才付。进 Mini 后下一局清空收集盘(_holdEnded)。
         /// FREE 火球单列累计仅在进 Mini 时并入 freeSpinsAwarded。</summary>
+        /// <summary>把收集盘各列倒计时压成一行（r0=3 r1=- r2=F...），供 [Fireball-countdown] 直观确认"扣几次"。</summary>
+        static string CountdownStr(HoldSpinState hs)
+        {
+            var sb = new System.Text.StringBuilder();
+            for (int r = 0; r < hs.reels; r++)
+            {
+                if (r > 0) sb.Append(' ');
+                if (hs.isFull[r]) sb.Append($"r{r}=F");
+                else if (hs.released[r]) sb.Append($"r{r}=-");
+                else sb.Append($"r{r}={hs.counter[r]}");
+            }
+            return sb.ToString();
+        }
+
         void AdvanceHoldBoard(List<FireballCell> initial, float bet, GameResult res)
         {
             // 进 Mini 后：清空收集盘，下一局从零开始
@@ -70,6 +84,7 @@ namespace SlotMachine.Core
                 res.wonJackpots = newJ;
                 res.holdSpinState = holdBoard;
                 if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Fireball-B] 新建收集盘：{initial.Count} 颗 → featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
+                UnityEngine.Debug.Log($"[Fireball-countdown] 新建盘: {CountdownStr(holdBoard)}");
                 return;
             }
 
@@ -167,6 +182,7 @@ namespace SlotMachine.Core
             res.wonJackpots = newJ;                             // 仅本局新中彩金（旧档已由持久特效/上一局处理）
             res.holdSpinState = holdBoard;
             if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Fireball-B] 收集盘推进：新火球={hasNew} 本局featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
+            UnityEngine.Debug.Log($"[Fireball-countdown] 推进: {CountdownStr(holdBoard)}");
             // ★ 诊断：按列打印 newInCol / counter / released / isFull / filled 数（核对"r1 有火球无圈圈"是否 newInCol 漏标记）；受 SlotDebug.VerboseLogs 开关控制。
             if (SlotDebug.VerboseLogs)
             {
