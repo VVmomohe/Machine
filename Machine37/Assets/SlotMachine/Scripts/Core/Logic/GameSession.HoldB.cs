@@ -27,12 +27,13 @@ namespace SlotMachine.Core
             if (holdBoard != null && !HoldSpinState.AnyActive(holdBoard) && !HoldSpinState.AnyFull(holdBoard))
                 holdBoard = null;
 
+            var newJ = new List<string>();   // 本局新中彩金档（供显示层播特效），整个方法仅声明一次
+
             if (holdBoard == null)
             {
                 int minTrigger = (_cfg.holdSpin.triggerMin > 0) ? _cfg.holdSpin.triggerMin : 1;
                 if (initial.Count < minTrigger) return;   // 新局火球不足，不新建盘
                 holdBoard = HoldSpinState.Start(_cfg, _rng, bet, initial, _pots, allowFreeMode: true, payOnStart: false);
-                var newJ = new List<string>();
                 foreach (var f in initial) PayFireball(f, bet, holdBoard, newJ);
                 res.featureWin = holdBoard.accumulated;   // 首局：本局收集即全部
                 res.wonJackpots = newJ;
@@ -44,7 +45,6 @@ namespace SlotMachine.Core
             // 已有收集盘：合并本局新火球 + 每列减一个圈圈（有新火球则重置为 respinCount）
             float before = holdBoard.accumulated;
             var newInCol = new bool[holdBoard.reels];
-            var newJ = new List<string>();
             if (hasNew)
                 foreach (var f in initial)
                 {
