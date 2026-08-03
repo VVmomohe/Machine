@@ -197,7 +197,7 @@ namespace com.slot
         }
 
         /// <summary>销毁非释放中的火球 overlay；释放中的保留，随卷轴滚走。Mini 棋盘下跳过清理。</summary>
-        void ClearFireballOverlaysExceptReleasing()
+        public void ClearFireballOverlaysExceptReleasing()
         {
             if (m_persistentFireOverlays) return;
             bool removed = false;

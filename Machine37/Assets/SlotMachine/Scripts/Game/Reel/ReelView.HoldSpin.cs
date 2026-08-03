@@ -68,15 +68,19 @@ namespace com.slot
             return _fbOverlays;
         }
 
-        public void ReleaseCollectedForNextSpin()
+        /// <summary>把已收集满列的 overlay 转入待释放集合，下一局卷轴滚动时由 MoveReleasingOverlays 随卷轴滚走。
+        /// onlyCollected=true 时只处理 _collectedReels 中的列，不兜底遍历所有 _fbOverlays（用于 StartBaseSpin
+        /// 先转 collected 再清非 releasing overlay，避免普通持有火球也被误标为 releasing）。</summary>
+        public void ReleaseCollectedForNextSpin(bool onlyCollected = false)
         {
             foreach (var r in _collectedReels) _releaseReels.Add(r);
+            _collectedReels.Clear();
+
+            if (onlyCollected) return;
+
             // ★ 兜底：直接遍历所有残留火球 overlay，把每个 overlay 的 reel 也并入待释放集合。
-            //   原因：CollectFullReelAnimation 在协程末尾(line 293-294)才把收集列加回 _collectedReels/_releaseReels，
-            //   而每个 respin 回合末 SpinHoldRound 会 _releaseReels.Clear()(line 289)。两者存在时序竞争，
-            //   若回合末 Clear 跑在 CollectFullReelAnimation 收尾之后，该 reel 会从 _releaseReels 被抹掉，
-            //   导致新基础局里该列火球 ghost 不随卷轴滚走、盖住转动的 Q（表现为"某列没转"）。
-            //   改为按 _fbOverlays 实际残留兜底，保证任何残留 ghost 都被释放。
+            //   原因：CollectFullReelAnimation 在协程末尾才把收集列加回 _collectedReels，而某些路径（如旧 respin 回合末）
+            //   会 _releaseReels.Clear()，存在时序竞争。按 _fbOverlays 实际残留兜底，保证任何残留 ghost 都被释放。
             //   ※ Mini 持久 overlay(m_persistentFireOverlays=true) 不参与此释放逻辑，必须跳过，否则会误把 Mini 火球当待释放滚走。
             if (!m_persistentFireOverlays)
             {
@@ -86,7 +90,6 @@ namespace com.slot
                     if (ParseReelRow(go.name, out int reel, out _)) _releaseReels.Add(reel);
                 }
             }
-            _collectedReels.Clear();
         }
 
         // ===== 模式B 收集盘 respin 辅助（轻量，不滚盘）=====
@@ -108,8 +111,10 @@ namespace com.slot
         }
 
         /// <summary>满列收集演出：复刻旧 HOLD 手感——每颗火球【原地变暗】的同时【新生成一个火球掉入桶(tong)】，
-        /// 原火球随后【向下滚回滚动队列(回归卷轴)】(旧 HOLD 不删除、回归滚动队列)；桶对每个落入的火球播放一次收取反应；
-        /// 顺序与旧 HOLD 一致——【先掉下面(row 小=底部)】，再往上。仅清理本列 overlay（其余列持有火球保持钉住，不碰）。</summary>
+        /// 桶对每个落入的火球播放一次收取反应；顺序与旧 HOLD 一致——【先掉下面(row 小=底部)】，再往上。
+        /// 演出结束后原火球 overlay 不删除、而是回归滚动队列：保留在 _fbOverlays 中并加入 _collectedReels，
+        /// 由 ReleaseCollectedForNextSpin + MoveReleasingOverlays 在下一局卷轴滚动时随卷轴自然滚走销毁。
+        /// 仅清理本列 overlay（其余列持有火球保持钉住，不碰）。</summary>
         public IEnumerator CollectFullReelAnimation(int reel)
         {
             if (reel < 0 || reel >= _reels.Count) yield break;
@@ -137,7 +142,7 @@ namespace com.slot
             float fallDur = 0.3f;
             float interval = Mathf.Max(fallDur + 0.1f, barrelDur * 0.9f);   // 相邻两颗落入的起始间隔（>=桶时长则每颗桶动画都能播完）
 
-            Debug.Log($"[COLLECT] r{reel} 满列收集：{list.Count} 颗（底部先掉·每颗原地变暗+新火球掉桶·桶对每颗反应一次）");
+            Debug.Log($"[COLLECT] r{reel} 满列收集：{list.Count} 颗（底部先掉·每颗原地变暗+新火球掉桶·桶对每颗反应一次·原火球回归滚动队列）");
 
             foreach (var ov in list)
             {
@@ -149,21 +154,19 @@ namespace com.slot
                 faller.transform.SetAsLastSibling();
                 SetOverlayAlpha(faller, 1f);                    // 新火球保持原亮度
 
-                // (b) 原火球原地变暗（旧 HOLD：火球会变暗，留在原位）；移出追踪列表，避免被 TrackFireballOverlays 锁回格子
+                // (b) 原火球原地变暗（旧 HOLD：火球会变暗，留在原位）——保留在 _fbOverlays，不删除
                 SetOverlayAlpha(ov, 0.4f);
-                _fbOverlays.Remove(ov);
 
                 // (c) 新火球掉入桶 + 桶对每个落入火球反应一次（不再“只播一次”）
                 yield return AnimateFireballDrop(faller, barrelPos, fallDur);
                 if (tong != null) tong.Play();
                 Destroy(faller);
 
-                // (d) 原火球「回归滚动队列」：向下滚回卷轴（旧 HOLD 不删除、回归滚动队列），淡出后销毁
-                yield return AnimateFireballRollToReel(ov, fallDur);
-                Destroy(ov);
-
                 yield return new WaitForSeconds(interval - fallDur);   // 间隔到下一颗开始
             }
+
+            // (d) 本列收集完毕：原火球 overlay 不删除，标记为“已收集列”，下一局卷轴滚动时由 MoveReleasingOverlays 随卷轴滚走
+            _collectedReels.Add(reel);
 
             // 最后一个桶动画播完再返回（避免被进 Mini 截断）
             if (tong != null) yield return tong.WaitDone();
@@ -198,25 +201,6 @@ namespace com.slot
             }
             rt.position = targetWorld;
             rt.localScale = new Vector3(0.35f, 0.35f, 1f);
-        }
-
-        /// <summary>原火球「回归滚动队列」：向下滚回卷轴（旧 HOLD 手感，不删除、回归滚动队列），同时淡出，由调用方随后 Destroy。</summary>
-        IEnumerator AnimateFireballRollToReel(GameObject go, float dur)
-        {
-            var rt = go.transform as RectTransform;
-            if (rt == null) yield break;
-            Vector3 start = rt.position;
-            Vector3 end = start - new Vector3(0f, m_cellSize * 1.5f, 0f);   // 向下滚回卷轴
-            float t = 0;
-            while (t < 1f)
-            {
-                t += Time.deltaTime / dur;
-                float e = 1f - (1f - Mathf.Clamp01(t)) * (1f - Mathf.Clamp01(t));   // ease-out：缓出滚走
-                rt.position = Vector3.Lerp(start, end, e);
-                SetOverlayAlpha(go, Mathf.Lerp(0.4f, 0f, e));   // 边滚边淡出
-                yield return null;
-            }
-            rt.position = end;
         }
 
         /// <summary>销毁某列(reel)全部火球 overlay（释放列时调用，使其从屏上消失）。</summary>

@@ -26,7 +26,10 @@ namespace com.slot
             {
                 // ★ 开新基础局：清掉上局残留的火球 overlay（基础局"固定火球"由本局重新钉出；
                 //   Mini 持久 overlay 已在 MiniGame 结束时自行 ClearFireballOverlays，此处不影响）。
-                m_reelView.ClearFireballOverlays();
+                //   注意：先让满列收集的 ghost 列转入待释放(_releaseReels)，再清非待释放 overlay——
+                //   这样满列收集的原火球 overlay 不删除，下一局卷轴滚动时随卷轴自然滚走(回归滚动队列)。
+                m_reelView.ReleaseCollectedForNextSpin(onlyCollected: true);
+                m_reelView.ClearFireballOverlaysExceptReleasing();
 
                 // 落了火球，把倍率传给 ShowGrid，滚动阶段就显示倍率。
                 // ★ 优先用 res.baseFireballs：基础轮落下的全部火球（不论是否触发 Hold&Spin）都已定倍率，一律显示。
