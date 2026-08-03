@@ -57,6 +57,18 @@ namespace com.slot
                         ShowFireballOverlay(r, row, c, playSound: false);
                 }
             }
+            // ★ 诊断（总是打印）：重建后当前火球 overlay 按列计数，核对"某列火球是否真的被重建=是否真的固定"。
+            {
+                var byCol = new System.Collections.Generic.Dictionary<int, int>();
+                foreach (var go in _fbOverlays)
+                {
+                    if (go == null) continue;
+                    if (ParseReelRow(go.name, out int rcol, out _)) { if (!byCol.ContainsKey(rcol)) byCol[rcol] = 0; byCol[rcol]++; }
+                }
+                var sbH = new System.Text.StringBuilder("[ShowHeld] 当前火球overlay按列: ");
+                foreach (var kv in byCol) sbH.Append($"r{kv.Key}={kv.Value} ");
+                UnityEngine.Debug.Log(sbH.ToString());
+            }
             RefreshColumnEffects(s);
         }
 
@@ -73,8 +85,11 @@ namespace com.slot
         /// 先转 collected 再清非 releasing overlay，避免普通持有火球也被误标为 releasing）。</summary>
         public void ReleaseCollectedForNextSpin(bool onlyCollected = false)
         {
+            var movedCols = new List<int>(_collectedReels);
             foreach (var r in _collectedReels) _releaseReels.Add(r);
             _collectedReels.Clear();
+            if (movedCols.Count > 0)
+                UnityEngine.Debug.Log($"[RELEASE-PREP] collected[{string.Join(",", movedCols)}] → _releaseReels（下一局随卷轴滚走·回归滚动队列）");
 
             if (onlyCollected) return;
 

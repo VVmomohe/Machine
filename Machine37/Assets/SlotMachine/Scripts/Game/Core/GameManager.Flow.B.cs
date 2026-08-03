@@ -56,7 +56,27 @@ namespace com.slot
                 }
                 // 释放列兜底：清 overlay + 底层符号回归普通（board 已清空这些列 cells，ShowFeatureState 不会重钉）
                 for (int rr = 0; rr < hs.reels; rr++)
-                    if (hs.released[rr]) { m_reelView.ClearColumnFireballs(rr); m_reelView.ReleaseColumnToSpinQueue(rr); }
+                    if (hs.released[rr]) { UnityEngine.Debug.Log($"[RELEASE-B-DO] r{rr} 展示层执行释放：ClearColumnFireballs + ReleaseColumnToSpinQueue（火球回归滚动队列）"); m_reelView.ClearColumnFireballs(rr); m_reelView.ReleaseColumnToSpinQueue(rr); }
+
+                // ★ 诊断快照（总是打印）：每列 overlay 数 / 棋盘 filled 数 / counter / released / full，
+                //   与逻辑层 [Fireball-B-SUM] 及展示层 [RELEASE-MOVE]/[CLEAR-EXCEPT] 对照，定位"有圈圈却火球回归队列"。
+                {
+                    var ovByCol = new System.Collections.Generic.Dictionary<int, int>();
+                    foreach (var go in m_reelView.GetFireballOverlays())
+                    {
+                        if (go == null) continue;
+                        if (m_reelView.ParseReelRow(go.name, out int rcol, out _))
+                        { if (!ovByCol.ContainsKey(rcol)) ovByCol[rcol] = 0; ovByCol[rcol]++; }
+                    }
+                    var sbSnap = new System.Text.StringBuilder("[SNAP] ");
+                    for (int rr = 0; rr < hs.reels; rr++)
+                    {
+                        int bf = 0; for (int row = 0; row < hs.cells[rr].Length; row++) if (hs.cells[rr][row].filled) bf++;
+                        int ov = ovByCol.ContainsKey(rr) ? ovByCol[rr] : 0;
+                        sbSnap.Append($"r{rr}[ovl={ov} bd={bf} cnt={hs.counter[rr]} rel={hs.released[rr]} full={hs.isFull[rr]}] ");
+                    }
+                    UnityEngine.Debug.Log(sbSnap.ToString());
+                }
 
                 // 特性赢分/彩金/FREE 已在逻辑层 AdvanceHoldBoard 按"本局增量"算定（featureWin / wonJackpots / freeSpinsAwarded），此处只展示。
                 if (r.enterMiniByColumnFill)
