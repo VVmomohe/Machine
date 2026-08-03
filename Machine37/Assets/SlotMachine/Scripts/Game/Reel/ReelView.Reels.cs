@@ -309,7 +309,7 @@ namespace com.slot
                 if (row >= 0 && row < st.finalSyms.Length)
                 {
                     int sym = st.finalSyms[row];
-                    SetCell(st, k, sym);
+                    SetCell(st, k, sym, true);   // 减速最后阶段已是最终结果，同步 m_id
                     // ★ 火球：减速最后2格也挂倍率（与 LayoutReel 减速阶段衔接，无跳变）。
                     //   Mini 持久 overlay 模式也挂——停稳后 overlay 在最上层盖住，无重影。
                     if (sym == m_fireballSymbolId)

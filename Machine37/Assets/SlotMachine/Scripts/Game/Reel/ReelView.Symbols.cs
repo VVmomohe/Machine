@@ -142,10 +142,11 @@ namespace com.slot
                 // 新火球：不 return，落到下面正常渲染分支（随卷轴滚入）
             }
 
-            // ★ 定格同步 m_id：仅 syncId=true（结果 List 算定、定格时）才把 id 写回 m_id，
-            //   确保 Hold&Spin 每轮换数据后 m_id 对齐到本轮 List 结果；滚动中(syncId=false)不碰
-            //   （用户拍板"中途不变"）。置于 shownSym 提前返回之前：即便符号未变也能把 m_id 对齐。
-            if (syncId)
+            // ★ 定格同步 m_id：syncId=true（结果 List 算定、定格时）或 id=火球时都把 id 写回 m_id。
+            //   火球格特殊处理：只要视觉呈现火球，m_id 就必须是 12，避免 Inspector 出现"id=3 但显示火球"
+            //   的误导性状态（滚动中/减速期 displayStrip 经过火球位置时会暂时显示火球）。非火球仍遵循
+            //   "滚动中不变"，仅在定格/创建时定值。
+            if (syncId || id == m_fireballSymbolId)
             {
                 var it0 = st.cellItems[k];
                 if (it0 != null) it0.m_id = id;

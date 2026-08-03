@@ -122,6 +122,28 @@ namespace com.slot
                         merged = true;
                     }
                 }
+                // 第三遍：以 ShowFeatureState 实际创建的 overlay 为最终权威，强制底层 grid 对齐为火球。
+                // 防御前两遍合并遗漏（如 hs.cells / baseFireballs 与 overlay 不同步、或满列收集演出前
+                // 的瞬时状态），确保"屏上有火球 overlay"的位置底层 m_id 一定为 12，避免 Inspector 误读。
+                if (m_reelView != null && fbId > 0)
+                {
+                    foreach (var go in m_reelView.GetFireballOverlays())
+                    {
+                        if (go == null) continue;
+                        if (!m_reelView.ParseReelRow(go.name, out int rr, out int row)) continue;
+                        if (rr < 0 || rr >= r.baseGrid.Length) continue;
+                        if (row < 0 || row >= r.baseGrid[rr].Length) continue;
+                        // 满列 ghost 已由 CollectFullReelAnimation 接管，下一局滚走；此处不强制改写
+                        if (r.holdSpinState != null && rr < r.holdSpinState.isFull.Length && r.holdSpinState.isFull[rr]) continue;
+                        if (r.baseGrid[rr][row] != fbId)
+                        {
+                            r.baseGrid[rr][row] = fbId;
+                            merged = true;
+                            if (SlotDebug.VerboseLogs)
+                                Debug.Log($"[SettleBaseB-overlay兜底] r{rr},row{row}: baseGrid 改为 fbId={fbId}");
+                        }
+                    }
+                }
             }
             // ★ 视觉兜底：把合并后的 baseGrid 同步渲染回底层卷轴格，确保"逻辑 id=12(火球)"的位置屏幕上确实显示火球，
             //   不被底层 spun 普通符号覆盖（不再依赖 ShowFeatureState 的 overlay 恰好盖住该格）。

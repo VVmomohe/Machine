@@ -167,7 +167,7 @@ namespace com.slot
         }
 
         /// <summary>从 overlay 名 "FBOverlay_{reel}_{row}" 解析出 reel/row。</summary>
-        bool ParseReelRow(string name, out int reel, out int row)
+        public bool ParseReelRow(string name, out int reel, out int row)
         {
             reel = -1; row = -1;
             if (string.IsNullOrEmpty(name)) return false;
