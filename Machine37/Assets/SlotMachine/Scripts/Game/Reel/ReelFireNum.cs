@@ -64,11 +64,14 @@ namespace com.slot
             Refresh();
         }
 
-        /// <summary>设置倒计时圈数（0..N；0=空圈静止帧，仍可见）。
-        /// 首次拿到火球(count&gt;0)即标记 engaged，之后即便 count 落到 0（满列掉落/释放）也一直保持显示到开新局。</summary>
+        /// <summary>设置倒计时圈数（0..N；0=空圈静止帧/文本"0"，仍可见）。
+        /// ★ 只要逻辑显式要求显示该列（count&gt;=0，含最终态 0）就置 engaged=true——
+        ///   否则每开新局 HideAllCounters→ResetAll 把 m_engaged 清成 false 后，显示 0 的帧会因
+        ///   Refresh 的 show=active&amp;&amp;(engaged||rate&gt;0) 为 false 而被隐藏，导致"3→2→1 后直接消失看不到 0"。
+        ///   旧逻辑用 if(count&gt;0) 漏判 0，正是这个 bug。released 列走 HideCounterRow 不走 SetCount，不受影响。</summary>
         public void SetCount(int count)
         {
-            if (count > 0)
+            if (count >= 0)
                 m_engaged = true;
 
             m_num = count;
