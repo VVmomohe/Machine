@@ -69,8 +69,9 @@ namespace com.slot
                 if (m_numObjs[i] != null) m_numObjs[i].CheckEngaged();
         }
 
-        /// <summary>读取各列计数器 engaged 状态（m_engaged），供逻辑层 RespinHoldSpin 按"该列是否还有火球"判定释放。
-        /// 释放判定改由显示层 m_engaged 驱动（用户拍板 2026-07-25）：m_engaged==false 即该列无火球/倒计时已归零 → 火球回归滚动队列。</summary>
+        /// <summary>读取各列计数器 engaged 状态（m_engaged）。
+        /// 注意：模式B 释放判定现由逻辑层(GameSession.AdvanceHoldBoard)按"该列倒计时归零且未集满"直接驱动，
+        /// 不再回读显示层 m_engaged；此处仅作调试/兜底用途。</summary>
         public bool[] GetEngagedColumns()
         {
             if (m_numObjs == null) return null;

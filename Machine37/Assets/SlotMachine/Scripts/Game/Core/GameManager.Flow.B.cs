@@ -19,73 +19,39 @@ namespace com.slot
         {
             yield return WaitReelsStop();
 
-            // ★ 基础局"固定火球"显示：把落下的火球钉成持久 overlay（收集盘/固定火球），
-            //   FREE 火球累加的免费次数已在逻辑层(SettleFireballsDirect / respin 累加)算入 r.freeSpinsAwarded。
-            if (m_reelView != null && r.baseFireballs != null)
-            {
-                foreach (var c in r.baseFireballs)
-                    if (c.filled) m_reelView.ShowFireballOverlay(c.reel, c.row, c, playSound: false);
-            }
-
-            // ★ 模式B 收集盘 respin：基础局落了火球 → 进入（显示+动画，不滚盘）收集循环。
+            // ★ 模式B 收集盘（跨局持有，圈圈只在"开新一局"时减一，不在单局内循环减）。
+            //   逻辑层 AdvanceHoldBoard 已在 Play() 把本局推进到最终态（合并新火球 + 减一个圈圈 + 满列/释放）；
+            //   此处只按盘当前态【展示】：钉全部已收集火球 + 显示各列圈数 + 满列 tong/释放列清理。
             if (r.holdSpinState != null && m_reelView != null)
             {
                 var hs = r.holdSpinState;
-                m_reelView.ShowFeatureState(hs);   // 钉初始火球（统一由 hs 重排，覆盖上面逐颗钉法）
+                m_reelView.ShowFeatureState(hs);   // 钉全部已收集火球（覆盖基础局 + 历史跨局持有）
                 m_reelView.ActivateCounters();
                 for (int rr = 0; rr < hs.reels; rr++)
-                    if (hs.counter[rr] > 0) m_reelView.SetRespinCounterRow(rr, hs.counter[rr]);
-
-                int guard = 0;
-                int freeFromFireball = 0;   // 本轮 respin 内 FREE 火球(单列收集)累计的免费次数（不在中途并入 freeSpinsAwarded，避免单颗 FREE 就进小游戏）
-                while (hs.active && guard++ < 200)
                 {
-                    var step = GameSession.RespinHoldSpin(hs, m_machine.config, m_machine.rng,
-                        m_machine.totalBet, allowFreeMode: true);
-
-                    // 释放列(counter 归零)：清 overlay + 底层符号回归普通(下一局自然滚) + 隐藏该列计数器
-                    if (step.releasedReels != null)
-                        foreach (int rel in step.releasedReels)
-                        {
-                            m_reelView.ClearColumnFireballs(rel);
-                            m_reelView.ReleaseColumnToSpinQueue(rel);
-                            m_reelView.HideCounterRow(rel);
-                        }
-
-                    // 满列：tong 演出 + 标记进 Mini(整列集满才进小游戏) + 计数器显(已集满，圈数归零保留显示)
-                    if (step.fullReels != null)
-                        foreach (int full in step.fullReels)
-                        {
-                            m_reelView.PlayTong(full);
-                            m_reelView.SetRespinCounterRow(full, 0);
-                            r.enterMiniByColumnFill = true;
-                        }
-
-                    // 其余活跃列（本轮无新火球）：刷新圈数（递减 3→2→1→0）
-                    if (step.newCounters != null)
-                        for (int rr = 0; rr < step.newCounters.Length; rr++)
-                            if (!hs.isFull[rr] && !hs.released[rr] && hs.counter[rr] > 0)
-                                m_reelView.SetRespinCounterRow(rr, hs.counter[rr]);
-
-                    // 本轮 FREE 火球(单列收集)累计的免费次数：先累计，待「整列集满」开 Mini 时再并入（防单颗 FREE 就进小游戏）
-                    freeFromFireball += step.freeSpinsAdded;
-
-                    yield return new WaitForSeconds(0.35f);  // 给 tong/overlay 动画一点节奏
+                    if (hs.isFull[rr])
+                    {
+                        m_reelView.SetRespinCounterRow(rr, 0);
+                        m_reelView.PlayTong(rr);                 // 满列 tong 演出
+                    }
+                    else if (!hs.released[rr] && hs.counter[rr] > 0)
+                        m_reelView.SetRespinCounterRow(rr, hs.counter[rr]);   // 显示当前圈数（本局已 −1）
+                    else
+                        m_reelView.HideCounterRow(rr);          // 已释放/无火球列：隐藏计数器
                 }
+                // 释放列兜底：清 overlay + 底层符号回归普通（board 已清空这些列 cells，ShowFeatureState 不会重钉）
+                for (int rr = 0; rr < hs.reels; rr++)
+                    if (hs.released[rr]) { m_reelView.ClearColumnFireballs(rr); m_reelView.ReleaseColumnToSpinQueue(rr); }
 
-                // ★ 模式B：FREE 火球累计的免费次数仅在「整列集满」开 Mini 时并入免费局数（用户硬性要求：整列集满才进 Mini）
+                // 特性赢分/彩金/FREE 已在逻辑层 AdvanceHoldBoard 按"本局增量"算定（featureWin / wonJackpots / freeSpinsAwarded），此处只展示。
                 if (r.enterMiniByColumnFill)
-                    r.freeSpinsAwarded += freeFromFireball;
-                r.freeSpinsFromFireball = freeFromFireball;
-
-                // 总火球派彩（hs.accumulated 已含初始 + 各轮逐颗 ×bet）
-                r.featureWin = hs.accumulated;
-                // wonJackpots 最终以 hs 为准（含初始），去重置池已在上面逐轮处理
-                if (r.wonJackpots == null) r.wonJackpots = new List<string>(hs.wonJackpots);
-                else foreach (var t in hs.wonJackpots) if (!r.wonJackpots.Contains(t)) r.wonJackpots.Add(t);
-
-                if (r.enterMiniByColumnFill)
-                    Debug.Log($"[MINI-TRIGGER] 模式B 整列集满 → 进 Mini（scatter={r.freeSpinsFromScatter} + FREE={freeFromFireball} = freeSpinsAwarded={r.freeSpinsAwarded}）");
+                    Debug.Log($"[MINI-TRIGGER] 模式B 整列集满 → 进 Mini（scatter={r.freeSpinsFromScatter} + FREE={r.freeSpinsFromFireball} = freeSpinsAwarded={r.freeSpinsAwarded}）");
+            }
+            else if (m_reelView != null && r.baseFireballs != null)
+            {
+                // 无收集盘（无持有火球且本局也无足够火球触发）：基础局固定火球兜底显示
+                foreach (var c in r.baseFireballs)
+                    if (c.filled) m_reelView.ShowFireballOverlay(c.reel, c.row, c, playSound: false);
             }
 
             // 数值结算（与 A 共用同一套评估口径）

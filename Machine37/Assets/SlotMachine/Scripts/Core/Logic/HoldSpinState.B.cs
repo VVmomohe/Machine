@@ -43,7 +43,7 @@ namespace SlotMachine.Core
 
         /// <summary>从基础旋转落下的初始火球创建特性态。无火球的列直接标记 released。
         /// payOnStart=true（默认，Mini 用）：初始即满列直接派彩+清池；
-        /// payOnStart=false（模式B 收集盘 respin 用）：初始火球派彩由调用方逐颗处理（RespinHoldSpin / CheckFireballHoldSpin），此处只放置+置计数。</summary>
+        /// payOnStart=false（模式B 收集盘用）：初始火球派彩由调用方逐颗处理（AdvanceHoldBoard / CheckFireballHoldSpin），此处只放置+置计数。</summary>
         public static HoldSpinState Start(ReelConfig cfg, ISlotRng rng, float bet, List<FireballCell> initial,
             IReadOnlyDictionary<string, float> pots = null, bool allowFreeMode = false, bool payOnStart = true)
         {
@@ -143,6 +143,13 @@ namespace SlotMachine.Core
         {
             for (int r = 0; r < st.reels; r++)
                 if (st.counter[r] > 0 || (!st.isFull[r] && !st.released[r])) return true;
+            return false;
+        }
+
+        /// <summary>是否存在任一已集满列（用于判定"收集盘已死但仍卡着满列"）。</summary>
+        public static bool AnyFull(HoldSpinState st)
+        {
+            for (int r = 0; r < st.reels; r++) if (st.isFull[r]) return true;
             return false;
         }
 

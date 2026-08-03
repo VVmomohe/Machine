@@ -7,11 +7,10 @@ namespace com.slot
 {
     /// <summary>单列火球倒计时计数器（ReelFireNum）。
     ///
-    /// ★ 显示 / 统计组件（用户拍板 2026-07-25）：本组件主要【单向】由游戏逻辑写入（SetCount/AddMultiplier），
-    ///   仅 "列释放(火球回归)" 这一项例外——GameSession.RespinHoldSpin 会【回读 m_engaged】作为释放判据
-    ///   （用户 2026-07-25 明确要求：释放别用纯计数逻辑，用 m_engaged==false），使"圈圈显示"与"火球离场"彻底同步。
-    ///   其余玩法(满列派彩/jackpot/轮次)仍由 HoldSpinState.counter 驱动；倒计时 3→2→1→0 仍由 counter 镜像显示，
-    ///   m_engaged 在 m_num<=0 时被 CheckEngaged 清掉，从而驱动下一轮释放。
+    /// ★ 显示 / 统计组件（用户拍板 2026-07-25）：本组件【单向】由游戏逻辑写入（SetCount/AddMultiplier），
+    ///   倒计时 3→2→1→0 由 HoldSpinState.counter 镜像显示（跨局持有：每开一局减一，不滚盘）。
+    ///   释放判定现由逻辑层(GameSession.AdvanceHoldBoard)按"该列倒计时归零且未集满"直接驱动（不再回读 m_engaged），
+    ///   使"圈圈显示"与"火球离场"彻底同步；m_engaged 仅作兜底（m_num<=0 时被 CheckEngaged 清掉）。
     ///
     /// 极简模型（用户拍板，2026-07-25 修正）：
     ///   m_active 是【整个 Hold&amp;Spin 会话】的开关（进入=true，开新局=false），不能区分“哪一列有火球”。

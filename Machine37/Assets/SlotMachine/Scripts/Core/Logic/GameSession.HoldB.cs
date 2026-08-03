@@ -2,80 +2,133 @@ using System.Collections.Generic;
 
 namespace SlotMachine.Core
 {
-    /// <summary>模式B(Cash Falls / 收集盘) 收集盘 respin 一轮推进的产出（逻辑层，不依赖 Unity）。
-    /// 仅做数据推进（纯 HOLD，不随机补火球）：减圈 / 满列 / 释放 / FREE 单列累计免费次数；
-    /// 每颗火球派彩已在基础局落定时计入 hs.accumulated（此处不再落新火球 ×bet）。
-    /// 显示与动画（钉 overlay / tong / 计数器 / 满列演出）由 GameManager.Flow.B 驱动协程完成。</summary>
-    public class RespinStep
-    {
-        public List<FireballCell> newFireballs = new List<FireballCell>(); // 本轮新落火球（含位置/倍率/档）
-        public List<int> fullReels = new List<int>();        // 本轮刚集满的列（首个满的火球）
-        public List<int> releasedReels = new List<int>();    // 本轮刚释放（火球回归滚动队列）的列
-        public List<string> newJackpots = new List<string>(); // 本轮新中彩金档名（驱动据此 ResetJackpot + 播特效）
-        public int[] newCounters;            // 各列新倒计时（respinCount→减1→0）
-        public int freeSpinsAdded;           // 本轮 FREE 火球(单列收集)追加的免费次数（升档补差）
-        public float roundWin;               // 本轮火球派彩（= 推进后 hs.accumulated − 推进前，仅供日志）
-    }
-
+    /// <summary>模式B(Cash Falls / 收集盘) 跨局持有逻辑：
+    ///   holdBoard 跨基础局持久保留（GameSession.holdBoard），每开一局(Play)推进【一个】步：
+    ///   合并本局基础火球入盘 + 每列"有新火球→重置3 / 无新火球→−1" + 归零释放 + 整列集满→进 Mini。
+    ///   不再有单局内循环 respin（那会让圈圈在停轮后慢慢减完）；圈圈只在"开新一局"时减一。
+    ///   显示与动画（钉 overlay / tong / 计数器 / 满列演出）由 GameManager.Flow.B 在停轮后按盘当前态展示。</summary>
     public partial class GameSession
     {
-        /// <summary>模式B 收集盘 respin 一轮推进（不滚盘、纯 HOLD，不随机补火球，纯逻辑）：
-        /// 每个活跃列(reel)只做【圈圈数倒计时】：counter −1；counter 归零 → 释放（清该列火球，回归滚动队列）；
-        /// 满列判定：仅当基础局本身就落出整列火球（hs.cells 初始即满）才标记 isFull（进 Mini）。
-        /// 不在 respin 期间往空格补新火球（杜绝从 1~2 颗种子凭空补满整列 → 进 Mini）。
-        /// FREE 火球按【单列】累计 freeCountByCol（仅来自基础局落定的 FREE 火球），升档补差追加免费次数（freeballTiers[1,2,3]→[2,5,10]）。
-        /// 不在此处清彩金池，保证逻辑层可独立测试。</summary>
-        public static RespinStep RespinHoldSpin(HoldSpinState hs, ReelConfig cfg, ISlotRng rng, float bet, bool allowFreeMode)
+        /// <summary>模式B 收集盘推进（跨局持有，纯逻辑，不依赖 Unity）：
+        /// 把本局基础火球(initial)合并进持久 holdBoard；每列倒计时按"新火球→3 / 否则−1"推进；
+        /// 归零→释放(火球回归滚动队列)；整列集满→enterMiniByColumnFill（进 Mini）。
+        /// 进 Mini 后下一局清空收集盘(_holdEnded)。FREE 火球单列累计仅在进 Mini 时并入 freeSpinsAwarded。</summary>
+        void AdvanceHoldBoard(List<FireballCell> initial, float bet, GameResult res)
         {
-            var step = new RespinStep();
-            step.newCounters = new int[hs.reels];
-            var hc = cfg.holdSpin;
-            float before = hs.accumulated;
+            // 进 Mini 后：清空收集盘，下一局从零开始
+            if (_holdEnded) { holdBoard = null; _holdEnded = false; }
 
-            for (int r = 0; r < hs.reels; r++)
+            bool hasNew = initial != null && initial.Count > 0;
+
+            // 无盘且无新火球 → 不触发（res.baseFireballs 仍保留，供显示层兜底钉出）
+            if (holdBoard == null && !hasNew) return;
+
+            // 板子已死（无活跃列且无满列）→ 重置，等同无盘
+            if (holdBoard != null && !HoldSpinState.AnyActive(holdBoard) && !HoldSpinState.AnyFull(holdBoard))
+                holdBoard = null;
+
+            if (holdBoard == null)
             {
-                step.newCounters[r] = hs.counter[r];
-                if (hs.isFull[r] || hs.released[r]) continue;
-                if (hs.counter[r] <= 0) { hs.released[r] = true; step.releasedReels.Add(r); continue; }
-
-                // ★ 纯 HOLD（不滚盘、不随机补火球）：respin 期间只做"锁定显示 + 圈圈数倒计时 + tong/释放演出"。
-                //   不在空格补新火球（避免从 1~2 颗种子凭空补满整列 → 进 Mini）。
-                //   满列判定：仅当基础局本身就落出整列火球（hs.cells 初始即满）才标记 isFull → 进 Mini。
-                hs.counter[r] -= 1;
-
-                // 满列判定（优先于释放）
-                if (!hs.isFull[r] && HoldSpinState.ReelFull(hs, r))
-                {
-                    hs.isFull[r] = true;
-                    hs.counter[r] = 0;
-                    step.fullReels.Add(r);
-                }
-                else if (hs.counter[r] <= 0 && !hs.isFull[r])
-                {
-                    // 倒计时归零且未集满 → 释放：清掉该列所有火球，回归滚动队列
-                    hs.counter[r] = 0;
-                    hs.released[r] = true;
-                    for (int row = 0; row < hs.cells[r].Length; row++)
-                        hs.cells[r][row] = new FireballCell { reel = r, row = row };
-                    step.releasedReels.Add(r);
-                }
-                step.newCounters[r] = hs.counter[r];
+                int minTrigger = (_cfg.holdSpin.triggerMin > 0) ? _cfg.holdSpin.triggerMin : 1;
+                if (initial.Count < minTrigger) return;   // 新局火球不足，不新建盘
+                holdBoard = HoldSpinState.Start(_cfg, _rng, bet, initial, _pots, allowFreeMode: true, payOnStart: false);
+                var newJ = new List<string>();
+                foreach (var f in initial) PayFireball(f, bet, holdBoard, newJ);
+                res.featureWin = holdBoard.accumulated;   // 首局：本局收集即全部
+                res.wonJackpots = newJ;
+                res.holdSpinState = holdBoard;
+                UnityEngine.Debug.Log($"[Fireball-B] 新建收集盘：{initial.Count} 颗 → featureWin={res.featureWin:F2}");
+                return;
             }
 
-            // FREE 火球免费次数：单列累计，升档只补差额（避免每轮重复授予）
-            if (cfg.freeSpins != null)
-            {
-                foreach (var kv in hs.freeCountByCol)
+            // 已有收集盘：合并本局新火球 + 每列减一个圈圈（有新火球则重置为 respinCount）
+            float before = holdBoard.accumulated;
+            var newInCol = new bool[holdBoard.reels];
+            var newJ = new List<string>();
+            if (hasNew)
+                foreach (var f in initial)
                 {
-                    int award = cfg.freeSpins.FreeballAwardFor(kv.Value);
-                    int prev = hs.prevFreeAward.ContainsKey(kv.Key) ? hs.prevFreeAward[kv.Key] : 0;
-                    if (award > prev) { step.freeSpinsAdded += (award - prev); hs.prevFreeAward[kv.Key] = award; }
+                    if (!f.filled) continue;
+                    if (!holdBoard.cells[f.reel][f.row].filled)
+                    {
+                        holdBoard.cells[f.reel][f.row] = f;   // 入盘（f 已定倍率/档/FREE）
+                        newInCol[f.reel] = true;
+                        PayFireball(f, bet, holdBoard, newJ);
+                    }
+                }
+
+            int respinCount = (_cfg.holdSpin != null) ? _cfg.holdSpin.respinCount : 3;
+            for (int r = 0; r < holdBoard.reels; r++)
+            {
+                if (holdBoard.isFull[r] || holdBoard.released[r]) continue;
+                if (newInCol[r])
+                {
+                    holdBoard.counter[r] = respinCount;       // 新火球 → 重置圈圈为 3
+                }
+                else
+                {
+                    holdBoard.counter[r] -= 1;                 // 无新火球 → 减一个圈圈
+                    if (holdBoard.counter[r] <= 0)
+                    {
+                        // 倒计时归零且未集满 → 释放：清掉该列火球，回归滚动队列
+                        holdBoard.counter[r] = 0;
+                        holdBoard.released[r] = true;
+                        for (int row = 0; row < holdBoard.cells[r].Length; row++)
+                            holdBoard.cells[r][row] = new FireballCell { reel = r, row = row };
+                        continue;
+                    }
+                }
+                // 满列判定（优先于释放）：某列集满所有格 → 进 Mini
+                if (!holdBoard.isFull[r] && HoldSpinState.ReelFull(holdBoard, r))
+                {
+                    holdBoard.isFull[r] = true;
+                    holdBoard.counter[r] = 0;
+                    res.enterMiniByColumnFill = true;
+                    _holdEnded = true;
                 }
             }
 
-            hs.active = HoldSpinState.AnyActive(hs);
-            step.roundWin = hs.accumulated - before;
-            return step;
+            // FREE 火球免费次数：单列累计，仅「整列集满」开 Mini 时才授予（防单颗 FREE 就进小游戏）
+            int freeAdded = 0;
+            if (_cfg.freeSpins != null)
+                foreach (var kv in holdBoard.freeCountByCol)
+                {
+                    int award = _cfg.freeSpins.FreeballAwardFor(kv.Value);
+                    int prev = holdBoard.prevFreeAward.ContainsKey(kv.Key) ? holdBoard.prevFreeAward[kv.Key] : 0;
+                    if (award > prev) freeAdded += (award - prev);
+                }
+            if (res.enterMiniByColumnFill)
+            {
+                res.freeSpinsAwarded += freeAdded;
+                if (_cfg.freeSpins != null)
+                    foreach (var kv in holdBoard.freeCountByCol)
+                        holdBoard.prevFreeAward[kv.Key] = _cfg.freeSpins.FreeballAwardFor(kv.Value);
+            }
+
+            res.featureWin = holdBoard.accumulated - before;   // ★ 本局增量（避免跨局累计重复付）
+            res.wonJackpots = newJ;                             // 仅本局新中彩金（旧档已由持久特效/上一局处理）
+            res.holdSpinState = holdBoard;
+            UnityEngine.Debug.Log($"[Fireball-B] 收集盘推进：新火球={hasNew} 本局featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
+        }
+
+        /// <summary>逐颗结算一颗火球：倍数火球→×bet 累加；彩金火球→记档+即时清池；FREE 火球→单列计数（不派彩）。
+        /// 供「新建盘」与「合并新火球」复用；outJackpots 收集本局新中彩金档（供显示层播特效）。</summary>
+        void PayFireball(FireballCell f, float bet, HoldSpinState hs, List<string> outJackpots)
+        {
+            if (f.kind == FireballKind.FreeSpins)
+            {
+                if (!hs.freeCountByCol.ContainsKey(f.reel)) hs.freeCountByCol[f.reel] = 0;
+                hs.freeCountByCol[f.reel]++;
+                return;
+            }
+            hs.accumulated += bet * f.multiplier;
+            if (f.jackpotTier >= 0 && f.jackpotTier < HoldSpinState.JackpotTierNames.Length)
+            {
+                string t = HoldSpinState.JackpotTierNames[f.jackpotTier];
+                hs.wonJackpots.Add(t);
+                outJackpots.Add(t);
+                ResetJackpot(t);   // 彩金火球落定即中 + 即时清池
+            }
         }
     }
 }
