@@ -238,6 +238,18 @@ namespace com.slot
             }
         }
 
+        /// <summary>取 (reel,row) 位置的 ReelItem（底层卷轴格组件），供诊断/外部查询使用。
+        /// 越界或卷轴未初始化时返回 null。</summary>
+        public ReelItem GetReelItem(int reel, int row)
+        {
+            if (reel < 0 || reel >= _reels.Count) return null;
+            var st = _reels[reel];
+            if (st == null || st.cellItems == null) return null;
+            int k = m_buf + row;
+            if (k < 0 || k >= st.cellItems.Count) return null;
+            return st.cellItems[k];
+        }
+
         /// <summary>
         /// 按 symbol ID 加载精灵。
         /// Config paytable ID 与 Icon 资源文件编号一一对应（1-based）：

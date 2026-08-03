@@ -66,15 +66,34 @@ namespace com.slot
                     if (c.filled) m_reelView.ShowFireballOverlay(c.reel, c.row, c, playSound: false);
             }
 
-            // ★ 模式B：把本局火球合并进 baseGrid（filled 位置置为 fireballSymbolId），使结算/日志的 grid
-            //   与视觉 overlay 一致。火球锁定的格子不参与连线（Cash Falls 语义：收集盘格子是火球，不是线符号）。
-            //   ★ 关键：用 r.baseFireballs 作为合并源（不论 r.holdSpinState 是否为 null），覆盖未触发收集盘的
-            //     单局火球显示分支（line 62-67 只钉 overlay、不合并 baseGrid → 旧 bug：m_id 仍为 spun 符号 9、
-            //     屏幕却显示火球）。触发收集盘时 baseFireballs 与 hs.cells 同源（都是本局所有火球），结果一致。
-            if (r.baseGrid != null && r.baseFireballs != null && r.baseFireballs.Count > 0)
+            // ★ 模式B：把"屏幕显示为火球"的所有位置合并进 baseGrid（filled → fireballSymbolId），使结算/日志/底层卷轴格
+            //   与视觉 overlay 严格一致。火球锁定的格子不参与连线（Cash Falls 语义：收集盘格子是火球，不是线符号）。
+            //   ★ 关键：合并源必须覆盖【本局新落 + 跨局持有但本局没新落】两类位置——
+            //     r.baseFireballs 仅含本局新落；hs.cells（如果有）含所有已落火球（含跨局持有）。
+            //     旧逻辑只用 r.baseFireballs → 跨局持有但本局没新落的格子 m_id 仍为底层 spun 符号（如 10 Wild），
+            //     屏幕却因 ShowFeatureState 钉了 overlay 显示火球，造成"底下 Wild+上层火球"叠图。
+            //   ★ 修法：用 hs.cells 为主（更全），r.baseFireballs 补漏（极端路径：hs 为 null 但仍有 baseFireballs）。
+            int fbId = (m_machine.config != null) ? m_machine.config.fireballSymbolId : 0;
+            bool merged = false;
+            if (fbId > 0 && r.baseGrid != null)
             {
-                int fbId = (m_machine.config != null) ? m_machine.config.fireballSymbolId : 0;
-                if (fbId > 0)
+                // 第一遍：hs.cells 全部 filled（跨局持有全集）
+                if (r.holdSpinState != null)
+                {
+                    var hs = r.holdSpinState;
+                    for (int rr = 0; rr < hs.reels && rr < r.baseGrid.Length; rr++)
+                    {
+                        if (hs.released[rr]) continue;   // 释放列已回归滚动队列，保留 spun 符号
+                        for (int row = 0; row < hs.cells[rr].Length && row < r.baseGrid[rr].Length; row++)
+                            if (hs.cells[rr][row].filled)
+                            {
+                                r.baseGrid[rr][row] = fbId;
+                                merged = true;
+                            }
+                    }
+                }
+                // 第二遍：r.baseFireballs 补漏（hs 为 null 但有本局火球的兜底路径）
+                if (r.baseFireballs != null)
                 {
                     foreach (var c in r.baseFireballs)
                     {
@@ -82,30 +101,58 @@ namespace com.slot
                         if (c.reel < 0 || c.reel >= r.baseGrid.Length) continue;
                         if (c.row < 0 || c.row >= r.baseGrid[c.reel].Length) continue;
                         r.baseGrid[c.reel][c.row] = fbId;
+                        merged = true;
                     }
                 }
-                // ★ 视觉兜底：把合并后的 baseGrid 同步渲染回底层卷轴格，确保"逻辑 id=12(火球)"的位置屏幕上确实显示火球，
-                //   不被底层 spun 普通符号覆盖（不再依赖 ShowFeatureState 的 overlay 恰好盖住该格）。
-                //   overlay(ShowFeatureState / baseFireballs 兜底) 仍负责倍率/彩金文字，叠在最上层；此处保证即便 overlay 因任何原因没盖住，底层也是火球。
-                m_reelView.SyncBoardFromGrid(r.baseGrid);
             }
-            // 触发收集盘时额外合并：把跨局持有火球（非本局新落、baseFireballs 不含的）也置 12。
-            //   实际场景下持有火球=历史已落火球也已被本局 baseFireballs 包含（每局都重 spin），但保险起见保留对 hs.cells 的合并。
-            else if (r.holdSpinState != null && r.baseGrid != null)
+            // ★ 视觉兜底：把合并后的 baseGrid 同步渲染回底层卷轴格，确保"逻辑 id=12(火球)"的位置屏幕上确实显示火球，
+            //   不被底层 spun 普通符号覆盖（不再依赖 ShowFeatureState 的 overlay 恰好盖住该格）。
+            //   overlay(ShowFeatureState / baseFireballs 兜底) 仍负责倍率/彩金文字，叠在最上层；此处保证即便 overlay 因任何原因没盖住，底层也是火球。
+            if (merged) m_reelView.SyncBoardFromGrid(r.baseGrid);
+
+            // ★ 诊断：列出"屏幕显示为火球"的全部位置 + 该位置 ReelItem 的 m_id / m_image.enabled / m_fire.activeInHierarchy
+            //   确认"数据层=12"与"视觉火球"严格一致。合并源 = hs.cells ∪ baseFireballs，遍历后输出每颗的视觉状态。
+            if (merged && fbId > 0)
             {
-                var hs = r.holdSpinState;
-                int fbId = (m_machine.config != null) ? m_machine.config.fireballSymbolId : 0;
-                if (fbId > 0)
+                var sbDiag = new System.Text.StringBuilder($"[SettleBaseB-fbdiag] 合并后火球位置:");
+                var seen = new HashSet<int>();
+                if (r.holdSpinState != null)
                 {
-                    for (int rr = 0; rr < hs.reels && rr < r.baseGrid.Length; rr++)
+                    var hs = r.holdSpinState;
+                    for (int rr = 0; rr < hs.reels; rr++)
                     {
-                        if (hs.released[rr]) continue;
-                        for (int row = 0; row < hs.cells[rr].Length && row < r.baseGrid[rr].Length; row++)
-                            if (hs.cells[rr][row].filled)
-                                r.baseGrid[rr][row] = fbId;
+                        for (int row = 0; row < hs.cells[rr].Length; row++)
+                        {
+                            if (!hs.cells[rr][row].filled) continue;
+                            int key = rr * 100 + row;
+                            if (!seen.Add(key)) continue;
+                            var ri = m_reelView.GetReelItem(rr, row);
+                            if (ri == null) { sbDiag.Append($" | (r{rr},row{row})=nullReelItem"); continue; }
+                            bool imgOn = ri.m_image != null && ri.m_image.enabled;
+                            bool imgGo = ri.m_image != null && ri.m_image.gameObject != null && ri.m_image.gameObject.activeInHierarchy;
+                            bool fireOn = ri.m_fire != null && ri.m_fire.activeInHierarchy;
+                            bool textOn = ri.m_text != null && ri.m_text.gameObject != null && ri.m_text.gameObject.activeInHierarchy;
+                            sbDiag.Append($" | r{rr},row{row}:mid={ri.m_id} kind={ri.m_type} rate={ri.m_rate:F2} imgEn={imgOn} imgGo={imgGo} fire={fireOn} txt={textOn} txtVal='{(ri.m_text != null ? ri.m_text.text : "")}'");
+                        }
                     }
                 }
-                m_reelView.SyncBoardFromGrid(r.baseGrid);
+                if (r.baseFireballs != null)
+                {
+                    foreach (var c in r.baseFireballs)
+                    {
+                        if (c == null || !c.filled) continue;
+                        int key = c.reel * 100 + c.row;
+                        if (!seen.Add(key)) continue;
+                        var ri = m_reelView.GetReelItem(c.reel, c.row);
+                        if (ri == null) { sbDiag.Append($" | (r{c.reel},row{c.row})=nullReelItem"); continue; }
+                        bool imgOn = ri.m_image != null && ri.m_image.enabled;
+                        bool imgGo = ri.m_image != null && ri.m_image.gameObject != null && ri.m_image.gameObject.activeInHierarchy;
+                        bool fireOn = ri.m_fire != null && ri.m_fire.activeInHierarchy;
+                        bool textOn = ri.m_text != null && ri.m_text.gameObject != null && ri.m_text.gameObject.activeInHierarchy;
+                        sbDiag.Append($" | r{c.reel},row{c.row}:mid={ri.m_id} kind={ri.m_type} rate={ri.m_rate:F2} imgEn={imgOn} imgGo={imgGo} fire={fireOn} txt={textOn} txtVal='{(ri.m_text != null ? ri.m_text.text : "")}'");
+                    }
+                }
+                UnityEngine.Debug.Log(sbDiag.ToString());
             }
 
             // 数值结算（与 A 共用同一套评估口径）

@@ -30,14 +30,22 @@ namespace com.slot
         /// <summary>是否为火球：是则显示火球对象、隐藏普通图标 m_image。
         /// freeFire=true（FreeSpins 免费游戏）时优先亮 m_freeFire；若 prefab 未配置 m_freeFire（图形缺失）则
         /// 退化为普通火球图形 m_fire，避免火球整颗变空白“消失”。文字由 ApplyFireballText 处理（显 "FREE"）。
-        /// 非火球：两个火球对象都隐藏、显示普通图标 m_image。</summary>
+        /// 非火球：两个火球对象都隐藏、显示普通图标 m_image。
+        /// ★ 双保险：m_image 隐藏时同时设 enabled=false + gameObject.SetActive(false)，确保 Iconimate 子 GameObject
+        ///   整体停掉渲染（包括子组件如 UIImageAnimator），火球底下完全不露普通符号。</summary>
         public void ShowFire(bool isFire, bool freeFire = false)
         {
             // ★ FreeSpins 优先用 m_freeFire；未配置则退化为 m_fire（保证可见）
             bool useFree = freeFire && m_freeFire != null;
             if (m_fire != null) m_fire.SetActive(isFire && !useFree);
             if (m_freeFire != null) m_freeFire.SetActive(isFire && useFree);
-            if (m_image != null) m_image.enabled = !isFire;
+            if (m_image != null)
+            {
+                m_image.enabled = !isFire;
+                // ★ 双保险：火球时整个 Image GameObject 停掉（避免底层 m_image 子组件任何残留渲染透出到火球底下）
+                if (m_image.gameObject != null)
+                    m_image.gameObject.SetActive(!isFire);
+            }
             // 免费游戏时隐藏 m_text；主游戏 Hold&Spin 的 "FREE" 文字由 ApplyFireballText 重新显示。
             if (m_text != null && freeFire)
                 m_text.gameObject.SetActive(false);
