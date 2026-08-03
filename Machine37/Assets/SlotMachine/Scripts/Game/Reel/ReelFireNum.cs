@@ -64,7 +64,7 @@ namespace com.slot
             Refresh();
         }
 
-        /// <summary>设置倒计时圈数（0..N；0=空圈静止帧/文本"0"，仍可见）。
+        /// <summary>设置倒计时圈数（0..N；0=空圈全灭，不显示“0”文字，仅保留空面板）。
         /// ★ 只要逻辑显式要求显示该列（count&gt;=0，含最终态 0）就置 engaged=true——
         ///   否则每开新局 HideAllCounters→ResetAll 把 m_engaged 清成 false 后，显示 0 的帧会因
         ///   Refresh 的 show=active&amp;&amp;(engaged||rate&gt;0) 为 false 而被隐藏，导致"3→2→1 后直接消失看不到 0"。
@@ -127,8 +127,7 @@ namespace com.slot
             if (!show) return;
 
             bool showText = m_rate > 0f;
-            bool showCircles = !showText && m_num > 0;   // 有倍率时优先显文本；否则按 num 亮圈
-            bool showZero = !showText && m_num <= 0;      // 圈圈归零(0)：显示“0”文本，体现 3→2→1→0 的最终态
+            bool showCircles = !showText && m_num > 0;   // 有倍率时优先显文本；否则按 num 亮圈（0=全灭，不显示“0”文字）
 
             if (m_items != null)
                 for (int i = 0; i < m_items.Length; i++)
@@ -141,12 +140,7 @@ namespace com.slot
                     m_text.text = "X" + m_rate.ToString("0.##");
                     m_text.gameObject.SetActive(true);
                 }
-                else if (showZero)
-                {
-                    m_text.text = "0";
-                    m_text.gameObject.SetActive(true);
-                }
-                else m_text.gameObject.SetActive(false);
+                else m_text.gameObject.SetActive(false);   // 圈圈=0 时不显示“0”文字，仅圈圈图标全灭表达（0=空面板）
             }
         }
     }
