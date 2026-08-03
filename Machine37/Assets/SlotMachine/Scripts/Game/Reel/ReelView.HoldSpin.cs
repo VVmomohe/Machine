@@ -107,14 +107,14 @@ namespace com.slot
             yield return m_tongs[reel].WaitDone();
         }
 
-        /// <summary>满列收集演出：该列火球【一个一个向下掉入桶(tong)】，桶对每个落入的火球播放一次收取反应，
-        /// 最后一个落入后等桶动画播完再返回。替换旧“直接 PlayTongAndWait 一次”的孤立播放，使收集过程有“逐颗落入”的观感。
-        /// 仅销毁本列 overlay（其余列持有火球保持钉住，不碰）。</summary>
+        /// <summary>满列收集演出：复刻旧 HOLD 手感——每颗火球【原地变暗(ghost)】的同时【新生成一个火球掉入桶(tong)】，
+        /// 桶对每个落入的火球播放一次收取反应；顺序与旧 HOLD 一致——【先掉下面(row 小=底部)】，再往上。
+        /// 仅清理本列 overlay（其余列持有火球保持钉住，不碰）。</summary>
         public IEnumerator CollectFullReelAnimation(int reel)
         {
             if (reel < 0 || reel >= _reels.Count) yield break;
 
-            // 1) 收集该列所有火球 overlay，按 row 从大到小（底部先掉，避免下落过程穿过仍在的火球）
+            // 1) 收集该列所有火球 overlay，按 row 升序（row 小=底部，先掉下面——与旧 HOLD 一致；之前降序写反成顶部先掉）
             var list = new List<GameObject>();
             foreach (var go in _fbOverlays)
             {
@@ -126,7 +126,7 @@ namespace com.slot
             {
                 ParseReelRow(a.name, out _, out int ra);
                 ParseReelRow(b.name, out _, out int rb);
-                return rb.CompareTo(ra);   // 大 row（底部）在前
+                return ra.CompareTo(rb);   // row 升序：底部(row 小)在前 → 先掉下面的
             });
             if (list.Count == 0) yield break;
 
@@ -137,13 +137,28 @@ namespace com.slot
             float fallDur = 0.3f;
             float interval = Mathf.Max(fallDur + 0.1f, barrelDur * 0.9f);   // 相邻两颗落入的起始间隔（>=桶时长则每颗桶动画都能播完）
 
-            Debug.Log($"[COLLECT] r{reel} 满列收集：{list.Count} 颗火球逐颗掉入桶（桶对每颗反应一次）");
-            foreach (var go in list)
+            Debug.Log($"[COLLECT] r{reel} 满列收集：{list.Count} 颗（底部先掉·每颗原地变暗+新火球掉桶·桶对每颗反应一次）");
+
+            foreach (var ov in list)
             {
-                yield return AnimateFireballDrop(go, barrelPos, fallDur);
+                ParseReelRow(ov.name, out _, out int row);
+
+                // (a) 原地火球变暗：克隆一个 ghost 留在原格(dim)，原 ov 当成“新生成”的火球掉入桶（复刻旧 HOLD 观感）
+                var ghost = Instantiate(ov, ov.transform.parent);
+                ghost.name = $"FBGhost_{reel}_{row}";
+                ghost.transform.SetAsLastSibling();
+                SetOverlayAlpha(ghost, 0.65f);   // ★ 变暗
+
+                // (b) 新火球(原 ov，保持原亮度)掉入桶
+                yield return AnimateFireballDrop(ov, barrelPos, fallDur);
                 if (tong != null) tong.Play();                 // 桶对每个落入火球反应一次（不再“只播一次”）
-                _fbOverlays.Remove(go);
-                Destroy(go);
+                _fbOverlays.Remove(ov);
+                Destroy(ov);
+
+                // (c) 原地变暗火球淡出销毁（本列已收集，不再保留；旧 HOLD 是恢复亮度续 re-spin，本模式B列收走即清空）
+                SetOverlayAlpha(ghost, 0f);
+                Destroy(ghost);
+
                 yield return new WaitForSeconds(interval - fallDur);   // 间隔到下一颗开始
             }
 
