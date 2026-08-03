@@ -41,9 +41,9 @@ namespace com.slot
         public virtual void ShowGrid(int[][] grid, Dictionary<int, FireballCell> fireballMults = null)
         {
             if (m_node == null || m_node.Length == 0) return;
-            ReleaseCollectedForNextSpin();   // 特性结束→基础局：把已收集满列的 80% 幽灵并入待释放列，随本局卷轴滚走
-                                             //   此前放在"按确认"处但生效路径被绕过；改在 ShowGrid 入口——
-                                             //   新基础局卷轴一开始转、火球 ghost 随之下滚，计数器恰好同步消失。
+            ReleaseCollectedForNextSpin(onlyCollected: true);   // 仅把"已收集满列"的 ghost 并入待释放列，随本局卷轴滚走(回归滚动队列)；
+                                                               //   必须 onlyCollected:true——无参版本会用兜底循环把所有含火球 overlay 的列都标成待释放，
+                                                               //   导致本应持续钉住的持有火球也被错误滚走(局部回归队列)。
             ClearAll();
             _baseFireMults = fireballMults ?? new Dictionary<int, FireballCell>();
             int n = Mathf.Min(m_node.Length, grid.Length);

@@ -149,8 +149,9 @@ namespace com.slot
             bool toMini = WillEnterMini(r);
             // ★ 来源按实际授予拆分（Scatter / FREE 火球单列收集），避免把火球触发的局误标成 Scatter。
             string miniSrc = (r.freeSpinsFromScatter > 0 && r.freeSpinsFromFireball > 0) ? "基础局Scatter+火球"
-                           : (r.freeSpinsFromFireball > 0) ? "基础局火球(FreeSpins单列)"
-                           : "基础局Scatter";
+                           : (r.freeSpinsFromScatter > 0) ? "基础局Scatter"
+                           : (r.enterMiniByColumnFill) ? "基础局集满一列"
+                           : "基础局火球(FreeSpins单列)";
             LogMiniEntry(miniSrc, r, r.freeSpinsFromScatter, r.freeSpinsFromFireball, r.holdSpinState, toMini);
             if (toMini)
             {

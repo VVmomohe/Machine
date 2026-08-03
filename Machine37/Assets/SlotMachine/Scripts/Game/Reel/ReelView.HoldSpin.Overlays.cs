@@ -193,6 +193,11 @@ namespace com.slot
             foreach (var go in _fbOverlays)
                 if (go != null) Destroy(go);
             _fbOverlays.Clear();
+            // ★ 兜底：整盘火球 overlay 清空时，同步清空待释放/已收集集合，避免陈旧 reel 残留——
+            //   否则 Mini 结束 ClearFireballOverlays 清了 overlay 却没清 _collectedReels/_releaseReels，
+            //   下一局 StartBaseSpin 会把陈旧 reel 误并入 _releaseReels，导致该列"新落火球被当释放滚走、只有部分回归队列"。
+            if (_releaseReels != null) _releaseReels.Clear();
+            if (_collectedReels != null) _collectedReels.Clear();
             RefreshColumnEffects();
         }
 

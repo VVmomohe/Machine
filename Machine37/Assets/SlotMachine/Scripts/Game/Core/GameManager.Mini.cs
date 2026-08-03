@@ -19,12 +19,13 @@ namespace com.slot
         bool WillEnterMini(GameResult r)
         {
             if (r == null) return false;
-            // ★ 触发条件按模式区分：
-            //   · 模式A(China Street)：免费次数>0（Scatter 波动性）即进 Mini。
-            //   · 模式B(Cash Falls)：【整列集满】或【Scatter 触发免费次数】都进 Mini；
-            //     仅单颗/单列 FREE 火球（未集满）不单独触发，避免"没收集到一列也进 Mini"。
+            // ★ 触发条件按模式区分（关键修复：进 Mini 必须有可玩的免费次数，否则会进 0 次免费小游戏）：
+            //   · 模式A(China Street)：freeSpinsAwarded>0 即进 Mini。
+            //   · 模式B(Cash Falls)：Scatter 触发(freeSpinsFromScatter>0) 进 Mini；
+            //     整列集满(enterMiniByColumnFill) 仅当该列确实累积了 FREE 火球(freeSpinsAwarded>0) 才进——
+            //     若集满的是纯倍数/彩金火球(无 FREE 火球)，freeSpinsAwarded=0，不应进 Mini（避免"没收集到免费火球却进免费小游戏"）。
             bool trigger = IsModeB()
-                ? (r.enterMiniByColumnFill || r.freeSpinsFromScatter > 0)
+                ? ((r.enterMiniByColumnFill && r.freeSpinsAwarded > 0) || r.freeSpinsFromScatter > 0)
                 : (r.freeSpinsAwarded > 0);
             if (!trigger) return false;
             if (m_miniGame == null)
