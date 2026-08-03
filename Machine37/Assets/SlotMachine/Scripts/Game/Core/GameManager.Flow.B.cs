@@ -54,6 +54,25 @@ namespace com.slot
                     if (c.filled) m_reelView.ShowFireballOverlay(c.reel, c.row, c, playSound: false);
             }
 
+            // ★ 模式B：把跨局持有火球合并进 baseGrid（held 位置置为 fireballSymbolId），使结算/日志的 grid
+            //   与视觉 overlay 一致。held 火球锁定的格子不参与连线（Cash Falls 语义：收集盘格子是火球，不是线符号）。
+            //   ShowGrid(StartBaseSpin) 已用原始 baseGrid 渲染卷轴 + ShowHeldFireballs 钉 overlay，此处只改数据层(eval/log)。
+            if (r.holdSpinState != null && r.baseGrid != null)
+            {
+                var hs = r.holdSpinState;
+                int fbId = (m_machine.config != null) ? m_machine.config.fireballSymbolId : 0;
+                if (fbId > 0)
+                {
+                    for (int rr = 0; rr < hs.reels && rr < r.baseGrid.Length; rr++)
+                    {
+                        if (hs.released[rr]) continue;   // 释放列已回归滚动队列，保留 spun 符号
+                        for (int row = 0; row < hs.cells[rr].Length && row < r.baseGrid[rr].Length; row++)
+                            if (hs.cells[rr][row].filled)
+                                r.baseGrid[rr][row] = fbId;
+                    }
+                }
+            }
+
             // 数值结算（与 A 共用同一套评估口径）
             int sc;
             float bw = SettleRoundWins(r.baseGrid, m_machine.totalBet, out sc);
