@@ -72,22 +72,35 @@ namespace SlotMachine.Core
 
             // 已有收集盘：合并本局新火球 + 每列减一个圈圈（有新火球则重置为 respinCount）
             float before = holdBoard.accumulated;
+            // ★ 关键修复：按【列】统计本局是否落了火球（任何位置），而不是按【格子】。
+            //   旧逻辑用 !holdBoard.cells[reel][row].filled 判定入盘：若同位置重复落入，cells[reel][row] 已 filled，
+            //   不再入盘也不置 newInCol[r]=true → 该列被当作"无新火球"减圈到 0 释放 → released=true → cells 清空。
+            //   但 baseGrid 该位置仍是火球符号（r.baseFireballs 含），屏上仍显示火球，且 SettleBaseB 因 released 隐藏圈圈——
+            //   表现为"r1 火球固定了但没有圈圈"。修正：只要本局有火球落到该列（任意位置），就视为该列有新火球→counter 重置 3。
             var newInCol = new bool[holdBoard.reels];
+            var fbReels = new HashSet<int>();
             if (hasNew)
                 foreach (var f in initial)
                 {
                     if (!f.filled) continue;
+                    fbReels.Add(f.reel);
                     if (!holdBoard.cells[f.reel][f.row].filled)
-                    {
                         holdBoard.cells[f.reel][f.row] = f;   // 入盘（f 已定倍率/档/FREE）—— 不派彩，整列集满才付
-                        newInCol[f.reel] = true;
-                    }
+                                                                //   同位置重复落入：保留已有（避免重复派彩）；仍标记该列有新火球
                 }
+            for (int r = 0; r < holdBoard.reels; r++)
+                if (fbReels.Contains(r)) newInCol[r] = true;
 
             int respinCount = (_cfg.holdSpin != null) ? _cfg.holdSpin.respinCount : 3;
             for (int r = 0; r < holdBoard.reels; r++)
             {
-                if (holdBoard.isFull[r] || holdBoard.released[r]) continue;
+                if (holdBoard.isFull[r]) continue;
+                // ★ 本局有新火球落到该列：清掉上一局留下的 released 标记（cells 已被 released 清空，本局新火球会入盘）
+                if (newInCol[r] && holdBoard.released[r])
+                {
+                    holdBoard.released[r] = false;
+                }
+                if (holdBoard.released[r]) continue;
                 if (newInCol[r])
                 {
                     holdBoard.counter[r] = respinCount;       // 新火球 → 重置圈圈为 3
@@ -139,6 +152,17 @@ namespace SlotMachine.Core
             res.wonJackpots = newJ;                             // 仅本局新中彩金（旧档已由持久特效/上一局处理）
             res.holdSpinState = holdBoard;
             UnityEngine.Debug.Log($"[Fireball-B] 收集盘推进：新火球={hasNew} 本局featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
+            // ★ 诊断：按列打印 newInCol / counter / released / isFull / filled 数（核对"r1 有火球无圈圈"是否 newInCol 漏标记）
+            {
+                var sbDiag = new System.Text.StringBuilder("[Fireball-B-cols]");
+                for (int r = 0; r < holdBoard.reels; r++)
+                {
+                    int filled = 0;
+                    for (int row = 0; row < holdBoard.cells[r].Length; row++) if (holdBoard.cells[r][row].filled) filled++;
+                    sbDiag.Append($" r{r}[new={newInCol[r]} cnt={holdBoard.counter[r]} rel={holdBoard.released[r]} full={holdBoard.isFull[r]} filled={filled}]");
+                }
+                UnityEngine.Debug.Log(sbDiag.ToString());
+            }
         }
 
         /// <summary>逐颗结算一颗火球：倍数火球→×bet 累加；彩金火球→记档+即时清池；FREE 火球→单列计数（不派彩）。

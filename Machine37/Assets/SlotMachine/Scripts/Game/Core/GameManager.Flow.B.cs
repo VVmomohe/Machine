@@ -62,8 +62,21 @@ namespace com.slot
             else if (m_reelView != null && r.baseFireballs != null)
             {
                 // 无收集盘（无持有火球且本局也无足够火球触发）：基础局固定火球兜底显示
+                // ★ 防御：即便未触发收集盘，本局新落火球也应显示圈圈（按"新火球→3"），避免"固定了但没圈圈"。
+                m_reelView.ActivateCounters();
+                int rc = (m_machine.config != null && m_machine.config.holdSpin != null)
+                    ? m_machine.config.holdSpin.respinCount : 3;
+                var fbReels = new HashSet<int>();
                 foreach (var c in r.baseFireballs)
-                    if (c.filled) m_reelView.ShowFireballOverlay(c.reel, c.row, c, playSound: false);
+                {
+                    if (c == null || !c.filled) continue;
+                    fbReels.Add(c.reel);
+                    m_reelView.ShowFireballOverlay(c.reel, c.row, c, playSound: false);
+                }
+                int n = m_reelView.CounterCount();
+                for (int rr = 0; rr < n; rr++)
+                    if (fbReels.Contains(rr)) m_reelView.SetRespinCounterRow(rr, rc);
+                    else m_reelView.HideCounterRow(rr);
             }
 
             // ★ 模式B：把"屏幕显示为火球"的所有位置合并进 baseGrid（filled → fireballSymbolId），使结算/日志/底层卷轴格
