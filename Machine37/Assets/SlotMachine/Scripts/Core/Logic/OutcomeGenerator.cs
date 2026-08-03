@@ -20,7 +20,8 @@ namespace SlotMachine.Core
 
         /// <summary>
         /// 产出本局目标网格：每格独立均匀随机（1..12）。
-        /// doubleFireball 调试开关在纯随机下无意义（无概率可翻倍），保留参数仅为兼容调用方、不再生效。
+        /// doubleFireball=true 时把火球(=SymbolMax)数量翻倍（额外把等同当前火球数的普通格改为火球），
+        /// 当前局若一颗火球都没随机到，则至少强制转 2 格火球，保证调试开关可见。
         /// </summary>
         public static int[][] Spin(ReelConfig cfg, ISlotRng rng, bool doubleFireball = false)
         {
@@ -33,6 +34,29 @@ namespace SlotMachine.Core
                 for (int row = 0; row < rows; row++)
                     grid[c][row] = SymbolMin + rng.Next(SymbolMax - SymbolMin + 1); // [1,12] 均匀
             }
+
+            if (doubleFireball)
+            {
+                var fbCoords = new List<(int reel, int row)>();
+                var otherCoords = new List<(int reel, int row)>();
+                for (int c = 0; c < reels; c++)
+                    for (int row = 0; row < grid[c].Length; row++)
+                        if (grid[c][row] == SymbolMax) fbCoords.Add((c, row));
+                        else otherCoords.Add((c, row));
+
+                // 翻倍：额外转等同当前火球数的普通格为火球；若当前为 0，至少转 2 格保证开关可见
+                int toConvert = fbCoords.Count > 0 ? fbCoords.Count : 2;
+                toConvert = Math.Min(toConvert, otherCoords.Count);
+                for (int i = 0; i < toConvert; i++)
+                {
+                    int pick = rng.Next(otherCoords.Count);
+                    var (cc, rr) = otherCoords[pick];
+                    grid[cc][rr] = SymbolMax;
+                    otherCoords.RemoveAt(pick);
+                }
+                UnityEngine.Debug.Log($"[OutcomeGenerator] doubleFireball=true → 火球数 {fbCoords.Count} 翻倍至 {fbCoords.Count + toConvert}");
+            }
+
             return grid;
         }
     }
