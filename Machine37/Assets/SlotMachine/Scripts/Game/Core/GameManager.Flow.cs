@@ -138,20 +138,24 @@ namespace com.slot
             // 基础局通用彩金特效：火球里的彩金档落定即中（清池已在 GameSession 即时完成），A/B 模式都播。
             ShowDirectJackpotEffects(r);
 
-            // 先显示赢分 → 等按确认键 → 再滚动到总分
+            // ★ 本局出什么：每列符号 + Scatter 标记 + 火球位置 + 触发字段（总是打印，便于核对"这局到底出了什么"——
+            //   排查"Scatter 触发=2 但屏上看 r0/r1 没 Scatter"时，可在此确认 3 颗 Scatter 究竟落在哪几列）。
+            LogRoundOutput(r);
+
+            // ★ 先算一次 WillEnterMini 结论，供日志与后续逻辑统一使用（避免多次调用口径不一致）。
+            bool toMini = WillEnterMini(r);
             // ★ 来源按实际授予拆分（Scatter / FREE 火球单列收集），避免把火球触发的局误标成 Scatter。
             string miniSrc = (r.freeSpinsFromScatter > 0 && r.freeSpinsFromFireball > 0) ? "基础局Scatter+火球"
                            : (r.freeSpinsFromFireball > 0) ? "基础局火球(FreeSpins单列)"
                            : "基础局Scatter";
-            LogMiniEntry(miniSrc, r, r.freeSpinsFromScatter, r.freeSpinsFromFireball, null);
-            if (WillEnterMini(r))
+            LogMiniEntry(miniSrc, r, r.freeSpinsFromScatter, r.freeSpinsFromFireball, r.holdSpinState, toMini);
+            if (toMini)
             {
                 r.freeSpinsWin = 0;
                 r.totalPayout = r.baseWin + r.scatterPayout + r.featureWin;
             }
             if (m_player != null)
             {
-                bool toMini = WillEnterMini(r);
                 long win = (long)System.Math.Round(r.totalPayout);
                 m_player.ShowWinValue(win, !toMini);
                 yield return StartCoroutine(WaitForConfirmKey());
@@ -284,7 +288,7 @@ namespace com.slot
 
         /// <summary>进 Mini 之前的来源 LOG：区分「Scatter 触发」与「FREE 火球单列收集触发」（A 全局≥triggerMin / B 单列收集），
         /// 各自授予的免费次数已拆到 GameResult.freeSpinsFromScatter / freeSpinsFromFireball，便于排查"莫名进入免费小游戏"。</summary>
-        void LogMiniEntry(string whence, GameResult r, int scatterOrig, int freeballOrig, HoldSpinState hs = null)
+        void LogMiniEntry(string whence, GameResult r, int scatterOrig, int freeballOrig, HoldSpinState hs, bool willEnter)
         {
             if (r == null) return;
             string fbCells = "";
@@ -297,7 +301,39 @@ namespace com.slot
                             if (hs.cells[rr][row].filled && hs.cells[rr][row].kind == FireballKind.FreeSpins) cnt++;
                 fbCells = $" 满列内FreeSpins火球格数={cnt}";
             }
-            Debug.Log($"[MINI-ENTRY] 来源={whence} | scatterCount={r.scatterCount} Scatter触发={scatterOrig} FreeSpins火球追加={freeballOrig} 进入次数={r.freeSpinsAwarded}{fbCells}");
+            // ★ 关键：willEnter=false 时此局【不会】真正进 Mini（常见根因：m_miniGame 未拖/丢失 MiniGame 组件，
+            //   详见 WillEnterMini 内的 [MINI-MISSING] 报错）。标签区分「将进入 / 仅候选」避免误导。
+            string tag = willEnter ? "[MINI-ENTRY] ★将进入小游戏" : "[MINI-CANDIDATE] 仅候选·不进入";
+            Debug.Log($"{tag} 来源={whence} | scatterCount={r.scatterCount} Scatter触发={scatterOrig} FreeSpins火球追加={freeballOrig} 进入次数(freeSpinsAwarded)={r.freeSpinsAwarded} enterMiniByColumnFill={r.enterMiniByColumnFill} freeSpinsFromScatter={r.freeSpinsFromScatter} freeSpinsFromFireball={r.freeSpinsFromFireball}{fbCells}");
+        }
+
+        /// <summary>本局出什么：逐列打印基础棋盘符号 ID（Scatter 标 S）、本局火球位置/种类/倍率、以及 Mini 触发关键字段。
+        /// 总是打印（不依赖 VerboseLogs），便于核对"这局到底出了什么"——例如排查 Scatter 触发次数与屏上符号是否一致。</summary>
+        void LogRoundOutput(GameResult r)
+        {
+            if (r == null || r.baseGrid == null) return;
+            int scId = (m_machine != null && m_machine.config != null) ? m_machine.config.ScatterId() : -1;
+            var sb = new System.Text.StringBuilder("[本局出什么] ");
+            for (int ri = 0; ri < r.baseGrid.Length; ri++)
+            {
+                sb.Append($"r{ri}[");
+                for (int k = 0; k < r.baseGrid[ri].Length; k++)
+                {
+                    int id = r.baseGrid[ri][k];
+                    bool isSc = (scId > 0 && id == scId);
+                    sb.Append(id).Append(isSc ? "S" : "").Append(k < r.baseGrid[ri].Length - 1 ? "," : "");
+                }
+                sb.Append("] ");
+            }
+            if (r.baseFireballs != null && r.baseFireballs.Count > 0)
+            {
+                var fbsb = new System.Text.StringBuilder("火球=");
+                foreach (var c in r.baseFireballs) if (c != null && c.filled)
+                    fbsb.Append($"({c.reel},{c.row},{c.kind},{c.multiplier})");
+                sb.Append(fbsb.ToString());
+            }
+            sb.Append($" | scatterCount={r.scatterCount} freeSpinsFromScatter={r.freeSpinsFromScatter} freeSpinsFromFireball={r.freeSpinsFromFireball} enterMiniByColumnFill={r.enterMiniByColumnFill}");
+            UnityEngine.Debug.Log(sb.ToString());
         }
 
         /// <summary>

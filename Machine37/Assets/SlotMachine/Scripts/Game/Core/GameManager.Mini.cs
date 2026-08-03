@@ -33,7 +33,14 @@ namespace com.slot
                 Debug.LogError($"[MINI-MISSING] 触发Mini(IsModeB={IsModeB()}, freeSpinsAwarded={r.freeSpinsAwarded}, enterMiniByColumnFill={r.enterMiniByColumnFill}) 但 m_miniGame 未赋值（场景/预制体需在 Inspector 拖 MiniGame），免费游戏将无法进入！");
                 return false;
             }
-            return m_miniGame.GetComponent<MiniGame>() != null;
+            var mg = m_miniGame.GetComponent<MiniGame>();
+            if (mg == null)
+            {
+                // ★ 补全静默分支：m_miniGame 拖了但上面没挂 MiniGame 组件（重导/预制体改坏常见）→ 原代码 return false 且无任何日志，极难排查。
+                Debug.LogError($"[MINI-MISSING] m_miniGame 已赋值(GameObject={m_miniGame.name})，但其上无 MiniGame 组件（检查该 GameObject 是否挂了 MiniGame 脚本），免费游戏将无法进入！");
+                return false;
+            }
+            return true;
         }
 
         void EnterMiniNow(GameResult r, System.Action onRestore = null, int overrideSpins = -1)
