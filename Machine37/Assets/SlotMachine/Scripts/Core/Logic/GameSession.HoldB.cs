@@ -30,6 +30,7 @@ namespace SlotMachine.Core
 
             var newJ = new List<string>();   // 本局新中彩金档（供显示层播特效），整个方法仅声明一次
             int freeAdded = 0;               // 本局 FREE 火球免费次数增量（新盘分支与方法级共用，仅声明一次避免 CS0136）
+            var filledCols = new List<int>(); // ★ 本局「整列集满」的列（仅这些列才授予 FREE 火球免费次数，避免其它未集满列累计的 FREE 被误加）
 
             if (holdBoard == null)
             {
@@ -43,25 +44,27 @@ namespace SlotMachine.Core
                     {
                         holdBoard.isFull[r] = true;
                         holdBoard.counter[r] = 0;
+                        filledCols.Add(r);   // ★ 记录集满列（仅此列授予 FREE 火球免费次数）
                         for (int row = 0; row < holdBoard.cells[r].Length; row++)
                             PayFireball(holdBoard.cells[r][row], bet, holdBoard, newJ);
                         res.enterMiniByColumnFill = true;
                         _holdEnded = true;
                     }
                 }
-                // FREE 火球免费次数：满列才授予
+                // FREE 火球免费次数：仅「本局集满的列」才授予（避免其它未集满列累计的 FREE 被误加 → 表现"进 Mini 莫名多了 5 次"）
                 if (res.enterMiniByColumnFill && _cfg.freeSpins != null)
                 {
                     freeAdded = 0;
-                    foreach (var kv in holdBoard.freeCountByCol)
+                    foreach (var col in filledCols)
                     {
-                        int award = _cfg.freeSpins.FreeballAwardFor(kv.Value);
-                        int prev = holdBoard.prevFreeAward.ContainsKey(kv.Key) ? holdBoard.prevFreeAward[kv.Key] : 0;
+                        int cnt = holdBoard.freeCountByCol.ContainsKey(col) ? holdBoard.freeCountByCol[col] : 0;
+                        int award = _cfg.freeSpins.FreeballAwardFor(cnt);
+                        int prev = holdBoard.prevFreeAward.ContainsKey(col) ? holdBoard.prevFreeAward[col] : 0;
                         if (award > prev) freeAdded += (award - prev);
                     }
                     res.freeSpinsAwarded += freeAdded;
-                    foreach (var kv in holdBoard.freeCountByCol)
-                        holdBoard.prevFreeAward[kv.Key] = _cfg.freeSpins.FreeballAwardFor(kv.Value);
+                    foreach (var col in filledCols)
+                        holdBoard.prevFreeAward[col] = _cfg.freeSpins.FreeballAwardFor(holdBoard.freeCountByCol.ContainsKey(col) ? holdBoard.freeCountByCol[col] : 0);
                 }
                 res.featureWin = holdBoard.accumulated;   // 首局：仅满列派彩（无满列则为0）
                 res.wonJackpots = newJ;
@@ -123,6 +126,7 @@ namespace SlotMachine.Core
                 {
                     holdBoard.isFull[r] = true;
                     holdBoard.counter[r] = 0;
+                    filledCols.Add(r);   // ★ 记录集满列（仅此列授予 FREE 火球免费次数）
                     // ★ 收集模式：整列集满才对该列所有火球派彩（倍数/彩金/FREE 统一生效）
                     for (int row = 0; row < holdBoard.cells[r].Length; row++)
                         PayFireball(holdBoard.cells[r][row], bet, holdBoard, newJ);
@@ -131,21 +135,22 @@ namespace SlotMachine.Core
                 }
             }
 
-            // FREE 火球免费次数：单列累计，仅「整列集满」开 Mini 时才授予（防单颗 FREE 就进小游戏）
+            // FREE 火球免费次数：仅「本局集满的列」才授予（防其它未集满列累计的 FREE 被误加 → "进 Mini 莫名多了 5 次"）
             freeAdded = 0;
             if (_cfg.freeSpins != null)
-                foreach (var kv in holdBoard.freeCountByCol)
+                foreach (var col in filledCols)
                 {
-                    int award = _cfg.freeSpins.FreeballAwardFor(kv.Value);
-                    int prev = holdBoard.prevFreeAward.ContainsKey(kv.Key) ? holdBoard.prevFreeAward[kv.Key] : 0;
+                    int cnt = holdBoard.freeCountByCol.ContainsKey(col) ? holdBoard.freeCountByCol[col] : 0;
+                    int award = _cfg.freeSpins.FreeballAwardFor(cnt);
+                    int prev = holdBoard.prevFreeAward.ContainsKey(col) ? holdBoard.prevFreeAward[col] : 0;
                     if (award > prev) freeAdded += (award - prev);
                 }
             if (res.enterMiniByColumnFill)
             {
                 res.freeSpinsAwarded += freeAdded;
                 if (_cfg.freeSpins != null)
-                    foreach (var kv in holdBoard.freeCountByCol)
-                        holdBoard.prevFreeAward[kv.Key] = _cfg.freeSpins.FreeballAwardFor(kv.Value);
+                    foreach (var col in filledCols)
+                        holdBoard.prevFreeAward[col] = _cfg.freeSpins.FreeballAwardFor(holdBoard.freeCountByCol.ContainsKey(col) ? holdBoard.freeCountByCol[col] : 0);
             }
 
             res.featureWin = holdBoard.accumulated - before;   // ★ 本局增量（避免跨局累计重复付）

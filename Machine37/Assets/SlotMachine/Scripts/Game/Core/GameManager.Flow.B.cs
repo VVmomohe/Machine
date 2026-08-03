@@ -39,6 +39,12 @@ namespace com.slot
                     else
                         m_reelView.HideCounterRow(rr);          // 已释放/无火球列：隐藏计数器
                 }
+                // ★ 问题1 修复：满列 tong 演出必须播完才能进 Mini（否则"动画没播完就进免费小游戏"）。
+                //   各满列已在上面 PlayTong；此处统一等待最长 tong 时长（多列满则并发演出，取最大值）。
+                float maxTong = 0f;
+                for (int rr = 0; rr < hs.reels; rr++)
+                    if (hs.isFull[rr]) maxTong = Mathf.Max(maxTong, m_reelView.GetTongDuration(rr));
+                if (maxTong > 0f) yield return new WaitForSeconds(maxTong);
                 // ★ 诊断：停轮后每列收集盘状态 + 计数器预期可见性（核对"有圈圈列是否真的显示了圈"）
                 {
                     var sb = new System.Text.StringBuilder($"[SettleBaseB-diag] reels={hs.reels}");

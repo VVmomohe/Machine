@@ -49,8 +49,9 @@ namespace com.slot
             StartCoroutine(HideLightAfter(token, PlayDuration()));
         }
 
-        /// <summary>动画时长 = Mecanim 最长 clip 与 各 UIImageAnimator 序列帧时长 的最大值（至少 0.1s）。</summary>
-        float PlayDuration()
+        /// <summary>动画时长 = Mecanim 最长 clip 与 各 UIImageAnimator 序列帧时长 的最大值（至少 0.1s）。
+        /// ★ public：满列收集演出需要在流程层"等这段动画播完"再进 Mini（见 GameManager.SettleBaseB）。</summary>
+        public float PlayDuration()
         {
             float dur = 0.1f;
             if (m_ani != null && m_ani.runtimeAnimatorController != null)
