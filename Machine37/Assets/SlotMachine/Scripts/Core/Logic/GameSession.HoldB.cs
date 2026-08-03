@@ -132,16 +132,15 @@ namespace SlotMachine.Core
         else
         {
             holdBoard.counter[r] -= 1;                 // 无新火球 → 减一个圈圈（允许 3→2→1→0→-1）
-            if (holdBoard.counter[r] <= 0)
-            {
-                // 倒计时归零：清掉该列火球，回归滚动队列（火球离场）；
-                // 圈圈仍显示 0（见 SettleBaseB / ReelFireNum.showZero → 文本"0"），不立即隐藏。
-                for (int row = 0; row < holdBoard.cells[r].Length; row++)
-                    holdBoard.cells[r][row] = new FireballCell { reel = r, row = row };
-            }
             if (holdBoard.counter[r] < 0)
             {
-                // ★ 用户口径：扣到 -1 才真正释放隐藏（保证 0 被显示一局，再下一局 -1 消失）
+                // ★ 用户口径：扣到 -1 才真正释放——火球回归滚动队列(cells 清空) + 圈圈隐藏，**两者同步**。
+                // ★ 关键修复（与圈圈显示 0 同类问题）：火球离场(cells 清空)必须跟 released 一起发生，
+                //   不能在 counter<=0 时提前清空 cells——否则火球会在圈圈显示 0 之前就离场，
+                //   与"圈圈 3→2→1→0 仍可见"不同步。现在：counter=0 当轮 cells 仍 filled（火球在屏），
+                //   counter<0 才 released + 清空，火球与圈圈一起消失（同步）。
+                for (int row = 0; row < holdBoard.cells[r].Length; row++)
+                    holdBoard.cells[r][row] = new FireballCell { reel = r, row = row };
                 holdBoard.released[r] = true;
                 holdBoard.counter[r] = 0;             // 归零，避免 SettleBaseB 显示负数
             }
