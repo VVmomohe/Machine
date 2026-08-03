@@ -215,6 +215,29 @@ namespace com.slot
             }
         }
 
+        /// <summary>停轮后把基础卷轴格同步到权威数据网格（r.baseGrid）：逻辑 id=火球(12) 的格屏幕上确实显示火球，
+        /// 使"数据显示火球"与"视觉火球"严格一致——不依赖 ShowFeatureState 的 overlay 去覆盖底层普通符号。
+        /// 普通符号位置幂等不变（SetCell 内部会跳过未变化的格）。overlay 仍负责倍率/彩金文字，叠在最上层。</summary>
+        public void SyncBoardFromGrid(int[][] grid)
+        {
+            if (grid == null) return;
+            for (int r = 0; r < _reels.Count && r < grid.Length; r++)
+            {
+                var st = _reels[r];
+                if (st == null || st.cellItems == null) continue;
+                int rows = grid[r].Length;
+                for (int row = 0; row < rows; row++)
+                {
+                    int k = m_buf + row;
+                    if (k < 0 || k >= st.cellItems.Count) continue;
+                    int id = grid[r][row];
+                    // ★ syncId=true：把 m_id 也对齐到权威网格（避免"逻辑 id=12 但 m_id 是底层 spun 符号"的误读），
+                    //   并触发 ShowFire(true) 让火球格显示 m_fire、隐藏 m_image。
+                    SetCell(st, k, id, syncId: true);
+                }
+            }
+        }
+
         /// <summary>
         /// 按 symbol ID 加载精灵。
         /// Config paytable ID 与 Icon 资源文件编号一一对应（1-based）：

@@ -39,6 +39,18 @@ namespace com.slot
                     else
                         m_reelView.HideCounterRow(rr);          // 已释放/无火球列：隐藏计数器
                 }
+                // ★ 诊断：停轮后每列收集盘状态 + 计数器预期可见性（核对"有圈圈列是否真的显示了圈"）
+                {
+                    var sb = new System.Text.StringBuilder($"[SettleBaseB-diag] reels={hs.reels}");
+                    for (int rr = 0; rr < hs.reels; rr++)
+                    {
+                        int filled = 0;
+                        for (int row = 0; row < hs.cells[rr].Length; row++) if (hs.cells[rr][row].filled) filled++;
+                        bool showCounter = !hs.released[rr] && hs.counter[rr] > 0;
+                        sb.Append($" | r{rr}:filled={filled}/{hs.cells[rr].Length} cnt={hs.counter[rr]} rel={hs.released[rr]} full={hs.isFull[rr]} =>counterShown={showCounter}");
+                    }
+                    UnityEngine.Debug.Log(sb.ToString());
+                }
                 // 释放列兜底：清 overlay + 底层符号回归普通（board 已清空这些列 cells，ShowFeatureState 不会重钉）
                 for (int rr = 0; rr < hs.reels; rr++)
                     if (hs.released[rr]) { m_reelView.ClearColumnFireballs(rr); m_reelView.ReleaseColumnToSpinQueue(rr); }
@@ -71,6 +83,10 @@ namespace com.slot
                                 r.baseGrid[rr][row] = fbId;
                     }
                 }
+                // ★ 视觉兜底：把合并后的 baseGrid 同步渲染回底层卷轴格，确保"逻辑 id=12(火球)"的位置屏幕上确实显示火球，
+                //   不被底层 spun 普通符号覆盖（不再依赖 ShowFeatureState 的 overlay 恰好盖住该格）。
+                //   overlay(ShowFeatureState) 仍负责倍率/彩金文字，叠在最上层；此处保证即便 overlay 因任何原因没盖住，底层也是火球。
+                m_reelView.SyncBoardFromGrid(r.baseGrid);
             }
 
             // 数值结算（与 A 共用同一套评估口径）
