@@ -57,6 +57,24 @@ namespace SlotMachine.Core
             if (holdBoard != null && !HoldSpinState.AnyActive(holdBoard) && !HoldSpinState.AnyFull(holdBoard))
                 holdBoard = null;
 
+            // ★ 快照「本局推进前」各列是否已跨局持有火球（供展示层旋转期只显示老持有列圈圈、不剧透本局新落列）。
+            //   必须在合并本局新火球之前抓拍；holdBoard 下方会被原地改写，preHeld 是独立副本不受影响。
+            bool[] preHeld = null;
+            int[] preCnt = null;   // ★ 推进前每列圈数快照（供旋转期显示旧值；真正的递减在停稳后由 SettleBaseB 显示）
+            if (holdBoard != null)
+            {
+                preHeld = new bool[holdBoard.reels];
+                preCnt = new int[holdBoard.reels];
+                for (int r = 0; r < holdBoard.reels; r++)
+                {
+                    bool hadFilled = false;
+                    for (int row = 0; row < holdBoard.cells[r].Length; row++)
+                        if (holdBoard.cells[r][row].filled) { hadFilled = true; break; }
+                    preHeld[r] = !holdBoard.released[r] && !holdBoard.isFull[r] && (hadFilled || holdBoard.counter[r] > 0);
+                    preCnt[r] = holdBoard.counter[r];   // ★ 推进前快照（此时尚未递减/重置，= 上一局结束值）
+                }
+            }
+
             var newJ = new List<string>();   // 本局新中彩金档（供显示层播特效），整个方法仅声明一次
             int freeAdded = 0;               // 本局 FREE 火球免费次数增量（新盘分支与方法级共用，仅声明一次避免 CS0136）
             var filledCols = new List<int>(); // ★ 本局「整列集满」的列（仅这些列才授予 FREE 火球免费次数，避免其它未集满列累计的 FREE 被误加）
@@ -99,6 +117,8 @@ namespace SlotMachine.Core
                 res.featureWin = holdBoard.accumulated;   // 首局：仅满列派彩（无满列则为0）
                 res.wonJackpots = newJ;
                 res.holdSpinState = holdBoard;
+                holdBoard.preRoundHeldCols = new bool[holdBoard.reels];   // 全 false：本局全为新落，旋转期不剧透
+                holdBoard.preRoundCounter = new int[holdBoard.reels];      // 新盘：无推进前旧值，旋转期本就不显圈（preRoundHeldCols 全 false）
                 if (SlotDebug.VerboseLogs)
                 {
                     UnityEngine.Debug.Log($"[Fireball-B] 新建收集盘：{initial.Count} 颗 → featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
@@ -219,6 +239,8 @@ namespace SlotMachine.Core
             res.featureWin = holdBoard.accumulated - before;   // ★ 本局增量（避免跨局累计重复付）
             res.wonJackpots = newJ;                             // 仅本局新中彩金（旧档已由持久特效/上一局处理）
             res.holdSpinState = holdBoard;
+            if (preHeld != null) holdBoard.preRoundHeldCols = preHeld;   // ★ 推进前快照（老持有列 vs 本局新落列）供展示层用
+            if (preCnt != null) holdBoard.preRoundCounter = preCnt;       // ★ 推进前圈数快照（旋转期显示旧值，递减留到停稳后）
             if (SlotDebug.VerboseLogs)
             {
                 UnityEngine.Debug.Log($"[Fireball-B] 收集盘推进：新火球={hasNew} 本局featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");

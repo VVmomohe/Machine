@@ -37,6 +37,14 @@ namespace SlotMachine.Core
         public Dictionary<int, int> freeCountByCol = new Dictionary<int, int>();
         public Dictionary<int, int> prevFreeAward = new Dictionary<int, int>();
         public bool active;
+        /// <summary>★ 模式B 展示用：本局 AdvanceHoldBoard 推进【之前】各列是否已跨局持有火球（持有中、非满非释放、有火球或圈数>0）。
+        /// 供 GameManager.Flow.StartBaseSpin 区分"老持有列"(旋转期即显示圈圈) 与"本局新落列"(旋转期隐藏、停稳才显示)，
+        /// 化解"圈圈旋转期消失"vs"圈圈没停稳就出现"两次相反反馈。注意：该数组是推进前的快照，不会被后续合并新火球改写。</summary>
+        public bool[] preRoundHeldCols;
+        /// <summary>★ 模式B 展示用：本局 AdvanceHoldBoard 推进【之前】每列倒计时圈数快照（= 上一局结束时的值）。
+        /// 供 GameManager.Flow.StartBaseSpin 在旋转期显示"上一局值"（老持有列圈圈不消失、但不剧透本局已递减），
+        /// 真正的递减(本局值)由 SettleBaseB 在停稳后才显示 → 圈圈"减"发生在滚动停后。</summary>
+        public int[] preRoundCounter;
         /// <summary>渐进彩金池（Mini/Minor/Major/Mega → 当前累积值，单位=信用点）。
         /// 彩金火球的 multiplier = Pots[tier] / bet（信用→倍率统一，使 ReelSum 结果 ×bet 恰为池值）。</summary>
         public IReadOnlyDictionary<string, float> Pots;

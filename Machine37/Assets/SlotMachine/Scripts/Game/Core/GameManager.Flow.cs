@@ -57,28 +57,53 @@ namespace com.slot
                         }
 
                 m_reelView.ShowGrid(r.baseGrid, fireMults.Count > 0 ? fireMults : null);
-                // ★ 模式B 旋转期 tray 区分（2026-08-04 修正版）：
-                //   跨局持有(老)火球 → 下面 ShowHeldFireballs 钉成固定 overlay（不滚、定原位）；
-                //   本局新落火球 → 由 ShowGrid 底层卷轴滚动显示（skip 其位置，不预钉）；
-                //   停稳后 SettleBaseB→ShowFeatureState 统一重钉全部。
-                // ★ 计数器(圈圈/reelFireNum)不在旋转期出现：OnStartKey 的 HideAllCounters 清掉后，
-                //   此处【不再】重建——等本局停稳、结算开始(SettleBaseB 内 ActivateCounters)才显示，避免过早泄底。
-                //   旋转期仅钉火球 tray + 近满列高亮。
+                // ★ 模式B 旋转期 tray + 计数器（2026-08-04 定稿，化解"圈圈消失" vs "圈圈剧透"两次相反反馈）：
+                //   tray：跨局持有(老)火球 → ShowHeldFireballs 钉成固定 overlay（不滚、定原位）；本局新落火球 → 由底层卷轴滚动显示（skip 其位置、不预钉）；停稳后 SettleBaseB→ShowFeatureState 统一重钉。
+                //   计数器(圈圈/reelFireNum)：老持有列(preRoundHeldCols) 旋转期显示【上一局值 preRoundCounter】，圈圈不消失（满足"滚动中圈圈不能消失"），但递减(本局值)留到停稳 SettleBaseB 才跳变（满足"圈圈减在滚动停后"）；
+                //     满列 / 新落列 / 已释放列 旋转期隐藏，停稳后才出现。判定用 AdvanceHoldBoard 推进前的快照 preRoundHeldCols/preRoundCounter，而非 cells[].filled（已被本局新火球合并改写）。
                 if (IsModeB())
                 {
-                    // ★ 模式B 旋转期 tray 效果（用户硬规则 2026-08-04 修正版）：
-                    //   跨局持有(老)火球 = 钉成固定 overlay（不随卷轴滚动、不消失，定在原位）；
-                    //   本局新落火球 = 由 ShowGrid 底层卷轴滚动显示（ShowHeldFireballs 用 skip=baseFireballs
-                    //   跳过其位置、仅钉持有火球，避免与滚动中的新火球重影）——即"老火球定住、新火球滚进来"。
-                    //   停稳后 SettleBaseB→ShowFeatureState 统一重钉全部（持有+新落）。
-                    // ★ 计数器(圈圈 / reelFireNum)【不】在此处(旋转期)显示：用户 2026-08-04 硬规则——
-                    //   过早出现会"还没停稳就知道这列肯定出火球"泄底。改为等本局停稳、结算开始(SettleBaseB
-                    //   的 ActivateCounters + SetRespinCounterRow，在 WaitReelsStop 之后)才出现。
-                    //   旋转期仅保留：火球 tray(老火球定住) + 近满列高亮(RefreshColumnEffects)。
                     if (r.holdSpinState != null)
                     {
                         m_reelView.ShowHeldFireballs(r.holdSpinState, r.baseFireballs);
-                        m_reelView.RefreshColumnEffects(r.holdSpinState);
+                        m_reelView.ActivateCounters();   // 激活计数器容器（各列是否显 + 显什么值由下面决定）
+                        var hs0 = r.holdSpinState;
+                        int n = Mathf.Min(hs0.reels, m_reelView.CounterCount());
+                        for (int rr = 0; rr < n; rr++)
+                        {
+                            // ★ 旋转期圈圈显示策略（2026-08-04 定稿，化解"消失" vs "剧透"两次相反反馈）：
+                            //   老持有列(preRoundHeldCols) → 旋转期显示【上一局值】(preRoundCounter)，圈圈不消失；
+                            //   但其"递减"(本局值 counter[]) 不在旋转期生效，留到停稳 SettleBaseB 才跳变 → 圈圈"减"发生在滚动停后。
+                            //   满列 → 旋转期隐藏(不剧透"将集满→进Mini")；新落列 / 已释放列 → 旋转期隐藏，停稳才出现。
+                            bool held = (hs0.preRoundHeldCols != null && rr < hs0.preRoundHeldCols.Length)
+                                        ? hs0.preRoundHeldCols[rr] : false;
+                            int oldCnt = (hs0.preRoundCounter != null && rr < hs0.preRoundCounter.Length)
+                                        ? hs0.preRoundCounter[rr] : 0;
+                            if (hs0.isFull[rr])
+                                m_reelView.HideCounterRow(rr);                  // 满列：旋转期不剧透，停稳 SettleBaseB 才显示 X 倍标记
+                            else if (held && !hs0.released[rr])
+                                m_reelView.SetRespinCounterRow(rr, oldCnt);    // 老持有列：旋转期显示【上一局值】(递减留到停稳后)
+                            else
+                                m_reelView.HideCounterRow(rr);                  // 纯新落列 / 已释放列：旋转期隐藏，停稳后才出现
+                        }
+                    }
+                    else
+                    {
+                        // 无持有盘但有本局火球：本局全为新落，旋转期一律隐藏圈圈，停稳结算时才出现（避免剧透）。
+                        int n = m_reelView.CounterCount();
+                        for (int rr = 0; rr < n; rr++) m_reelView.HideCounterRow(rr);
+                    }
+                    // ★ 诊断：旋转期每列计数器最终可见性（核对"持有列是否真的显示了圈"）；受 SlotDebug.VerboseLogs 开关控制。
+                    if (SlotDebug.VerboseLogs)
+                    {
+                        var sb = new System.Text.StringBuilder($"[StartBaseSpin-diag] modeB hold={(r.holdSpinState != null)} baseFb={(r.baseFireballs != null ? r.baseFireballs.Count : 0)}");
+                        int n = m_reelView.CounterCount();
+                        for (int rr = 0; rr < n; rr++)
+                        {
+                            var fn = m_reelView.GetCounter(rr);
+                            sb.Append($" | r{rr}:act={(fn != null && fn.m_active)} eng={(fn != null && fn.m_engaged)} num={(fn != null ? fn.m_num : -1)}");
+                        }
+                        UnityEngine.Debug.Log(sb.ToString());
                     }
                 }
                 // ★ 按模式分流结算：A → SettleBaseA(Flow.A.cs)，B → SettleBaseB(Flow.B.cs)，通用步骤在 Flow.cs。
