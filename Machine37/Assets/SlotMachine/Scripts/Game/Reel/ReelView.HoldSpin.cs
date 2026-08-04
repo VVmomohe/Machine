@@ -95,10 +95,16 @@ namespace com.slot
 
             for (int r = 0; r < s.reels && r < _reels.Count; r++)
             {
-                // ★ 已释放(圈圈归零→回归滚动队列) 与 已集满(即将收集 / 收集后随卷轴滚走) 的列【不】预钉：
-                //   让其火球随底层卷轴滚动或走收集演出流程，不被当作"普通持有"固定住（否则满列火球被钉死、无法回归队列）。
+                // ★ 已释放(圈圈归零→回归滚动队列) 列【不】预钉：让其火球随底层卷轴滚动或走释放流程。
+                //   ★ 已集满(isFull) 列：仅"纯本局新火球凑满、上局无持有火球"才不钉；
+                //     若本列是【跨局持有列且本局才刚集满】(preRoundHeldCols[r]=true)，其老火球上局就定在屏上，
+                //     本局只是新落火球补齐最后一格 → 必须钉固，否则开滚瞬间整列老火球消失、停稳才重现(用户实测 BUG：
+                //     "差一颗就满列、圈圈还在，再次滚动火球消失、停稳又出现且刚好集满一列")。
+                //     钉固时 skip=baseFireballs 已排除新落那颗 → 仅钉老火球、新火球随卷轴滚入，停稳后 ShowFeatureState 统一重钉并触发收集演出。
                 if (s.released != null && s.released[r]) continue;
-                if (s.isFull != null && s.isFull[r]) continue;
+                if (s.isFull != null && s.isFull[r]
+                    && !(s.preRoundHeldCols != null && r < s.preRoundHeldCols.Length && s.preRoundHeldCols[r]))
+                    continue;
                 for (int row = 0; row < s.cells[r].Length; row++)
                 {
                     var c = s.cells[r][row];
