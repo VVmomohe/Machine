@@ -26,6 +26,23 @@ namespace com.slot
 
         public Text m_text;
 
+#if UNITY_EDITOR
+        /// <summary>编辑器下校验 m_type 必须为有效 FireballKind 值（0~5）。
+        /// 若 Inspector 因脚本/序列化缓存不同步显示"ReelItem"等非枚举名，OnValidate 会触发重序列化并打印警告，
+        /// 强制钳制到合法值，避免调试时误判为运行时 BUG。</summary>
+        void OnValidate()
+        {
+            int v = (int)m_type;
+            int max = (int)FireballKind.FreeSpins;
+            if (v < 0 || v > max)
+            {
+                Debug.LogWarning($"[ReelItem] m_type 越界(value={v}/name={m_type})，强制重置为 Multiplier。"
+                    + " 这通常是脚本/枚举序列化缓存未刷新导致 Inspector 显示异常，建议 Reimport ReelItem.cs 或重启 Unity。");
+                m_type = FireballKind.Multiplier;
+            }
+        }
+#endif
+
         /// <summary>是否为火球：是则显示火球对象、隐藏普通图标 m_image。
         /// freeFire=true（FreeSpins 免费游戏）时优先亮 m_freeFire；若 prefab 未配置 m_freeFire（图形缺失）则
         /// 退化为普通火球图形 m_fire，避免火球整颗变空白“消失”。文字由 ApplyFireballText 处理（显 "FREE"）。
