@@ -236,8 +236,9 @@ namespace SlotMachine.Core
                 }
                 UnityEngine.Debug.Log(sbDiag.ToString());
             }
-            // ★ 诊断（总是打印）：推进后每列状态一览，便于核对"哪列释放/集满/持有几圈"，
-            //   与展示层 [SNAP]/[RELEASE-MOVE]/[CLEAR-EXCEPT] 对照，定位"有圈圈却火球回归队列"。
+            // ★ 诊断（受 SlotDebug.VerboseLogs 控制）：推进后每列状态一览，便于核对"哪列释放/集满/持有几圈"，
+            //   与展示层 [RELEASE-MOVE]/[CLEAR-EXCEPT] 对照，定位"有圈圈却火球回归队列"。
+            if (SlotDebug.VerboseLogs)
             {
                 var sbSum = new System.Text.StringBuilder("[Fireball-B-SUM] ");
                 for (int r = 0; r < holdBoard.reels; r++)

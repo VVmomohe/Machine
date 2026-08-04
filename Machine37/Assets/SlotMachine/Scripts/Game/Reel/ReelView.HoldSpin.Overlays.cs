@@ -112,7 +112,8 @@ namespace com.slot
                     float yLocal = RowToY(row) - off * m_cellSize;   // 卷轴局部 Y（与 bottomLimit 同坐标系）
                     if (yLocal < bottomLimit)
                     {
-                        UnityEngine.Debug.Log($"[RELEASE-MOVE] r{reel} row={row} 火球随卷轴滚出→销毁（回归滚动队列）");
+                        if (SlotDebug.VerboseLogs)
+                            UnityEngine.Debug.Log($"[RELEASE-MOVE] r{reel} row={row} 火球随卷轴滚出→销毁（回归滚动队列）");
                         Destroy(go);
                         _fbOverlays.RemoveAt(i);
                     }
@@ -214,7 +215,8 @@ namespace com.slot
                 int reel, row;
                 if (!ParseReelRow(go.name, out reel, out row)) continue;
                 if (_releaseReels.Contains(reel) || _collectedReels.Contains(reel)) continue;
-                UnityEngine.Debug.Log($"[CLEAR-EXCEPT] 销毁 overlay={go.name} reel={reel} | _releaseReels=[{string.Join(",", _releaseReels)}] _collectedReels=[{string.Join(",", _collectedReels)}] (持有火球→StartBaseSpin 后由 ShowHeldFireballs 重建)");
+                if (SlotDebug.VerboseLogs)
+                    UnityEngine.Debug.Log($"[CLEAR-EXCEPT] 销毁 overlay={go.name} reel={reel} | _releaseReels=[{string.Join(",", _releaseReels)}] _collectedReels=[{string.Join(",", _collectedReels)}] (持有火球→StartBaseSpin 后由 ShowHeldFireballs 重建)");
                 Destroy(go);
                 _fbOverlays.RemoveAt(i);
                 removed = true;

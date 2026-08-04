@@ -56,10 +56,11 @@ namespace com.slot
                 }
                 // 释放列兜底：清 overlay + 底层符号回归普通（board 已清空这些列 cells，ShowFeatureState 不会重钉）
                 for (int rr = 0; rr < hs.reels; rr++)
-                    if (hs.released[rr]) { UnityEngine.Debug.Log($"[RELEASE-B-DO] r{rr} 展示层执行释放：ClearColumnFireballs + ReleaseColumnToSpinQueue（火球回归滚动队列）"); m_reelView.ClearColumnFireballs(rr); m_reelView.ReleaseColumnToSpinQueue(rr); }
+                    if (hs.released[rr]) { if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[RELEASE-B-DO] r{rr} 展示层执行释放：ClearColumnFireballs + ReleaseColumnToSpinQueue（火球回归滚动队列）"); m_reelView.ClearColumnFireballs(rr); m_reelView.ReleaseColumnToSpinQueue(rr); }
 
-                // ★ 诊断快照（总是打印）：每列 overlay 数 / 棋盘 filled 数 / counter / released / full，
-                //   与逻辑层 [Fireball-B-SUM] 及展示层 [RELEASE-MOVE]/[CLEAR-EXCEPT] 对照，定位"有圈圈却火球回归队列"。
+                // ★ 诊断快照（受 SlotDebug.VerboseLogs 控制）：每列 overlay 数 / 棋盘 filled 数 / counter / released / full，
+                //   与展示层 [RELEASE-MOVE]/[CLEAR-EXCEPT] 对照，定位"有圈圈却火球回归队列"。
+                if (SlotDebug.VerboseLogs)
                 {
                     var ovByCol = new System.Collections.Generic.Dictionary<int, int>();
                     foreach (var go in m_reelView.GetFireballOverlays())

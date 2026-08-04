@@ -115,7 +115,7 @@ namespace com.slot
             // 基础局通用彩金特效：火球里的彩金档落定即中（清池已在 GameSession 即时完成），A/B 模式都播。
             ShowDirectJackpotEffects(r);
 
-            // ★ 本局出什么：每列符号 + Scatter 标记 + 火球位置 + 触发字段（总是打印，便于核对"这局到底出了什么"——
+            // ★ 本局出什么：每列符号 + Scatter 标记 + 火球位置 + 触发字段（受 SlotDebug.VerboseLogs 控制，便于核对"这局到底出了什么"——
             //   排查"Scatter 触发=2 但屏上看 r0/r1 没 Scatter"时，可在此确认 3 颗 Scatter 究竟落在哪几列）。
             LogRoundOutput(r);
 

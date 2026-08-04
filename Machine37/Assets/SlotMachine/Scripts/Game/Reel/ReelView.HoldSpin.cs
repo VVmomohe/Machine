@@ -21,9 +21,9 @@ namespace com.slot
 
         public virtual void ShowFeatureState(HoldSpinState s)
         {
-            // ★ 诊断（总是打印）：核对 hs.cells 里各 kind 火球的 filled 数。
-            //   若 Mini/Minor/Major/Mega 计数为 0，说明逻辑层 AdvanceHoldBoard 没把彩金档火球加进 holdBoard.cells
-            //   （或该位置被同位置旧火球占位、filled 判定异常），导致本方法不钉彩金档 → 表现"只固定了倍数火球"。
+            // ★ 诊断（受 SlotDebug.VerboseLogs 控制）：核对 hs.cells 里各 kind 火球的 filled 数，
+            //   与下方实际钉住的 overlay([FB-STATE-OUT])对比，区分"某 kind 没固定"是逻辑层(cells 漏加)还是显示层(钉了又没显示)。
+            if (SlotDebug.VerboseLogs)
             {
                 var inKinds = new System.Collections.Generic.Dictionary<string, int>();
                 for (int r = 0; r < s.reels && r < s.cells.Length; r++)
@@ -56,9 +56,9 @@ namespace com.slot
             }
             RefreshColumnEffects(s);   // 近满列(差1火球)→亮整列 m_effect
 
-            // ★ 诊断（总是打印）：核对本方法实际钉住的 overlay 按 kind 计数，与 [FB-STATE-IN] 对比。
-            //   若 IN 含彩金档但 OUT 不含 → ShowFireballOverlay 创建彩金档 overlay 失败/被销毁（显示层问题）；
-            //   若两者都含彩金档 → 钉固正常，BUG 在别处（视觉层级/用户观察时机为旋转期而非停稳后）。
+            // ★ 诊断（受 SlotDebug.VerboseLogs 控制）：核对本方法实际钉住的 overlay 按 kind 计数，与 [FB-STATE-IN] 对比，
+            //   区分 BUG 在逻辑层(加进 cells 但没钉)还是显示层(钉了但被销毁/观察时机)。
+            if (SlotDebug.VerboseLogs)
             {
                 var outKinds = new System.Collections.Generic.Dictionary<string, int>();
                 foreach (var go in _fbOverlays)
@@ -106,7 +106,8 @@ namespace com.slot
                         ShowFireballOverlay(r, row, c, playSound: false);
                 }
             }
-            // ★ 诊断（总是打印）：重建后当前火球 overlay 按列计数，核对"某列火球是否真的被重建=是否真的固定"。
+            // ★ 诊断（受 SlotDebug.VerboseLogs 控制）：当前火球 overlay 按列/按 kind 计数，核对"某列是否真的被钉住"。
+            if (SlotDebug.VerboseLogs)
             {
                 var byCol = new System.Collections.Generic.Dictionary<int, int>();
                 var byKind = new System.Collections.Generic.Dictionary<string, int>();
@@ -143,7 +144,7 @@ namespace com.slot
             var movedCols = new List<int>(_collectedReels);
             foreach (var r in _collectedReels) _releaseReels.Add(r);
             _collectedReels.Clear();
-            if (movedCols.Count > 0)
+            if (movedCols.Count > 0 && SlotDebug.VerboseLogs)
                 UnityEngine.Debug.Log($"[RELEASE-PREP] collected[{string.Join(",", movedCols)}] → _releaseReels（下一局随卷轴滚走·回归滚动队列）");
 
             if (onlyCollected) return;
@@ -233,7 +234,8 @@ namespace com.slot
                     {
                         if (GameManager.Instance != null && GameManager.Instance.m_bonus != null)
                             GameManager.Instance.m_bonus.ShowJackpotEffect(item.m_type, persistent: true);
-                        Debug.Log($"[COLLECT] r{reel} 彩金火球掉落(kind={item.m_type}) → 播彩金特效");
+                        if (SlotDebug.VerboseLogs)
+                            Debug.Log($"[COLLECT] r{reel} 彩金火球掉落(kind={item.m_type}) → 播彩金特效");
                     }
                     else if (item.m_type == FireballKind.Multiplier)
                     {
@@ -241,8 +243,11 @@ namespace com.slot
                         //   彩金档(Mini/Minor/Major/Mega)是固定数值、不是倍数，绝不写进 ReelFireNum 倍率累加（已在上方分支单独播特效）；
                         //   免费火球(FreeSpins)已在上方跳过。此处显式判定 ==Multiplier，任何未知类型都不累加。
                         AddFireballMultiplier(reel, item.m_rate);
-                        float acc = (m_numObjs != null && reel < m_numObjs.Length && m_numObjs[reel] != null) ? m_numObjs[reel].m_rate : 0f;
-                        Debug.Log($"[COLLECT] r{reel} 倍数火球掉落 +{item.m_rate:F2} → ReelFireNum 累计倍率={acc:F2}");
+                        if (SlotDebug.VerboseLogs)
+                        {
+                            float acc = (m_numObjs != null && reel < m_numObjs.Length && m_numObjs[reel] != null) ? m_numObjs[reel].m_rate : 0f;
+                            Debug.Log($"[COLLECT] r{reel} 倍数火球掉落 +{item.m_rate:F2} → ReelFireNum 累计倍率={acc:F2}");
+                        }
                     }
                 }
 
