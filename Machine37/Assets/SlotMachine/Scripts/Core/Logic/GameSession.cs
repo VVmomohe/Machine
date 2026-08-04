@@ -145,11 +145,31 @@ namespace SlotMachine.Core
 
             // 1) 基础旋转
             int[][] grid = OutcomeGenerator.Spin(_cfg, _rng, doubleFireball);
+
+            // ★ 持有火球格排除掩码：显示层已把跨局持有格钉成火球，其底层新鲜卷轴可能藏有 Scatter，
+            //   但该位置已被火球占据 → 不计 Scatter（否则"r2 全火球"却仍进免费小游戏、且白拿 scatter 赔付）。
+            //   排除 = holdBoard.cells 中 filled 且未释放(released) 的位置；此刻 holdBoard 为本局推进(AdvanceHoldBoard)前的
+            //   上一局持有态 = 玩家当前看到的全火球列。AdvanceHoldBoard 在下方 CheckFireballHoldSpin 才更新 holdBoard。
+            bool[][] heldMask = null;
+            if (holdBoard != null && holdBoard.cells != null)
+            {
+                heldMask = new bool[holdBoard.cells.Length][];
+                for (int r = 0; r < holdBoard.cells.Length; r++)
+                {
+                    var col = holdBoard.cells[r];
+                    int h = (col != null) ? col.Length : 0;
+                    heldMask[r] = new bool[h];
+                    bool released = (holdBoard.released != null && r < holdBoard.released.Length) ? holdBoard.released[r] : false;
+                    for (int row = 0; row < h; row++)
+                        heldMask[r][row] = !released && col[row] != null && col[row].filled;
+                }
+            }
+
             var wins = EvaluateBase(grid, bet);
             res.baseWins = wins;
             float baseWin = 0;
             for (int i = 0; i < wins.Count; i++) baseWin += wins[i].payout;
-            int sc = ScatterUtil.Count(grid, _cfg);
+            int sc = ScatterUtil.Count(grid, _cfg, heldMask);
             float sp = ScatterUtil.Payout(sc, _cfg, bet);
             res.baseWin = baseWin;
             res.scatterPayout = sp;
@@ -176,7 +196,7 @@ namespace SlotMachine.Core
                 }
                 else
                 {
-                    int scL2R = ScatterUtil.CountLeftToRight(grid, _cfg);
+                    int scL2R = ScatterUtil.CountLeftToRight(grid, _cfg, heldMask);
                     res.scatterL2R = scL2R;
                     fsAward = _cfg.freeSpins.SpinsFor(scL2R);
                 }

@@ -10,14 +10,23 @@ namespace SlotMachine.Core
 
     public static class ScatterUtil
     {
-        public static int Count(int[][] grid, ReelConfig cfg)
+        /// <summary>全盘任意位置统计 Scatter 数（用于显示/赔付统计）。
+        /// exclude!=null 时跳过 exclude[r][row]=true 的位置——用于排除「持有火球格」：其底层新鲜卷轴可能藏有 Scatter，
+        /// 但该位置已被火球占据，不应计入（否则"全火球列"却白拿 scatter 赔付）。</summary>
+        public static int Count(int[][] grid, ReelConfig cfg, bool[][] exclude = null)
         {
             int sid = cfg.ScatterId();
             if (sid < 0) return 0;
             int c = 0;
             for (int r = 0; r < grid.Length; r++)
-                for (int row = 0; row < grid[r].Length; row++)
+            {
+                int rows = (grid[r] != null) ? grid[r].Length : 0;
+                for (int row = 0; row < rows; row++)
+                {
+                    if (exclude != null && r < exclude.Length && row < exclude[r].Length && exclude[r][row]) continue;
                     if (grid[r][row] == sid) c++;
+                }
+            }
             return c;
         }
 
@@ -25,7 +34,12 @@ namespace SlotMachine.Core
         /// 从 reel0 起，连续相邻 reel 每列含 ≥1 个 Scatter 才累加，遇到第一列不含 Scatter 即断开（不跳跃）。
         /// 返回连续长度（即「左到右」有效 Scatter 列数）。例：reel0/1/2 含 → 3（触发）；reel0/1 含、reel2 不含 → 2（不触发）；reel0 不含 → 0。
         /// 与 Count(全盘任意位置) 区分：本方法用于触发免费游戏，Count 用于显示/赔付统计。</summary>
-        public static int CountLeftToRight(int[][] grid, ReelConfig cfg)
+        /// <summary>从左到右连续相邻统计（模式B Scatter 触发口径）：
+        /// 从 reel0 起，连续相邻 reel 每列含 ≥1 个 Scatter 才累加，遇到第一列不含 Scatter 即断开（不跳跃）。
+        /// 返回连续长度（即「左到右」有效 Scatter 列数）。例：reel0/1/2 含 → 3（触发）；reel0/1 含、reel2 不含 → 2（不触发）；reel0 不含 → 0。
+        /// 与 Count(全盘任意位置) 区分：本方法用于触发免费游戏，Count 用于显示/赔付统计。
+        /// exclude!=null 时跳过 exclude[r][row]=true 的位置——排除「持有火球格」，使全火球列真正断开连续链（不误触免费）。</summary>
+        public static int CountLeftToRight(int[][] grid, ReelConfig cfg, bool[][] exclude = null)
         {
             int sid = cfg.ScatterId();
             if (sid < 0) return 0;
@@ -33,8 +47,12 @@ namespace SlotMachine.Core
             for (int r = 0; r < grid.Length; r++)
             {
                 bool has = false;
-                for (int row = 0; row < grid[r].Length; row++)
+                int rows = (grid[r] != null) ? grid[r].Length : 0;
+                for (int row = 0; row < rows; row++)
+                {
+                    if (exclude != null && r < exclude.Length && row < exclude[r].Length && exclude[r][row]) continue;
                     if (grid[r][row] == sid) { has = true; break; }
+                }
                 if (has) consec++;
                 else break;   // 断档即停：必须连续相邻、从 reel0 起
             }
