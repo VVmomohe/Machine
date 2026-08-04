@@ -61,9 +61,9 @@ namespace com.slot
                 //   跨局持有(老)火球 → 下面 ShowHeldFireballs 钉成固定 overlay（不滚、定原位）；
                 //   本局新落火球 → 由 ShowGrid 底层卷轴滚动显示（skip 其位置，不预钉）；
                 //   停稳后 SettleBaseB→ShowFeatureState 统一重钉全部。
-                //   此处除钉火球外，还须恢复计数器(圈圈)——OnStartKey 的 HideAllCounters 清了，需在旋转期重建，使圈数整局持续可见。
-                // ★ 不再用 r.holdSpinState != null 作门控：只要模式B 就重建计数器（用户硬规则——有圈圈就显示、没圈圈才隐藏）。
-                //   任何"有火球却 board 为 null"的边界都不再让计数器整局隐藏；无 board 但有本局火球时按"新火球→重置3"显示圈。
+                // ★ 计数器(圈圈/reelFireNum)不在旋转期出现：OnStartKey 的 HideAllCounters 清掉后，
+                //   此处【不再】重建——等本局停稳、结算开始(SettleBaseB 内 ActivateCounters)才显示，避免过早泄底。
+                //   旋转期仅钉火球 tray + 近满列高亮。
                 if (IsModeB())
                 {
                     // ★ 模式B 旋转期 tray 效果（用户硬规则 2026-08-04 修正版）：
@@ -71,52 +71,14 @@ namespace com.slot
                     //   本局新落火球 = 由 ShowGrid 底层卷轴滚动显示（ShowHeldFireballs 用 skip=baseFireballs
                     //   跳过其位置、仅钉持有火球，避免与滚动中的新火球重影）——即"老火球定住、新火球滚进来"。
                     //   停稳后 SettleBaseB→ShowFeatureState 统一重钉全部（持有+新落）。
-                    //   计数器(圈圈)仍整局可见（下面 ActivateCounters/SetRespinCounterRow）；近满列高亮也保留。
+                    // ★ 计数器(圈圈 / reelFireNum)【不】在此处(旋转期)显示：用户 2026-08-04 硬规则——
+                    //   过早出现会"还没停稳就知道这列肯定出火球"泄底。改为等本局停稳、结算开始(SettleBaseB
+                    //   的 ActivateCounters + SetRespinCounterRow，在 WaitReelsStop 之后)才出现。
+                    //   旋转期仅保留：火球 tray(老火球定住) + 近满列高亮(RefreshColumnEffects)。
                     if (r.holdSpinState != null)
                     {
                         m_reelView.ShowHeldFireballs(r.holdSpinState, r.baseFireballs);
                         m_reelView.RefreshColumnEffects(r.holdSpinState);
-                    }
-                    m_reelView.ActivateCounters();   // 旋转期恢复会话级门控（各列是否显示由下面按盘/按火球决定）
-                    if (r.holdSpinState != null)
-                    {
-                        var hs0 = r.holdSpinState;
-                        int n = Mathf.Min(hs0.reels, m_reelView.CounterCount());
-                        for (int rr = 0; rr < n; rr++)
-                        {
-                            if (hs0.isFull[rr])
-                                m_reelView.SetRespinCounterRow(rr, 0);
-                            else if (!hs0.released[rr] && hs0.counter[rr] >= 0)
-                                m_reelView.SetRespinCounterRow(rr, hs0.counter[rr]);   // 含 0（3→2→1→0）
-                            else
-                                m_reelView.HideCounterRow(rr);
-                        }
-                    }
-                    else
-                    {
-                        // 防御：无持有盘但有本局火球（triggerMin=1 下理论不触发，但保险）。
-                        // 这些列本局落了新火球，按"新火球→重置 respinCount"显示圈；其余列隐藏。
-                        int rc = (m_machine.config != null && m_machine.config.holdSpin != null)
-                            ? m_machine.config.holdSpin.respinCount : 3;
-                        var fbReels = new System.Collections.Generic.HashSet<int>();
-                        if (r.baseFireballs != null)
-                            foreach (var c in r.baseFireballs) if (c != null && c.filled) fbReels.Add(c.reel);
-                        int n = m_reelView.CounterCount();
-                        for (int rr = 0; rr < n; rr++)
-                            if (fbReels.Contains(rr)) m_reelView.SetRespinCounterRow(rr, rc);
-                            else m_reelView.HideCounterRow(rr);
-                    }
-                    // ★ 诊断：旋转期每列计数器最终可见性（核对"有圈圈列是否真的显示了圈"）；受 SlotDebug.VerboseLogs 开关控制。
-                    if (SlotDebug.VerboseLogs)
-                    {
-                        var sb = new System.Text.StringBuilder($"[StartBaseSpin-diag] modeB hold={(r.holdSpinState != null)} baseFb={(r.baseFireballs != null ? r.baseFireballs.Count : 0)}");
-                        int n = m_reelView.CounterCount();
-                        for (int rr = 0; rr < n; rr++)
-                        {
-                            var fn = m_reelView.GetCounter(rr);
-                            sb.Append($" | r{rr}:act={(fn != null && fn.m_active)} eng={(fn != null && fn.m_engaged)} num={(fn != null ? fn.m_num : -1)}");
-                        }
-                        UnityEngine.Debug.Log(sb.ToString());
                     }
                 }
                 // ★ 按模式分流结算：A → SettleBaseA(Flow.A.cs)，B → SettleBaseB(Flow.B.cs)，通用步骤在 Flow.cs。
