@@ -20,8 +20,7 @@ namespace SlotMachine.Core
 
         /// <summary>
         /// 产出本局目标网格：每格独立均匀随机（1..12）。
-        /// doubleFireball=true 时把火球(=SymbolMax)数量翻倍（额外把等同当前火球数的普通格改为火球），
-        /// 当前局若一颗火球都没随机到，则至少强制转 2 格火球，保证调试开关可见。
+        /// doubleFireball=true 时为测试模式：每格 25% 概率直接落火球(=SymbolMax)，其余 75% 在 1..11 均匀（排除火球）。
         /// </summary>
         public static int[][] Spin(ReelConfig cfg, ISlotRng rng, bool doubleFireball = false)
         {
@@ -37,24 +36,22 @@ namespace SlotMachine.Core
 
             if (doubleFireball)
             {
-                var fbCoords = new List<(int reel, int row)>();
-                var otherCoords = new List<(int reel, int row)>();
+                // 测试模式：每格 25% 概率直接落火球(id=SymbolMax)，其余 75% 在 1..11 均匀（排除火球）。
+                int fbCount = 0;
                 for (int c = 0; c < reels; c++)
                     for (int row = 0; row < grid[c].Length; row++)
-                        if (grid[c][row] == SymbolMax) fbCoords.Add((c, row));
-                        else otherCoords.Add((c, row));
-
-                // 翻倍：额外转等同当前火球数的普通格为火球；若当前为 0，至少转 2 格保证开关可见
-                int toConvert = fbCoords.Count > 0 ? fbCoords.Count : 2;
-                toConvert = Math.Min(toConvert, otherCoords.Count);
-                for (int i = 0; i < toConvert; i++)
-                {
-                    int pick = rng.Next(otherCoords.Count);
-                    var (cc, rr) = otherCoords[pick];
-                    grid[cc][rr] = SymbolMax;
-                    otherCoords.RemoveAt(pick);
-                }
-                UnityEngine.Debug.Log($"[OutcomeGenerator] doubleFireball=true → 火球数 {fbCoords.Count} 翻倍至 {fbCoords.Count + toConvert}");
+                    {
+                        if (rng.Next(100) < 25)   // 25% 火球
+                        {
+                            grid[c][row] = SymbolMax;
+                            fbCount++;
+                        }
+                        else
+                        {
+                            grid[c][row] = SymbolMin + rng.Next(SymbolMax - SymbolMin); // [1,11] 均匀（排除火球）
+                        }
+                    }
+                UnityEngine.Debug.Log($"[OutcomeGenerator] doubleFireball=true → 25% 火球测试模式，火球数={fbCount}");
             }
 
             return grid;
