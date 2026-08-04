@@ -321,8 +321,7 @@ namespace com.slot
         private void PlayWinSound()
         {
             if (!m_playSound) return;
-            // TODO(FMOD): 接入实际事件路径, 例如:
-            // if (FMODSoundMgr.Instance != null) FMODSoundMgr.Instance.PlaySound("event:/Common/收获音");
+            // TODO(FMOD): 接入实际事件路径, 例如 FMODSoundMgr.Instance.PlaySound("event:/Common/收获音");
         }
     }
 }

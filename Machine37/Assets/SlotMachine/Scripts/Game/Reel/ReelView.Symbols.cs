@@ -10,7 +10,6 @@ namespace com.slot
     {
         Dictionary<int, Sprite> _symCache = new Dictionary<int, Sprite>();
         uint _rngState = 0x9E3779B9u;
-        static int s_cellSerial = 0;   // ★ 格子克隆全局自增编号（创建时定值，用于追踪/调试）
 
         /// <summary>行号 -> 局部 Y（底部对齐，row 0 在最下面）。</summary>
         float RowToY(int row) => row * m_cellSize + m_rowBaseY;
@@ -31,8 +30,6 @@ namespace com.slot
             var rt = go.transform as RectTransform;
             if (rt != null) rt.anchoredPosition = new Vector2(0f, RowToY(visualRow));
             SetCellSprite(go, symbolId);
-            var citem = go.GetComponent<ReelItem>();
-            if (citem != null) citem.m_serial = s_cellSerial++;
             return go;
         }
 
@@ -158,7 +155,7 @@ namespace com.slot
             if (item != null)
             {
                 // ★ m_id 定值点：① 创建时（SetCellSprite，ShowGrid 用该格最终符号 grid[reel][rowForK]）；
-                //   ② 定格时（syncId=true：SnapFinal 基础旋转 / SpinHoldRound 收尾 每轮 respin）。
+                //   ② 定格时（syncId=true：SnapFinal 基础旋转 / 收集盘推进收尾）。
                 //   滚动中 SetCell(syncId=false) 不碰 m_id → 严格贯彻"创建/定格定值、中途不变"。
                 //   数据网格 finalSyms 同样只在 OutcomeGenerator 生成层一次算定，永不被此处改写。
                 if (id == m_fireballSymbolId)

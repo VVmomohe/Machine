@@ -47,11 +47,6 @@ namespace com.slot
             if (rt != null) rt.position = worldPos;
             go.transform.SetAsLastSibling();
 
-            //if (rt != null)
-            //    // ★ 诊断：每次创建火球 overlay 都打印其 kind+multiplier，便于确认"固定后 kind 是否真由 Multiplier 变 FreeSpins"。
-            //    //   复现后请在 Editor.log 按 [FBOverlay] 过滤，看同一 FBOverlay_{reel}_{row} 是否先 Multiplier 后 FreeSpins（若仅出现一次且为 FreeSpins，则为合法免费火球，非突变）。
-            //    Debug.Log($"[FBOverlay] {go.name} kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} Y={worldPos.y:F1} parent={parent.name} active={go.activeSelf} (reel{reel} row{row})");
-
             var item = go.GetComponent<ReelItem>();
             if (item != null)
             {
@@ -74,7 +69,7 @@ namespace com.slot
                 item.ShowFire(true, freeFire);
                 // ★ overlay 的 m_effect 必须关闭——m_effect 只在 ReelItem(卷轴格)上由 SetColumnEffect 管理，
                 //   overlay 是克隆体，如果 prefab 上 m_effect 默认 active，ghost 会带着 m_effect 停在原位
-                //   直到下一轮 SpinHoldRound 才销毁 → 视觉上 m_effect "不消失"。
+                //   否则 m_effect 会随 overlay 一直停在原位、直到 overlay 被销毁才消失 → 视觉上 m_effect "不消失"。
                 if (item.m_effect != null) item.m_effect.SetActive(false);
                 // ★ 诊断日志：仅对非法 kind（超出 0~5）告警。multiplier 大小不再作为彩金档推断依据。
                 if (cell != null && ((int)cell.kind < 0 || (int)cell.kind > 5))
@@ -121,30 +116,6 @@ namespace com.slot
             }
         }
 
-        /// <summary>锁定火球 overlay 固定在其逻辑格 RowToY(row)，不随卷轴滚动（Hold&Spin 锁定语义）。
-        /// 底层 displayStrip 周期带照常滚动显示普通符，火球由固定 overlay 盖住；火球自始至终停在它的格子里、
-        /// 不漂移、不"跳格"，与正常局一致。仅释放列(tong 收走)才交给 MoveReleasingOverlays 滚走销毁。</summary>
-        void TrackFireballOverlays(Dictionary<int, float> offset)
-        {
-            for (int i = 0; i < _fbOverlays.Count; i++)
-            {
-                var go = _fbOverlays[i];
-                if (go == null) continue;
-                int reel, row;
-                if (!ParseReelRow(go.name, out reel, out row)) continue;
-                if (_releaseReels.Contains(reel)) continue;   // 释放列交给 MoveReleasingOverlays 滚走销毁
-                var rt = go.transform as RectTransform;
-                if (rt == null) continue;
-                // ★ 关键修复：火球一旦锁定即固定在其逻辑格。旧实现用 off%rows 周期性折返，
-                //   每滚一整圈火球 overlay 整体跳一个周期(=rows 格) → 用户看到的"火球没固定、还跳格"。
-                //   改为固定位置后，停轮时底层周期带对齐位(off%rows==0)与 overlay 自然重合，无需再随卷轴平移。
-                //   ★ 世界坐标定位：母节点可能是 m_fireNode 或 m_node[reel]，用 TransformPoint 保证 X/Y 都正确(避免父节点偏移错乱)。
-                rt.position = (m_node != null && reel >= 0 && reel < m_node.Length && m_node[reel] != null)
-                    ? m_node[reel].transform.TransformPoint(0f, RowToY(row), 0f)
-                    : this.transform.TransformPoint(0f, RowToY(row), 0f);
-            }
-        }
-
         /// <summary>销毁已随卷轴滚走的待释放 overlay（回合末调用）。</summary>
         void DestroyReleasingOverlays()
         {
@@ -178,15 +149,6 @@ namespace com.slot
             if (!int.TryParse(parts[1], out reel)) return false;
             if (!int.TryParse(parts[2], out row)) return false;
             return true;
-        }
-
-        /// <summary>查询 (reel,row) 位置是否有火球 overlay（用于结算网格构建：有 overlay → 该格视为火球）。</summary>
-        public bool HasFireballOverlay(int reel, int row)
-        {
-            string target = $"FBOverlay_{reel}_{row}";
-            foreach (var go in _fbOverlays)
-                if (go != null && go.name == target) return true;
-            return false;
         }
 
         /// <summary>销毁全部火球 overlay（含 Mini 持久 overlay）。供 Mini 结束回收时调用，避免跨会话残留。</summary>

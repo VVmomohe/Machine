@@ -107,7 +107,7 @@ namespace SlotMachine.Core
             return st;
         }
 
-        /// <summary>B 模式(ReelFill)状态初始化：逐列倒计时 + 初始即满列直接派彩（payOnStart=true 时；模式B respin 传 false 由调用方逐颗派彩）。</summary>
+        /// <summary>B 模式(单列收集盘)状态初始化：逐列倒计时 + 初始即满列直接派彩（payOnStart=true 时；模式B 由调用方逐颗派彩）。</summary>
         static void StartReelFill(HoldSpinState st, ReelConfig cfg, int rc, float bet, bool payOnStart)
         {
             for (int r = 0; r < st.reels; r++)

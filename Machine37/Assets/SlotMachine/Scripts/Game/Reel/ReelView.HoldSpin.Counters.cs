@@ -43,13 +43,6 @@ namespace com.slot
                 if (m_numObjs[i] != null) m_numObjs[i].Activate();
         }
 
-        /// <summary>结算完成：不再清零（保留 num/rate 显示到玩家按确认开新局）。
-        /// 隐藏统一在 HideAllCounters→ResetAll（开新局时 num/rate 归零，(num==0&amp;&amp;rate==0) 即隐藏）。</summary>
-        public void SettleCounters()
-        {
-            // 故意留空：结算阶段不清零、不隐藏，保持计数器显示（含满列 X 倍）到开新局。
-        }
-
         /// <summary>隐藏全部倒计时（新基础局 / 特性结束 / 进 Mini）：每列 ResetAll（active=false → 强制隐藏）。</summary>
         public void HideAllCounters()
         {
@@ -84,16 +77,5 @@ namespace com.slot
             return m_numObjs[reel];
         }
 
-        /// <summary>读取各列计数器 engaged 状态（m_engaged）。
-        /// 注意：模式B 释放判定现由逻辑层(GameSession.AdvanceHoldBoard)按"该列倒计时归零且未集满"直接驱动，
-        /// 不再回读显示层 m_engaged；此处仅作调试/兜底用途。</summary>
-        public bool[] GetEngagedColumns()
-        {
-            if (m_numObjs == null) return null;
-            var arr = new bool[m_numObjs.Length];
-            for (int i = 0; i < m_numObjs.Length; i++)
-                arr[i] = (m_numObjs[i] != null) && m_numObjs[i].m_engaged;
-            return arr;
-        }
     }
 }

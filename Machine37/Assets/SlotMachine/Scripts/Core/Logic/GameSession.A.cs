@@ -68,7 +68,7 @@ namespace SlotMachine.Core
                         if (award > 0)
                         {
                             res.freeSpinsAwarded += award;
-                            UnityEngine.Debug.Log($"[Fireball-B] 单列收集 {bestCol} 颗 FREE 火球 → +{award} 免费局 (freeSpinsAwarded={res.freeSpinsAwarded})");
+                            if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Fireball-B] 单列收集 {bestCol} 颗 FREE 火球 → +{award} 免费局 (freeSpinsAwarded={res.freeSpinsAwarded})");
                         }
                     }
                 }
@@ -78,7 +78,7 @@ namespace SlotMachine.Core
                     UnityEngine.Debug.LogWarning($"[Fireball-A] 警告：A 模式出现 {freeGlobal} 颗 FREE 火球（freeModeRatio 应为 0），已忽略，不派免费次数");
                 }
             }
-            UnityEngine.Debug.Log($"[Fireball-{(modeB ? "B" : "A")}] 直线结算：{initial.Count} 火球 → +{fbWin:F2} (featureWin={res.featureWin:F2})");
+            if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Fireball-{(modeB ? "B" : "A")}] 直线结算：{initial.Count} 火球 → +{fbWin:F2} (featureWin={res.featureWin:F2})");
         }
     }
 }

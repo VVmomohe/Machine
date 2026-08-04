@@ -7,7 +7,7 @@ using SlotMachine.Core;
 
 namespace com.slot
 {
-    /// <summary>ReelView 火球 overlay 核心流程：ShowFeatureState（基础局钉持久火球显示）、SpinHoldRound、Release列。</summary>
+    /// <summary>ReelView 火球 overlay 核心流程：ShowFeatureState（基础局钉持久火球显示）、Release列。</summary>
     public partial class ReelView
     {
         List<GameObject> _fbOverlays = new List<GameObject>();
@@ -17,7 +17,7 @@ namespace com.slot
 
         //   故 StopNow 无法通过 st.spinning 命中。用这两个标志让 StopNow 能识别并提前打断 Hold 滚动。
 
-        // ===== 基础局火球钉持久 overlay（原 ShowFeatureState 入口，HOLD respin 已移除）=====
+        // ===== 基础局火球钉持久 overlay（ShowFeatureState 入口）=====
 
         public virtual void ShowFeatureState(HoldSpinState s)
         {
@@ -164,15 +164,8 @@ namespace com.slot
 
         // ===== 模式B 收集盘 respin 辅助（轻量，不滚盘）=====
 
-        /// <summary>重播某列的 tong（夹子/桶）动画：新火球落入 / 满列收集时调用。</summary>
-        public void PlayTong(int reel)
-        {
-            if (m_tongs != null && reel >= 0 && reel < m_tongs.Length && m_tongs[reel] != null)
-                m_tongs[reel].Play();
-        }
-
         /// <summary>播放某列 tong 演出并【等其真正播完】再返回（协程）。
-        /// 满列收集演出后阻塞流程，确保动画播完才进 Mini（替换一次性 PlayTong + 估算时长等待）。</summary>
+        /// 满列收集演出后阻塞流程，确保动画播完才进 Mini。</summary>
         public IEnumerator PlayTongAndWait(int reel)
         {
             if (m_tongs == null || reel < 0 || reel >= m_tongs.Length || m_tongs[reel] == null) yield break;
@@ -212,7 +205,7 @@ namespace com.slot
             float fallDur = 0.3f;
             float interval = Mathf.Max(fallDur + 0.1f, barrelDur * 0.9f);   // 相邻两颗落入的起始间隔（>=桶时长则每颗桶动画都能播完）
 
-            Debug.Log($"[COLLECT] r{reel} 满列收集：{list.Count} 颗（底部先掉·每颗原地变暗+新火球掉桶·桶对每颗反应一次·原火球回归滚动队列）");
+            if (SlotDebug.VerboseLogs) Debug.Log($"[COLLECT] r{reel} 满列收集：{list.Count} 颗（底部先掉·每颗原地变暗+新火球掉桶·桶对每颗反应一次·原火球回归滚动队列）");
 
             foreach (var ov in list)
             {

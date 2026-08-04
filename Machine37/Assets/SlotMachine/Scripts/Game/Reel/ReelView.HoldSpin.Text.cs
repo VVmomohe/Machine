@@ -6,7 +6,7 @@ using SlotMachine.Core;
 
 namespace com.slot
 {
-    /// <summary>ReelView 火球文字/倍率显示：FireballLabel、ApplyFireballText、SetCellFireballMult、GetFireballMult。</summary>
+    /// <summary>ReelView 火球文字/倍率显示：FireballLabel、ApplyFireballText、SetCellFireballMult。</summary>
     public partial class ReelView
     {
         /// <summary>在底层滚动格(k)上显示火球文字（倍数火球→"x倍率"，彩金火球→"MINI/MINOR/MAJOR/MEGA"）。</summary>
@@ -93,13 +93,6 @@ namespace com.slot
             if (txt.raycastTarget) txt.raycastTarget = false;
             if (txt.font == null) txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (txt.fontSize <= 0) txt.fontSize = 36;
-        }
-
-        /// <summary>取火球 overlay 携带的倍率（ReelItem.m_rate）。</summary>
-        float GetFireballMult(GameObject go)
-        {
-            var ri = go.GetComponent<ReelItem>();
-            return ri != null ? ri.m_rate : 0f;
         }
 
         /// <summary>降级兜底：FreeSpins 被强制转为倍数火球时，给一个合理的默认倍率（取配置中间值 1.5）。</summary>
