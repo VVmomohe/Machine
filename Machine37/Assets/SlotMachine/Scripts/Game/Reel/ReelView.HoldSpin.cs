@@ -78,13 +78,11 @@ namespace com.slot
             }
         }
 
-        /// <summary>模式B 旋转期提前钉住「跨局持有」火球（不含本局新落火球；本局火球由 ShowGrid 底层卷轴滚动显示，避免重影）。
-        /// 解决"有圈圈时火球没固定"：开新局 ShowGrid→ClearAll 会清掉上局 overlay，若只等停轮后 ShowFeatureState 重钉，
-        /// 则旋转期间持有火球不可见，观感像没固定。此处让它整局持续可见（固定 overlay 盖在滚动卷轴之上，不随卷轴漂移）。
-        /// ★ 关键约束（用户硬规则 2026-08-04）：本局新落火球(在 currentGame=baseFireballs)【不】预先钉固——
-        ///   它们应随底层卷轴滚动、滚到位置停稳后才由 ShowFeatureState 固定，避免"一开始旋转火球就固定在场景上"的观感。
-        ///   故用 skip 跳过 baseFireballs 位置，仅钉跨局持有(多为倍数火球)的火球作为"收集盘"持续显示。
-        ///   （注：2026-08-04 起旋转期默认不调用本方法——改为"全部火球随卷轴滚动、停稳后统一固定"，见 GameManager.Flow.StartBaseSpin）</summary>
+        /// <summary>模式B 旋转期 tray 效果：提前钉住「跨局持有(老)火球」作为固定 overlay（不随卷轴滚动、定在原位），
+        /// 本局新落火球(在 currentGame=baseFireballs)【不】钉固——它们由 ShowGrid 底层卷轴滚动显示，skip 其位置避免重影，
+        /// 满足"老火球定住、新火球滚进来"的诉求。停稳后 SettleBaseB→ShowFeatureState 统一重钉全部。
+        /// ★ 旋转期由 GameManager.Flow.StartBaseSpin 调用（2026-08-04 修正版：既非"全部预钉"也非"全部滚动"，而是 tray 区分）。
+        /// ★ 已释放(released) / 已集满(isFull) 列不钉：前者火球回归滚动队列、后者走收集演出/随卷轴滚走，均不被当普通持有固定。</summary>
         public void ShowHeldFireballs(HoldSpinState s, List<FireballCell> currentGame)
         {
             if (s == null) return;
@@ -97,6 +95,10 @@ namespace com.slot
 
             for (int r = 0; r < s.reels && r < _reels.Count; r++)
             {
+                // ★ 已释放(圈圈归零→回归滚动队列) 与 已集满(即将收集 / 收集后随卷轴滚走) 的列【不】预钉：
+                //   让其火球随底层卷轴滚动或走收集演出流程，不被当作"普通持有"固定住（否则满列火球被钉死、无法回归队列）。
+                if (s.released != null && s.released[r]) continue;
+                if (s.isFull != null && s.isFull[r]) continue;
                 for (int row = 0; row < s.cells[r].Length; row++)
                 {
                     var c = s.cells[r][row];

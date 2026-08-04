@@ -57,19 +57,26 @@ namespace com.slot
                         }
 
                 m_reelView.ShowGrid(r.baseGrid, fireMults.Count > 0 ? fireMults : null);
-                // ★ 模式B：旋转期【不】预先钉住火球 overlay（2026-08-04 修正：火球应随底层卷轴滚动、
-                //   滚到位置停稳后才由 SettleBaseB→ShowFeatureState 统一固定，不能一开始旋转就固定在场景上）；
-                //   此处仅恢复计数器(圈圈)——OnStartKey 的 HideAllCounters 清了，需在旋转期重建，使圈数整局持续可见。
-                //   火球在旋转期由 ShowGrid 底层卷轴滚动显示（baseGrid 含 fbId），停稳后 ShowFeatureState 钉固。
+                // ★ 模式B 旋转期 tray 区分（2026-08-04 修正版）：
+                //   跨局持有(老)火球 → 下面 ShowHeldFireballs 钉成固定 overlay（不滚、定原位）；
+                //   本局新落火球 → 由 ShowGrid 底层卷轴滚动显示（skip 其位置，不预钉）；
+                //   停稳后 SettleBaseB→ShowFeatureState 统一重钉全部。
+                //   此处除钉火球外，还须恢复计数器(圈圈)——OnStartKey 的 HideAllCounters 清了，需在旋转期重建，使圈数整局持续可见。
                 // ★ 不再用 r.holdSpinState != null 作门控：只要模式B 就重建计数器（用户硬规则——有圈圈就显示、没圈圈才隐藏）。
                 //   任何"有火球却 board 为 null"的边界都不再让计数器整局隐藏；无 board 但有本局火球时按"新火球→重置3"显示圈。
                 if (IsModeB())
                 {
-                    // ★ 模式B：旋转期【不】预先钉住火球 overlay——火球随底层卷轴一起滚动，
-                    //   滚到位置、停稳后由 SettleBaseB→ShowFeatureState 统一定格(固定)。
-                    //   避免"一开始旋转火球就已经固定在场景上、不是滚到位置停下才固定"的观感（用户硬规则 2026-08-04）。
+                    // ★ 模式B 旋转期 tray 效果（用户硬规则 2026-08-04 修正版）：
+                    //   跨局持有(老)火球 = 钉成固定 overlay（不随卷轴滚动、不消失，定在原位）；
+                    //   本局新落火球 = 由 ShowGrid 底层卷轴滚动显示（ShowHeldFireballs 用 skip=baseFireballs
+                    //   跳过其位置、仅钉持有火球，避免与滚动中的新火球重影）——即"老火球定住、新火球滚进来"。
+                    //   停稳后 SettleBaseB→ShowFeatureState 统一重钉全部（持有+新落）。
                     //   计数器(圈圈)仍整局可见（下面 ActivateCounters/SetRespinCounterRow）；近满列高亮也保留。
-                    if (r.holdSpinState != null) m_reelView.RefreshColumnEffects(r.holdSpinState);
+                    if (r.holdSpinState != null)
+                    {
+                        m_reelView.ShowHeldFireballs(r.holdSpinState, r.baseFireballs);
+                        m_reelView.RefreshColumnEffects(r.holdSpinState);
+                    }
                     m_reelView.ActivateCounters();   // 旋转期恢复会话级门控（各列是否显示由下面按盘/按火球决定）
                     if (r.holdSpinState != null)
                     {
