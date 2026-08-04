@@ -24,9 +24,11 @@ namespace com.slot
 
             item.m_type = cell.kind;
             item.m_rate = cell.multiplier;
-            // ★ 诊断日志：若 kind 非法或 multiplier 与 kind 不匹配，输出详细值供定位
-            if ((int)cell.kind < 0 || (int)cell.kind > 5 || (cell.kind == FireballKind.Multiplier && cell.multiplier > 10f))
-                Debug.LogWarning($"[FireballLabel] kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} reel={st.reelIdx} k={k} → label={FireballLabel(cell)}");
+            // ★ 诊断日志：仅对非法 kind（超出 0~5）告警。multiplier 大小不再作为彩金档推断依据——
+            //   用户已把 JSON multipliers 提到 [1,2,3,5,10,20,50,100]，x20/x50/x100 是合法高倍率，
+            //   必须显示为 xN，不能因 >10 而回退成 MINI/MINOR/MAJOR/MEGA 造成视觉与 m_type 不一致。
+            if ((int)cell.kind < 0 || (int)cell.kind > 5)
+                Debug.LogWarning($"[FireballLabel] 非法 kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} reel={st.reelIdx} k={k} → label={FireballLabel(cell)}");
             ApplyFireballText(item.gameObject, cell);
         }
 
@@ -42,23 +44,13 @@ namespace com.slot
                 case FireballKind.FreeSpins: return "FREE";
                 case FireballKind.Multiplier:
                     if (c.multiplier <= 0f) return "";
-                    // ★ 防御：倍数火球的 multiplier 不应超过配置的 maxMultiplier（现 5）。
-                    //   若出现 >10 说明 kind 被错误置为 Multiplier(0) 但 multiplier 是彩金值——按 multiplier 推断档位回退显示。
-                    if (c.multiplier > 10f)
-                    {
-                        if (c.multiplier >= 2000f) return "MEGA";
-                        if (c.multiplier >= 500f) return "MAJOR";
-                        if (c.multiplier >= 100f) return "MINOR";
-                        return "MINI";
-                    }
+                    // ★ 倍数火球永远显示 xN，不因其数值大而回退成 MINI/MINOR/MAJOR/MEGA。
+                    //   用户已将 JSON multipliers 提到 [1,2,3,5,10,20,50,100]，x20/x50/x100 都是合法高倍率。
+                    //   彩金档必须且只由 kind=Mini/Minor/Major/Mega 决定，不能由 multiplier 数值推断，否则视觉与 m_type 不一致。
                     return "x" + c.multiplier.ToString("0.##");
                 default:
-                    // 非法 kind（超出 0~5）：同样按 multiplier 推断档位，避免显示裸数字 x100
+                    // 非法 kind（超出 0~5）：按 multiplier 显示 xN，不再冒充 MINI 等彩金档名。
                     if (c.multiplier <= 0f) return "";
-                    if (c.multiplier >= 2000f) return "MEGA";
-                    if (c.multiplier >= 500f) return "MAJOR";
-                    if (c.multiplier >= 100f) return "MINOR";
-                    if (c.multiplier >= 20f) return "MINI";
                     return "x" + c.multiplier.ToString("0.##");
             }
         }

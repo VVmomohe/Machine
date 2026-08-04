@@ -76,9 +76,9 @@ namespace com.slot
                 //   overlay 是克隆体，如果 prefab 上 m_effect 默认 active，ghost 会带着 m_effect 停在原位
                 //   直到下一轮 SpinHoldRound 才销毁 → 视觉上 m_effect "不消失"。
                 if (item.m_effect != null) item.m_effect.SetActive(false);
-                // ★ 诊断日志：若 kind 非法或 multiplier 与 kind 不匹配，输出详细值供定位
-                if (cell != null && ((int)cell.kind < 0 || (int)cell.kind > 5 || (cell.kind == FireballKind.Multiplier && cell.multiplier > 10f)))
-                    Debug.LogWarning($"[ShowFireballOverlay] kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} reel={reel} row={row} → label={FireballLabel(cell)}");
+                // ★ 诊断日志：仅对非法 kind（超出 0~5）告警。multiplier 大小不再作为彩金档推断依据。
+                if (cell != null && ((int)cell.kind < 0 || (int)cell.kind > 5))
+                    Debug.LogWarning($"[ShowFireballOverlay] 非法 kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} reel={reel} row={row} → label={FireballLabel(cell)}");
             }
             else
             {
