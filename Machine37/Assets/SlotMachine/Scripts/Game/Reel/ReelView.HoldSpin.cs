@@ -180,8 +180,11 @@ namespace com.slot
                             GameManager.Instance.m_bonus.ShowJackpotEffect(item.m_type, persistent: true);
                         Debug.Log($"[COLLECT] r{reel} 彩金火球掉落(kind={item.m_type}) → 播彩金特效");
                     }
-                    else // FireballKind.Multiplier
+                    else if (item.m_type == FireballKind.Multiplier)
                     {
+                        // ★ 仅【倍数火球】累加该列倍率（"掉一个 +X"）；
+                        //   彩金档(Mini/Minor/Major/Mega)是固定数值、不是倍数，绝不写进 ReelFireNum 倍率累加（已在上方分支单独播特效）；
+                        //   免费火球(FreeSpins)已在上方跳过。此处显式判定 ==Multiplier，任何未知类型都不累加。
                         AddFireballMultiplier(reel, item.m_rate);
                         float acc = (m_numObjs != null && reel < m_numObjs.Length && m_numObjs[reel] != null) ? m_numObjs[reel].m_rate : 0f;
                         Debug.Log($"[COLLECT] r{reel} 倍数火球掉落 +{item.m_rate:F2} → ReelFireNum 累计倍率={acc:F2}");
