@@ -4,13 +4,13 @@ namespace SlotMachine.Core
 {
     /// <summary>模式B(Cash Falls / 收集盘) 跨局持有逻辑：
     ///   holdBoard 跨基础局持久保留（GameSession.holdBoard），每开一局(Play)推进【一个】步：
-    ///   合并本局基础火球入盘 + 每列"有新火球→重置3 / 无新火球→−1" + 归零释放 + 整列集满→进 Mini。
+    ///   合并本局基础火球入盘 + 每列"真·新增火球(落新格)→重置3 / 否则−1" + 归零释放 + 整列集满→进 Mini。
     ///   不再有单局内循环 respin（那会让圈圈在停轮后慢慢减完）；圈圈只在"开新一局"时减一。
     ///   显示与动画（钉 overlay / tong / 计数器 / 满列演出）由 GameManager.Flow.B 在停轮后按盘当前态展示。</summary>
     public partial class GameSession
     {
         /// <summary>模式B 收集盘推进（跨局持有，纯逻辑，不依赖 Unity）：
-        /// 把本局基础火球(initial)合并进持久 holdBoard；每列倒计时按"新火球→3 / 否则−1"推进；
+        /// 把本局基础火球(initial)合并进持久 holdBoard；每列倒计时按"真·新增火球(落新格)→3 / 否则−1"推进；
         /// 归零→释放(火球回归滚动队列)；整列集满→对该列所有火球统一派彩(倍数/彩金/FREE)+enterMiniByColumnFill（进 Mini）。
         /// ★ 收集模式语义：火球入盘不付，整列集满才付。进 Mini 后下一局仅清空「集满的那一列」(_holdEnded)，其余持有列继续保留。
         /// FREE 火球单列累计仅在进 Mini 时并入 freeSpinsAwarded。</summary>
@@ -144,12 +144,25 @@ namespace SlotMachine.Core
                     fbByReel[f.reel].Add(f);
                 }
 
+            // ★ 修正(2026-08-04)：newInCol 只判断"本局该列是否落了火球(含砸到已持有格的碰撞)"。
+            //   碰撞(落点在推进前已持有)时，底层 cells 因"同位置保留旧火球"未新增格子 → 屏上无可见新火球，
+            //   但 newInCol[r]=true 仍把圈圈重置为 3，造成"没看到新火球、圈圈却没减"的错觉(用户实测)。
+            //   realNewInCol = 落点推进前为空(真·新增一格)才重置为 3；碰撞(落点已持有)→ false → 正常递减，与玩家所见一致。
+            var realNewInCol = new bool[holdBoard.reels];
+            if (hasNew)
+                foreach (var f in initial)
+                {
+                    if (!f.filled) continue;
+                    if (!preHeldCells.Contains(f.reel * 100 + f.row))   // 推进前该格为空 → 本局真·新增一颗火球
+                        realNewInCol[f.reel] = true;
+                }
+
             int respinCount = (_cfg.holdSpin != null) ? _cfg.holdSpin.respinCount : 3;
             for (int r = 0; r < holdBoard.reels; r++)
             {
                 if (holdBoard.isFull[r]) continue;
                 // 本局有新火球落到该列：清掉上一局留下的 released 标记（cells 已空，本局新火球会重新入盘）
-                if (newInCol[r] && holdBoard.released[r])
+                if (realNewInCol[r] && holdBoard.released[r])
                     holdBoard.released[r] = false;
                 if (holdBoard.released[r]) continue;
 
@@ -167,7 +180,7 @@ namespace SlotMachine.Core
                         holdBoard.cells[r][row] = new FireballCell { reel = r, row = row };
                     holdBoard.released[r] = true;
                     holdBoard.counter[r] = 0;
-                    if (newInCol[r])
+                    if (realNewInCol[r])
                     {
                         // 旧火球已释放；新火球作为全新捕获重新入盘（刚清空必为空，入盘不派彩）
                         holdBoard.released[r] = false;
@@ -193,9 +206,9 @@ namespace SlotMachine.Core
                 }
 
                 // ★ 正常推进：counter>0
-                if (newInCol[r])
+                if (realNewInCol[r])
                 {
-                    // 新火球 → 重置圈圈为 3（旧火球仍在持有窗口内，新火球并入同列 cells）
+                    // 新火球(真·新增一格) → 重置圈圈为 3（旧火球仍在持有窗口内，新火球并入同列 cells）
                     if (fbByReel.ContainsKey(r))
                         foreach (var f in fbByReel[r])
                             if (!holdBoard.cells[f.reel][f.row].filled)
@@ -204,7 +217,7 @@ namespace SlotMachine.Core
                 }
                 else
                 {
-                    holdBoard.counter[r] -= 1;                 // 无新火球 → 减一个圈圈（3→2→1→0，0 为"待释放"下一局回归）
+                    holdBoard.counter[r] -= 1;                 // 无真·新增火球(碰撞落已持有格不算) → 减一个圈圈（3→2→1→0，0 为"待释放"下一局回归）
                 }
 
                 // 满列判定
@@ -258,7 +271,7 @@ namespace SlotMachine.Core
                 {
                     int filled = 0;
                     for (int row = 0; row < holdBoard.cells[r].Length; row++) if (holdBoard.cells[r][row].filled) filled++;
-                    sbDiag.Append($" r{r}[new={newInCol[r]} cnt={holdBoard.counter[r]} rel={holdBoard.released[r]} full={holdBoard.isFull[r]} filled={filled}]");
+                    sbDiag.Append($" r{r}[new={newInCol[r]} realNew={realNewInCol[r]} cnt={holdBoard.counter[r]} rel={holdBoard.released[r]} full={holdBoard.isFull[r]} filled={filled}]");
                 }
                 UnityEngine.Debug.Log(sbDiag.ToString());
             }
