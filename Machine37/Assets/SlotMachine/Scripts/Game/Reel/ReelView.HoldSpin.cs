@@ -78,22 +78,29 @@ namespace com.slot
             }
         }
 
-        /// <summary>模式B 旋转期提前钉住「全部持有火球」（跨局持有 + 本局新落，二者都钉）。
-        /// 修复"火球在滚动过程中没有固定，只固定了倍数火球"：旧逻辑用 skip 跳过本局新落火球(baseFireballs 位置)，
-        /// 导致本局新落的彩金档火球旋转期只靠底层卷轴滚动显示、随卷轴滚走，观感像没固定；而跨局持有的(多为倍数火球)被钉住。
-        /// 现统一钉住 holdSpinState.cells 中所有 filled 火球（与停稳后 ShowFeatureState 完全一致）；
-        /// 底层卷轴在相同位置也停有同种火球(finalSyms=baseGrid 含 fbId)，overlay 在最上层盖住，位置/文字一致，无重影
-        /// （与跨局持有火球表现统一，不再因 kind 出现"只有倍数固定、彩金档滚走"的差别）。</summary>
-        public void ShowHeldFireballs(HoldSpinState s)
+        /// <summary>模式B 旋转期提前钉住「跨局持有」火球（不含本局新落火球；本局火球由 ShowGrid 底层卷轴滚动显示，避免重影）。
+        /// 解决"有圈圈时火球没固定"：开新局 ShowGrid→ClearAll 会清掉上局 overlay，若只等停轮后 ShowFeatureState 重钉，
+        /// 则旋转期间持有火球不可见，观感像没固定。此处让它整局持续可见（固定 overlay 盖在滚动卷轴之上，不随卷轴漂移）。
+        /// ★ 关键约束（用户硬规则 2026-08-04）：本局新落火球(在 currentGame=baseFireballs)【不】预先钉固——
+        ///   它们应随底层卷轴滚动、滚到位置停稳后才由 ShowFeatureState 固定，避免"一开始旋转火球就固定在场景上"的观感。
+        ///   故用 skip 跳过 baseFireballs 位置，仅钉跨局持有(多为倍数火球)的火球作为"收集盘"持续显示。
+        ///   （注：2026-08-04 起旋转期默认不调用本方法——改为"全部火球随卷轴滚动、停稳后统一固定"，见 GameManager.Flow.StartBaseSpin）</summary>
+        public void ShowHeldFireballs(HoldSpinState s, List<FireballCell> currentGame)
         {
             if (s == null) return;
+            // 本局新落火球已由底层卷轴(finalSyms=baseGrid 含 fbId)显示，跳过其位置，避免"滚动火球 + 固定 overlay"重影，
+            // 也满足"新火球随卷轴滚到位置停下才固定"的诉求（不预钉）。
+            var skip = new HashSet<int>();
+            if (currentGame != null)
+                foreach (var c in currentGame)
+                    if (c != null && c.filled) skip.Add(c.reel * 100 + c.row);
 
             for (int r = 0; r < s.reels && r < _reels.Count; r++)
             {
                 for (int row = 0; row < s.cells[r].Length; row++)
                 {
                     var c = s.cells[r][row];
-                    if (c.filled)
+                    if (c.filled && !skip.Contains(r * 100 + row))
                         ShowFireballOverlay(r, row, c, playSound: false);
                 }
             }

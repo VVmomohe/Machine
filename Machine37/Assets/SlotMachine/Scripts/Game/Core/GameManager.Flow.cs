@@ -57,14 +57,19 @@ namespace com.slot
                         }
 
                 m_reelView.ShowGrid(r.baseGrid, fireMults.Count > 0 ? fireMults : null);
-                // ★ 模式B：旋转期即钉住「跨局持有火球」+ 恢复计数器圈数（OnStartKey 的 HideAllCounters 清了，需在旋转期重建），
-                //   使收集盘火球与圈数整局持续可见（本局新落火球已由 ShowGrid 底层卷轴显示，跳过避免重影）。
-                //   解决"有圈圈时火球/计数器没固定"——开新局 ClearAll/HideAllCounters 清掉上局，若只等停轮后 ShowFeatureState 重钉，旋转期不可见。
+                // ★ 模式B：旋转期【不】预先钉住火球 overlay（2026-08-04 修正：火球应随底层卷轴滚动、
+                //   滚到位置停稳后才由 SettleBaseB→ShowFeatureState 统一固定，不能一开始旋转就固定在场景上）；
+                //   此处仅恢复计数器(圈圈)——OnStartKey 的 HideAllCounters 清了，需在旋转期重建，使圈数整局持续可见。
+                //   火球在旋转期由 ShowGrid 底层卷轴滚动显示（baseGrid 含 fbId），停稳后 ShowFeatureState 钉固。
                 // ★ 不再用 r.holdSpinState != null 作门控：只要模式B 就重建计数器（用户硬规则——有圈圈就显示、没圈圈才隐藏）。
                 //   任何"有火球却 board 为 null"的边界都不再让计数器整局隐藏；无 board 但有本局火球时按"新火球→重置3"显示圈。
                 if (IsModeB())
                 {
-                    m_reelView.ShowHeldFireballs(r.holdSpinState);
+                    // ★ 模式B：旋转期【不】预先钉住火球 overlay——火球随底层卷轴一起滚动，
+                    //   滚到位置、停稳后由 SettleBaseB→ShowFeatureState 统一定格(固定)。
+                    //   避免"一开始旋转火球就已经固定在场景上、不是滚到位置停下才固定"的观感（用户硬规则 2026-08-04）。
+                    //   计数器(圈圈)仍整局可见（下面 ActivateCounters/SetRespinCounterRow）；近满列高亮也保留。
+                    if (r.holdSpinState != null) m_reelView.RefreshColumnEffects(r.holdSpinState);
                     m_reelView.ActivateCounters();   // 旋转期恢复会话级门控（各列是否显示由下面按盘/按火球决定）
                     if (r.holdSpinState != null)
                     {
