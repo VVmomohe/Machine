@@ -41,7 +41,7 @@ namespace com.slot
         public bool m_playSound = false;
 
         [Header("特效")]
-        [Tooltip("赢分> m_bigWinThreshold 时播放的庆祝特效(方案A：基础局/Scatter/Hold收尾/Mini收尾 统一经 ShowWinValue 触发)")]
+        [Tooltip("赢分> m_bigWinThreshold 时播放的庆祝特效(基础局/Scatter/Mini收尾 统一经 ShowWinValue 触发)")]
         public GameObject m_bigWinEffect;
         public long m_bigWinThreshold = 50;
         public float m_bigWinDuration = 3f;
@@ -218,7 +218,7 @@ namespace com.slot
             if (_rolling) FinalizeRoll();   // 先收尾进行中的收分动画，避免被新显示覆盖/丢分
             m_win_num = win;
             RefreshUI();
-            if (allowBigWin) PlayBigWin(win);   // ★ 赢分>阈值时播放庆祝特效(方案A：含 Hold 每轮 respin 临时赢分)
+            if (allowBigWin) PlayBigWin(win);   // ★ 赢分>阈值时播放庆祝特效（ShowWinValue 统一触发；进 Mini 前以 allowBigWin=false 避免与大赢特效重叠）
         }
 
         /// <summary>立即取消大赢庆祝特效(进小游戏过渡前调用，避免大赢特效与进小游戏过渡特效重叠)。</summary>
@@ -229,7 +229,7 @@ namespace com.slot
         }
 
         /// <summary>赢分> m_bigWinThreshold 时播放庆祝特效，约 m_bigWinDuration 秒后自动隐藏。
-        /// 重复触发刷新计时(不叠加第二个实例)。方案A：ShowWinValue 统一触发(含 Hold 每轮 respin 临时赢分)。</summary>
+        /// 重复触发刷新计时(不叠加第二个实例)。由 ShowWinValue 统一触发；进 Mini 前以 allowBigWin=false 调用避免与大赢特效重叠。</summary>
         public void PlayBigWin(long win)
         {
             if (m_bigWinEffect == null || win <= m_bigWinThreshold) return;

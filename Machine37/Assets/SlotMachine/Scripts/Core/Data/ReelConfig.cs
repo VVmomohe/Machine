@@ -67,7 +67,7 @@ namespace SlotMachine.Core
             return -1;
         }
 
-        /// <summary>是否为特性符号（仅火球；FireLink 已废弃，不参与基础连线/ways 判定）。</summary>
+        /// <summary>是否为特性符号（火球/FireLink 等特性符，不参与基础连线/ways 判定，按特性符号跳过）。</summary>
         public bool IsFeatureSymbol(int id)
         {
             return id == fireballSymbolId;

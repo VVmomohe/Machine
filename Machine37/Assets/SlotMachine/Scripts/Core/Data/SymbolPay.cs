@@ -14,7 +14,7 @@ namespace SlotMachine.Core
         public bool wild;
         public bool scatter;
         public bool fireball;                    // 火球：锁定触发 Hold & Spin，携带倍率
-        public bool firelink;                    // FireLink 大奖符(已废弃)
+        public bool firelink;                    // 特性符标记（同 fireball：不参与基础连线/ways 判定，按特性符号跳过；字段名沿用例）
         public int minMatch = 0;                 // 独立最低连数；0=用全局 minMatch。章鱼=2(2连即中)。
         public List<float> pays = new List<float>(); // [minMatch连, minMatch+1连, ...] 倍数(×betPerLine)
     }
