@@ -202,14 +202,16 @@ namespace com.slot
         /// 返回 lineWin（普通连线赢分）；scatterCount 通过 out 回传（respin 池不含 Scatter，自然为 0）。
         /// 调用方负责把 lineWin 累加进本局赢分、把 scatterCount 折算成免费次数（仅基础旋转需要）。
         /// </summary>
-        float SettleRoundWins(int[][] grid, float bet, out int scatterCount)
+        float SettleRoundWins(int[][] grid, float bet, out int scatterCount, bool[][] exclude = null)
         {
             scatterCount = 0;
             float lineWin = 0f;
             if (m_machine == null || m_machine.session == null || grid == null) return 0f;
 
             // 1) 普通连线赢分（连线/Ways/逐列，由 winEval 决定）
-            var wins = m_machine.session.EvaluateGrid(grid, bet);
+            //    exclude：持有火球格掩码（filled && !released，含满列）——这些位置是火球，
+            //    不计入任何连线符号，使"中间火球切断"对所有 ID 生效、不产生 phantom 赢分。
+            var wins = m_machine.session.EvaluateGrid(grid, bet, exclude);
             foreach (var w in wins) lineWin += w.payout;
 
             // ★ 诊断 [WIN]：输出结算网格(逐列坐标) + 每个赢的 符号/连数/参与格子。
@@ -250,13 +252,20 @@ namespace com.slot
             }
 
             // 2) Scatter 统计（respin 池不含 Scatter，自然为 0；基础旋转据此折算免费次数）
+            //    ★ 同样排除持有火球格：满列火球底下藏的 Scatter 不计入，避免"全火球列却白拿/误触免费"。
             int scId = (m_machine.config != null) ? m_machine.config.ScatterId() : -1;
             if (scId > 0)
             {
                 int sc = 0;
                 for (int ri = 0; ri < grid.Length; ri++)
-                    for (int k = 0; k < grid[ri].Length; k++)
+                {
+                    int rows = (grid[ri] != null) ? grid[ri].Length : 0;
+                    for (int k = 0; k < rows; k++)
+                    {
+                        if (exclude != null && ri < exclude.Length && k < exclude[ri].Length && exclude[ri][k]) continue;
                         if (grid[ri][k] == scId) sc++;
+                    }
+                }
                 scatterCount = sc;
             }
             return lineWin;

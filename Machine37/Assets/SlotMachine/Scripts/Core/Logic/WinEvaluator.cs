@@ -5,7 +5,7 @@ namespace SlotMachine.Core
 {
     public interface IPayEvaluator
     {
-        List<Win> Evaluate(int[][] grid, ReelConfig cfg, float totalBet);
+        List<Win> Evaluate(int[][] grid, ReelConfig cfg, float totalBet, bool[][] exclude = null);
     }
 
     public static class ScatterUtil
@@ -30,10 +30,6 @@ namespace SlotMachine.Core
             return c;
         }
 
-        /// <summary>从左到右连续相邻统计（模式B Scatter 触发口径）：
-        /// 从 reel0 起，连续相邻 reel 每列含 ≥1 个 Scatter 才累加，遇到第一列不含 Scatter 即断开（不跳跃）。
-        /// 返回连续长度（即「左到右」有效 Scatter 列数）。例：reel0/1/2 含 → 3（触发）；reel0/1 含、reel2 不含 → 2（不触发）；reel0 不含 → 0。
-        /// 与 Count(全盘任意位置) 区分：本方法用于触发免费游戏，Count 用于显示/赔付统计。</summary>
         /// <summary>从左到右连续相邻统计（模式B Scatter 触发口径）：
         /// 从 reel0 起，连续相邻 reel 每列含 ≥1 个 Scatter 才累加，遇到第一列不含 Scatter 即断开（不跳跃）。
         /// 返回连续长度（即「左到右」有效 Scatter 列数）。例：reel0/1/2 含 → 3（触发）；reel0/1 含、reel2 不含 → 2（不触发）；reel0 不含 → 0。
@@ -75,7 +71,7 @@ namespace SlotMachine.Core
     /// </summary>
     public class PaylineEvaluator : IPayEvaluator
     {
-        public List<Win> Evaluate(int[][] grid, ReelConfig cfg, float totalBet)
+        public List<Win> Evaluate(int[][] grid, ReelConfig cfg, float totalBet, bool[][] exclude = null)
         {
             var wins = new List<Win>();
             int lines = cfg.paylines.Count;
@@ -102,6 +98,12 @@ namespace SlotMachine.Core
                     int realCnt = 0;   // 命中前缀中真实(非百搭)符号数量
                     for (int reel = 0; reel < cfg.reelCount; reel++)
                     {
+                        // ★ 持有火球格：线在此列断开（该位置是火球，不是任何线符号，也不替百搭）。
+                        //   exclude[r][row]=true 标记"跨局持有的火球格"——其底层新鲜卷轴符号不计入连线，
+                        //   避免"满列火球却把底下藏的 ID1 连成赢"的 phantom win。
+                        if (exclude != null && reel < exclude.Length && line[reel] >= 0
+                            && line[reel] < exclude[reel].Length && exclude[reel][line[reel]])
+                            break;
                         int g = grid[reel][line[reel]];
                         var sp = cfg.GetSymbol(g);
                         if (g == sym) realCnt++;
@@ -205,7 +207,7 @@ namespace SlotMachine.Core
     /// </summary>
     public class WaysEvaluator : IPayEvaluator
     {
-        public List<Win> Evaluate(int[][] grid, ReelConfig cfg, float totalBet)
+        public List<Win> Evaluate(int[][] grid, ReelConfig cfg, float totalBet, bool[][] exclude = null)
         {
             var wins = new List<Win>();
             float perWay = totalBet / cfg.totalWays;
@@ -225,6 +227,8 @@ namespace SlotMachine.Core
                     int c = 0;
                     for (int row = 0; row < grid[r].Length; row++)
                     {
+                        // 持有火球格：不计入任何符号(也不替百搭)，使该列在"全持有"时 count=0 自然断开连线。
+                        if (exclude != null && r < exclude.Length && row < exclude[r].Length && exclude[r][row]) continue;
                         int s = grid[r][row];
                         var sp2 = cfg.GetSymbol(s);
                         if (s == sym) realTotal++;
@@ -257,6 +261,7 @@ namespace SlotMachine.Core
                         for (int r = 0; r < matched; r++)
                             for (int row = 0; row < grid[r].Length; row++)
                             {
+                                if (exclude != null && r < exclude.Length && row < exclude[r].Length && exclude[r][row]) continue;
                                 int s = grid[r][row];
                                 var cell = cfg.GetSymbol(s);
                                 if (s == sym || (cell != null && cell.wild))
@@ -282,7 +287,7 @@ namespace SlotMachine.Core
     /// </summary>
     public class RowEvaluator : IPayEvaluator
     {
-        public List<Win> Evaluate(int[][] grid, ReelConfig cfg, float totalBet)
+        public List<Win> Evaluate(int[][] grid, ReelConfig cfg, float totalBet, bool[][] exclude = null)
         {
             int wildId = cfg.WildId();
             var candidates = new List<WinCandidate>();
@@ -302,6 +307,8 @@ namespace SlotMachine.Core
                     bool has = false;
                     for (int row = 0; row < grid[reel].Length; row++)
                     {
+                        // 持有火球格：不计入本符号/百搭，使含火球的列在"全持有"时 has=false 自然断开。
+                        if (exclude != null && reel < exclude.Length && row < exclude[reel].Length && exclude[reel][row]) continue;
                         int gid = grid[reel][row];
                         var sp = cfg.GetSymbol(gid);
                         if (gid == sym) realCnt++;
@@ -352,6 +359,7 @@ namespace SlotMachine.Core
                     bool has = false;
                     for (int row = 0; row < grid[reel].Length; row++)
                     {
+                        if (exclude != null && reel < exclude.Length && row < exclude[reel].Length && exclude[reel][row]) continue; // 持有火球格不计入
                         int pos = reel * 100 + row;
                         int gid = grid[reel][row];
                         if (gid == wildId && usedWilds.Contains(pos)) continue;   // 已服务于更高赔付赢

@@ -235,9 +235,48 @@ namespace com.slot
                 }
             }
 
+            // ★ 持有火球格排除掩码（用于连线/Scatter 评估）：filled && !released，含满列(isFull)——
+            // 这些位置在屏幕上都是火球，必须切断任何符号的连线、且不计入 Scatter。
+            // 注意：此处不跳过 isFull 列——满列虽在显示合并时被跳过(交给收集演出)，
+            // 但其底层新鲜卷轴符号仍可能被连成 phantom 赢分，故评估层必须排除。
+            bool[][] heldMask = null;
+            if (r.holdSpinState != null && r.holdSpinState.cells != null)
+            {
+                var hs = r.holdSpinState;
+                heldMask = new bool[hs.cells.Length][];
+                for (int rr = 0; rr < hs.cells.Length; rr++)
+                {
+                    var col = hs.cells[rr];
+                    int h = (col != null) ? col.Length : 0;
+                    heldMask[rr] = new bool[h];
+                    bool released = (hs.released != null && rr < hs.released.Length) ? hs.released[rr] : false;
+                    for (int row = 0; row < h; row++)
+                        heldMask[rr][row] = !released && col[row] != null && col[row].filled;
+                }
+            }
+            if (r.baseFireballs != null)   // 兜底：本局新落火球也一并排除（极端路径 hs 为 null 时）
+            {
+                if (heldMask == null)
+                {
+                    int reels = (r.baseGrid != null) ? r.baseGrid.Length : 5;
+                    heldMask = new bool[reels][];
+                }
+                foreach (var c in r.baseFireballs)
+                {
+                    if (c == null || !c.filled) continue;
+                    if (c.reel < 0 || c.reel >= heldMask.Length) continue;
+                    if (c.row < 0 || c.row >= (heldMask[c.reel] != null ? heldMask[c.reel].Length : 0))
+                    {
+                        if (c.reel < heldMask.Length) heldMask[c.reel] = new bool[System.Math.Max(c.row + 1, (r.baseGrid != null && c.reel < r.baseGrid.Length) ? r.baseGrid[c.reel].Length : 0)];
+                        else continue;
+                    }
+                    heldMask[c.reel][c.row] = true;
+                }
+            }
+
             // 数值结算（与 A 共用同一套评估口径）
             int sc;
-            float bw = SettleRoundWins(r.baseGrid, m_machine.totalBet, out sc);
+            float bw = SettleRoundWins(r.baseGrid, m_machine.totalBet, out sc, heldMask);
             r.baseWin = bw;
             r.scatterCount = sc;
             r.totalPayout = r.baseWin + r.scatterPayout + r.featureWin;

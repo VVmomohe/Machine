@@ -165,7 +165,7 @@ namespace SlotMachine.Core
                 }
             }
 
-            var wins = EvaluateBase(grid, bet);
+            var wins = EvaluateBase(grid, bet, heldMask);
             res.baseWins = wins;
             float baseWin = 0;
             for (int i = 0; i < wins.Count; i++) baseWin += wins[i].payout;
@@ -246,20 +246,21 @@ namespace SlotMachine.Core
 
         // ---- 内部 ----
 
-        List<Win> EvaluateBase(int[][] grid, float bet)
+        List<Win> EvaluateBase(int[][] grid, float bet, bool[][] exclude = null)
         {
             switch (_cfg.winEval)
             {
-                case WinEvalType.Rows:    return new RowEvaluator().Evaluate(grid, _cfg, bet);
-                case WinEvalType.Paylines: return new PaylineEvaluator().Evaluate(grid, _cfg, bet);
-                default:                  return new WaysEvaluator().Evaluate(grid, _cfg, bet);
+                case WinEvalType.Rows:    return new RowEvaluator().Evaluate(grid, _cfg, bet, exclude);
+                case WinEvalType.Paylines: return new PaylineEvaluator().Evaluate(grid, _cfg, bet, exclude);
+                default:                  return new WaysEvaluator().Evaluate(grid, _cfg, bet, exclude);
             }
         }
 
-        /// <summary>公开：在任意网格上按当前 winEval 评估线奖（供 Hold&amp;Spin 每轮 respin 结算普通连线用）。</summary>
-        public List<Win> EvaluateGrid(int[][] grid, float bet)
+        /// <summary>公开：在任意网格上按当前 winEval 评估线奖（供 Hold&amp;Spin 每轮 respin 结算普通连线用）。
+        /// exclude!=null 时排除指定格（持有火球格），使"中间火球切断"对所有符号生效、不产生 phantom 赢分。</summary>
+        public List<Win> EvaluateGrid(int[][] grid, float bet, bool[][] exclude = null)
         {
-            return EvaluateBase(grid, bet);
+            return EvaluateBase(grid, bet, exclude);
         }
 
         /// <summary>
