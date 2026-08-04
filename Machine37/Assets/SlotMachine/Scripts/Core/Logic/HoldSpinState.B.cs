@@ -45,6 +45,12 @@ namespace SlotMachine.Core
         /// 供 GameManager.Flow.StartBaseSpin 在旋转期显示"上一局值"（老持有列圈圈不消失、但不剧透本局已递减），
         /// 真正的递减(本局值)由 SettleBaseB 在停稳后才显示 → 圈圈"减"发生在滚动停后。</summary>
         public int[] preRoundCounter;
+        /// <summary>★ 模式B 展示用（逐格版）：本局 AdvanceHoldBoard 推进【之前】已被火球占据(锁定)的 (reel*100+row) 快照。
+        /// 供 GameManager 旋转期只钉"推进前就持有的火球"；本局新落火球(未持有过的格)不钉、由底层卷轴滚动显示。
+        /// ★ 修复"某列部分火球没钉住"：当本局新火球恰好落在已持有格上(AdvanceHoldBoard 保留旧火球)，
+        /// 该格实为 held，必须钉固；若用 skip=baseFireballs 跳过该格会把 held 火球误杀(开滚即消失、停稳才重现)。
+        /// 与 preRoundHeldCols(逐列) 配套，但精确到逐格。该集合是推进前快照，不被后续合并新火球改写。</summary>
+        public System.Collections.Generic.HashSet<int> preRoundHeldCells;
         /// <summary>渐进彩金池（Mini/Minor/Major/Mega → 当前累积值，单位=信用点）。
         /// 彩金火球的 multiplier = Pots[tier] / bet（信用→倍率统一，使 ReelSum 结果 ×bet 恰为池值）。</summary>
         public IReadOnlyDictionary<string, float> Pots;

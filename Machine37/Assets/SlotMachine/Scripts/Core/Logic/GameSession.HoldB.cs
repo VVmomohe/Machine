@@ -61,15 +61,17 @@ namespace SlotMachine.Core
             //   必须在合并本局新火球之前抓拍；holdBoard 下方会被原地改写，preHeld 是独立副本不受影响。
             bool[] preHeld = null;
             int[] preCnt = null;   // ★ 推进前每列圈数快照（供旋转期显示旧值；真正的递减在停稳后由 SettleBaseB 显示）
+            HashSet<int> preHeldCells = null;   // ★ 推进前逐格持有快照(reel*100+row)，供旋转期只钉"真正持有过的火球"
             if (holdBoard != null)
             {
                 preHeld = new bool[holdBoard.reels];
                 preCnt = new int[holdBoard.reels];
+                preHeldCells = new HashSet<int>();
                 for (int r = 0; r < holdBoard.reels; r++)
                 {
                     bool hadFilled = false;
                     for (int row = 0; row < holdBoard.cells[r].Length; row++)
-                        if (holdBoard.cells[r][row].filled) { hadFilled = true; break; }
+                        if (holdBoard.cells[r][row].filled) { hadFilled = true; preHeldCells.Add(r * 100 + row); }
                     preHeld[r] = !holdBoard.released[r] && !holdBoard.isFull[r] && (hadFilled || holdBoard.counter[r] > 0);
                     preCnt[r] = holdBoard.counter[r];   // ★ 推进前快照（此时尚未递减/重置，= 上一局结束值）
                 }
@@ -119,6 +121,7 @@ namespace SlotMachine.Core
                 res.holdSpinState = holdBoard;
                 holdBoard.preRoundHeldCols = new bool[holdBoard.reels];   // 全 false：本局全为新落，旋转期不剧透
                 holdBoard.preRoundCounter = new int[holdBoard.reels];      // 新盘：无推进前旧值，旋转期本就不显圈（preRoundHeldCols 全 false）
+                holdBoard.preRoundHeldCells = new System.Collections.Generic.HashSet<int>();   // 新盘：无推进前持有格，旋转期不钉任何火球
                 if (SlotDebug.VerboseLogs)
                 {
                     UnityEngine.Debug.Log($"[Fireball-B] 新建收集盘：{initial.Count} 颗 → featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");
@@ -241,6 +244,7 @@ namespace SlotMachine.Core
             res.holdSpinState = holdBoard;
             if (preHeld != null) holdBoard.preRoundHeldCols = preHeld;   // ★ 推进前快照（老持有列 vs 本局新落列）供展示层用
             if (preCnt != null) holdBoard.preRoundCounter = preCnt;       // ★ 推进前圈数快照（旋转期显示旧值，递减留到停稳后）
+            if (preHeldCells != null) holdBoard.preRoundHeldCells = preHeldCells;   // ★ 推进前逐格持有快照（旋转期只钉真正持有的火球，修复碰撞格漏钉）
             if (SlotDebug.VerboseLogs)
             {
                 UnityEngine.Debug.Log($"[Fireball-B] 收集盘推进：新火球={hasNew} 本局featureWin={res.featureWin:F2} enterMini={res.enterMiniByColumnFill}");

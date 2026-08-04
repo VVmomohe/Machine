@@ -78,38 +78,31 @@ namespace com.slot
             }
         }
 
-        /// <summary>模式B 旋转期 tray 效果：提前钉住「跨局持有(老)火球」作为固定 overlay（不随卷轴滚动、定在原位），
-        /// 本局新落火球(在 currentGame=baseFireballs)【不】钉固——它们由 ShowGrid 底层卷轴滚动显示，skip 其位置避免重影，
-        /// 满足"老火球定住、新火球滚进来"的诉求。停稳后 SettleBaseB→ShowFeatureState 统一重钉全部。
-        /// ★ 旋转期由 GameManager.Flow.StartBaseSpin 调用（2026-08-04 修正版：既非"全部预钉"也非"全部滚动"，而是 tray 区分）。
-        /// ★ 已释放(released) / 已集满(isFull) 列不钉：前者火球回归滚动队列、后者走收集演出/随卷轴滚走，均不被当普通持有固定。</summary>
+        /// <summary>模式B 旋转期 tray 效果：仅钉住「推进前已跨局持有(preRoundHeldCells)」的火球作为固定 overlay（不随卷轴滚动、定在原位），
+        /// 本局新落火球(未持有过的格)【不】钉固——它们由 ShowGrid 底层卷轴滚动显示，满足"老火球定住、新火球滚进来"的诉求。
+        /// 停稳后 SettleBaseB→ShowFeatureState 统一重钉全部。
+        /// ★ 旋转期由 GameManager.Flow.StartBaseSpin 调用（2026-08-04 修正版：既非"全部预钉"也非"全部滚动"，而是按持有快照区分）。
+        /// ★ 已释放(released) 列不钉：火球回归滚动队列，下一局随卷轴滚走。
+        /// ★ 碰撞修复：本局新火球恰好落在已持有格上时 AdvanceHoldBoard 保留旧火球(同位置保留旧火球)，
+        ///   该格实为 held → 必须用 preRoundHeldCells 钉固；旧逻辑用 skip=baseFireballs 跳过该格会误杀 held 火球
+        ///   (开滚即消失、停稳 ShowFeatureState 才重钉)。故不再用 skip，改以"推进前是否持有"为唯一钉固判据。</summary>
         public void ShowHeldFireballs(HoldSpinState s, List<FireballCell> currentGame)
         {
             if (s == null) return;
-            // 本局新落火球已由底层卷轴(finalSyms=baseGrid 含 fbId)显示，跳过其位置，避免"滚动火球 + 固定 overlay"重影，
-            // 也满足"新火球随卷轴滚到位置停下才固定"的诉求（不预钉）。
-            var skip = new HashSet<int>();
-            if (currentGame != null)
-                foreach (var c in currentGame)
-                    if (c != null && c.filled) skip.Add(c.reel * 100 + c.row);
-
+            // currentGame(=baseFireballs) 仅作兼容入参，不再用于 skip：其中含"落点与已持有格碰撞"的位置，
+            // 若据其 skip 会把保留的旧火球误跳（详见类注释"碰撞修复"）。钉固判据统一为 s.preRoundHeldCells。
             for (int r = 0; r < s.reels && r < _reels.Count; r++)
             {
-                // ★ 已释放(圈圈归零→回归滚动队列) 列【不】预钉：让其火球随底层卷轴滚动或走释放流程。
-                //   ★ 已集满(isFull) 列：仅"纯本局新火球凑满、上局无持有火球"才不钉；
-                //     若本列是【跨局持有列且本局才刚集满】(preRoundHeldCols[r]=true)，其老火球上局就定在屏上，
-                //     本局只是新落火球补齐最后一格 → 必须钉固，否则开滚瞬间整列老火球消失、停稳才重现(用户实测 BUG：
-                //     "差一颗就满列、圈圈还在，再次滚动火球消失、停稳又出现且刚好集满一列")。
-                //     钉固时 skip=baseFireballs 已排除新落那颗 → 仅钉老火球、新火球随卷轴滚入，停稳后 ShowFeatureState 统一重钉并触发收集演出。
+                // 已释放(圈圈归零→回归滚动队列) 列【不】预钉：让其火球随底层卷轴滚动或走释放流程。
                 if (s.released != null && s.released[r]) continue;
-                if (s.isFull != null && s.isFull[r]
-                    && !(s.preRoundHeldCols != null && r < s.preRoundHeldCols.Length && s.preRoundHeldCols[r]))
-                    continue;
                 for (int row = 0; row < s.cells[r].Length; row++)
                 {
                     var c = s.cells[r][row];
-                    if (c.filled && !skip.Contains(r * 100 + row))
-                        ShowFireballOverlay(r, row, c, playSound: false);
+                    if (!c.filled) continue;
+                    // ★ 仅钉"推进前已持有"的火球；本局新落(未持有过的格，含碰撞格被保留的旧火球视作已持有)才钉，其余(真·新落)不钉、随卷轴滚入。
+                    bool wasHeld = (s.preRoundHeldCells != null && s.preRoundHeldCells.Contains(r * 100 + row));
+                    if (!wasHeld) continue;
+                    ShowFireballOverlay(r, row, c, playSound: false);
                 }
             }
             // ★ 诊断（受 SlotDebug.VerboseLogs 控制）：当前火球 overlay 按列/按 kind 计数，核对"某列是否真的被钉住"。
