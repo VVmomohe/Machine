@@ -163,6 +163,31 @@ namespace com.slot
             {
                 ParseReelRow(ov.name, out _, out int row);
 
+                // ★ 火球掉落时按类型处理（用户口径 2026-08-04）：
+                //   倍数火球 → 累加该列 ReelFireNum 倍数（"掉一个 +X"）；
+                //   彩金火球(Mini/Minor/Major/Mega) → 播彩金特效；
+                //   免费火球(FreeSpins) → 跳过（播放完动画会进免费小游戏，由 Mini 统一结算）。
+                var item = ov.GetComponent<ReelItem>();
+                if (item != null)
+                {
+                    if (item.m_type == FireballKind.FreeSpins)
+                    {
+                        // 免费火球：不管
+                    }
+                    else if (item.m_type >= FireballKind.Mini && item.m_type <= FireballKind.Mega)
+                    {
+                        if (GameManager.Instance != null && GameManager.Instance.m_bonus != null)
+                            GameManager.Instance.m_bonus.ShowJackpotEffect(item.m_type, persistent: true);
+                        Debug.Log($"[COLLECT] r{reel} 彩金火球掉落(kind={item.m_type}) → 播彩金特效");
+                    }
+                    else // FireballKind.Multiplier
+                    {
+                        AddFireballMultiplier(reel, item.m_rate);
+                        float acc = (m_numObjs != null && reel < m_numObjs.Length && m_numObjs[reel] != null) ? m_numObjs[reel].m_rate : 0f;
+                        Debug.Log($"[COLLECT] r{reel} 倍数火球掉落 +{item.m_rate:F2} → ReelFireNum 累计倍率={acc:F2}");
+                    }
+                }
+
                 // (a) 新生成一个火球掉入桶（旧 HOLD：新生成一个火球而下落）——克隆原火球、保持原亮度
                 var faller = Instantiate(ov, ov.transform.parent);
                 faller.name = $"FBFaller_{reel}_{row}";

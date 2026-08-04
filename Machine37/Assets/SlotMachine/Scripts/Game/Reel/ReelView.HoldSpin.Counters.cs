@@ -26,6 +26,15 @@ namespace com.slot
             m_numObjs[reel].ResetAll();
         }
 
+        /// <summary>累加某列火球倍数到该列 ReelFireNum（火球掉落/收集时调用）。仅倍数火球累加；
+        /// 彩金火球由调用方单独播特效、免费火球跳过（不调此方法）。</summary>
+        public void AddFireballMultiplier(int reel, float mult)
+        {
+            if (m_numObjs == null || reel < 0 || reel >= m_numObjs.Length) return;
+            if (m_numObjs[reel] == null) return;
+            m_numObjs[reel].AddMultiplier(mult);
+        }
+
         /// <summary>激活全部计数器（进入 respin 时调用）。之后 SetCount/AddMultiplier 才能正常显示。</summary>
         public void ActivateCounters()
         {

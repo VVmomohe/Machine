@@ -88,6 +88,17 @@ namespace com.slot
             Refresh();
         }
 
+        /// <summary>累加一颗【倍数火球】的倍率到本列（火球掉落/收集时调用）。
+        /// 彩金档不计入此处（彩金由调用方单独播特效）。累加后 m_rate>0 → 显示 "X倍率" 文本（优先级高于倒计时圈）。
+        /// m_engaged 置 true 保证该列持续可见（即便后续圈圈归零）。</summary>
+        public void AddMultiplier(float mult)
+        {
+            m_rate += mult;
+            if (m_rate < 0f) m_rate = 0f;   // 防御异常负值
+            m_engaged = true;
+            Refresh();
+        }
+
         /// <summary>开新的一局（按确认 / 开新局统一入口，Hold&amp;Spin 结算后开新局与正常基础局都走这）：
         /// 先把 active、rate 关掉，再按【当前真实】 m_num 判断——m_num&lt;=0（倒计时已归零/无火球）则清 engaged，
         /// 最后才把 m_num 归零。这样守卫检查的是归零前的真实状态，不恒真。</summary>
