@@ -76,17 +76,17 @@ namespace com.slot
         }
 
         /// <summary>协程：等到本列 tong 演出【真正播完】再返回。
-        ///   1) Mecanim：当前播放状态 normalizedTime ≥ 0.98（non-loop 演出，播完停最后一帧）视为完成；
-        ///   2) UIImageAnimator 序列帧：叠加一次完整序列时长（frames/fps）；
-        ///   3) 超时兜底（est×1.5，限 4~8s）：防止 clip 为 loop 或取不到时长时永久阻塞。
-        /// 用于满列收集演出后阻塞流程，直到动画播完再进 Mini（替换"估算时长 WaitForSeconds"，更可靠）。</summary>
+        ///   Play() 时 Mecanim 与 UIImageAnimator 序列帧【并行】从第 0 帧起播，故到 PlayDuration()(=max(二者)) 时两者都已放完。
+        ///   - 仅等待 Mecanim 播完检测 + 确保 est 结束(+0.15s 保险)；不再"额外串行等一遍 UI 序列帧"，也不补 4~8s 超时（旧逻辑会白等数秒）。
+        ///   - 超时保险仅作兜底：est×1.3，封顶 1.6s（防 clip 为 loop / 取不到时长时永久阻塞）。
+        /// 用于满列收集演出后阻塞流程，直到动画播完再进 Mini。</summary>
         public IEnumerator WaitDone()
         {
-            float est = PlayDuration();
-            float timeout = Mathf.Clamp(est * 1.5f, 4f, 8f);
+            float est = PlayDuration();                                   // = max(Mecanim最长clip, UI序列帧)，二者在 Play() 时并行起播
+            float timeout = Mathf.Clamp(est * 1.3f, 0.8f, 1.6f);          // 仅作保险：正常 ~est 即放行；异常(loop/取不到时长)时封顶 1.6s
             float t0 = Time.time;
 
-            // 1) Mecanim 当前状态播完检测（non-loop 下 normalizedTime 从 0→1）
+            // 1) Mecanim 当前状态播完检测（non-loop 下 normalizedTime 从 0→1；loop 时到不了 0.98，由 timeout 放行）
             if (m_ani != null && m_ani.runtimeAnimatorController != null && m_ani.isActiveAndEnabled)
             {
                 var st = m_ani.GetCurrentAnimatorStateInfo(0);
@@ -96,18 +96,9 @@ namespace com.slot
                         || (Time.time - t0 > timeout));
             }
 
-            // 2) UIImageAnimator 序列帧：完整播一次
-            if (m_uiAnis != null)
-            {
-                float maxUi = 0f;
-                foreach (var u in m_uiAnis)
-                    if (u != null && u.frames != null && u.frames.Length > 0)
-                        maxUi = Mathf.Max(maxUi, u.frames.Length / Mathf.Max(u.fps, 1f));
-                if (maxUi > 0f) yield return new WaitForSeconds(maxUi);
-            }
-
-            // 3) 最终兜底：不超过 timeout
-            float remain = timeout - (Time.time - t0);
+            // 2) UI 序列帧与 Mecanim 在 Play() 时并行起播，到 est 时已同时放完；
+            //    只确保 est 结束(+0.15s 保险)即放行，不再重复等一遍、也不补 4~8s 超时兜底。
+            float remain = (est + 0.15f) - (Time.time - t0);
             if (remain > 0f) yield return new WaitForSeconds(remain);
         }
 

@@ -71,18 +71,16 @@ namespace com.slot
                         int n = Mathf.Min(hs0.reels, m_reelView.CounterCount());
                         for (int rr = 0; rr < n; rr++)
                         {
-                            // ★ 旋转期圈圈显示策略（2026-08-04 定稿，化解"消失" vs "剧透"两次相反反馈）：
-                            //   老持有列(preRoundHeldCols) → 旋转期显示【上一局值】(preRoundCounter)，圈圈不消失；
-                            //   但其"递减"(本局值 counter[]) 不在旋转期生效，留到停稳 SettleBaseB 才跳变 → 圈圈"减"发生在滚动停后。
-                            //   满列 → 旋转期隐藏(不剧透"将集满→进Mini")；新落列 / 已释放列 → 旋转期隐藏，停稳才出现。
+                            // ★ 旋转期圈圈显示策略（2026-08-04 定稿，本回合修订：持有列即便本局将集满也显示，圈圈不消失）：
+                            //   老持有列(preRoundHeldCols，含本局才刚被新火球集满的列) → 旋转期显示【上一局值】(preRoundCounter)，圈圈不消失；
+                            //   但其"递减/归零"(本局值 counter[]) 不在旋转期生效，留到停稳 SettleBaseB 才跳变 → 圈圈"减"发生在滚动停后。
+                            //   仅纯新落列(无老火球) / 已释放列 → 旋转期隐藏，停稳才出现（解决"差一颗就满的持有列开滚瞬间圈圈消失、停稳才重现"）。
                             bool held = (hs0.preRoundHeldCols != null && rr < hs0.preRoundHeldCols.Length)
                                         ? hs0.preRoundHeldCols[rr] : false;
                             int oldCnt = (hs0.preRoundCounter != null && rr < hs0.preRoundCounter.Length)
                                         ? hs0.preRoundCounter[rr] : 0;
-                            if (hs0.isFull[rr])
-                                m_reelView.HideCounterRow(rr);                  // 满列：旋转期不剧透，停稳 SettleBaseB 才显示 X 倍标记
-                            else if (held && !hs0.released[rr])
-                                m_reelView.SetRespinCounterRow(rr, oldCnt);    // 老持有列：旋转期显示【上一局值】(递减留到停稳后)
+                            if (held && !hs0.released[rr])
+                                m_reelView.SetRespinCounterRow(rr, oldCnt);    // 老持有列(含本局才集满)：旋转期显示【上一局值】，圈圈不消失
                             else
                                 m_reelView.HideCounterRow(rr);                  // 纯新落列 / 已释放列：旋转期隐藏，停稳后才出现
                         }
