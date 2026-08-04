@@ -35,7 +35,7 @@ namespace com.slot
                 // ★ 优先用 res.baseFireballs：基础轮落下的全部火球（不论是否触发 Hold&Spin）都已定倍率，一律显示。
                 //   模式B 收集盘还需把【跨局持有火球】(holdSpinState.cells) 也写入 fireMults：
                 //   否则这些火球位置的底层格 id=12 但 m_text 为空，表现为"火球没倍数/彩金档"。
-                //   同位置若已有持有火球，本局新落同位置会被 ShowHeldFireballs 跳过（保留旧火球），
+                //   同位置若已有持有火球，本局新落同位置由 ShowHeldFireballs/ShowFeatureState 保留旧火球（不重复钉），
                 //   故 fireMults 中同位置优先保留持有火球倍率，再用 baseFireballs 补全新位置。
                 var fireMults = new Dictionary<int, FireballCell>();
                 if (IsModeB() && r.holdSpinState != null)
@@ -64,7 +64,7 @@ namespace com.slot
                 //   任何"有火球却 board 为 null"的边界都不再让计数器整局隐藏；无 board 但有本局火球时按"新火球→重置3"显示圈。
                 if (IsModeB())
                 {
-                    m_reelView.ShowHeldFireballs(r.holdSpinState, r.baseFireballs);
+                    m_reelView.ShowHeldFireballs(r.holdSpinState);
                     m_reelView.ActivateCounters();   // 旋转期恢复会话级门控（各列是否显示由下面按盘/按火球决定）
                     if (r.holdSpinState != null)
                     {

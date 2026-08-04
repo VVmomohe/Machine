@@ -21,6 +21,27 @@ namespace com.slot
 
         public virtual void ShowFeatureState(HoldSpinState s)
         {
+            // ★ 诊断（总是打印）：核对 hs.cells 里各 kind 火球的 filled 数。
+            //   若 Mini/Minor/Major/Mega 计数为 0，说明逻辑层 AdvanceHoldBoard 没把彩金档火球加进 holdBoard.cells
+            //   （或该位置被同位置旧火球占位、filled 判定异常），导致本方法不钉彩金档 → 表现"只固定了倍数火球"。
+            {
+                var inKinds = new System.Collections.Generic.Dictionary<string, int>();
+                for (int r = 0; r < s.reels && r < s.cells.Length; r++)
+                    for (int row = 0; row < s.cells[r].Length; row++)
+                    {
+                        var c = s.cells[r][row];
+                        if (c != null && c.filled)
+                        {
+                            string k = c.kind.ToString();
+                            if (!inKinds.ContainsKey(k)) inKinds[k] = 0;
+                            inKinds[k]++;
+                        }
+                    }
+                var sbIn = new System.Text.StringBuilder("[FB-STATE-IN] hs.cells filled 按kind: ");
+                foreach (var kv in inKinds) sbIn.Append($"{kv.Key}={kv.Value} ");
+                UnityEngine.Debug.Log(sbIn.ToString());
+            }
+
             ClearFireballOverlays();
 
             for (int r = 0; r < s.reels && r < _reels.Count; r++)
@@ -34,40 +55,65 @@ namespace com.slot
                 }
             }
             RefreshColumnEffects(s);   // 近满列(差1火球)→亮整列 m_effect
+
+            // ★ 诊断（总是打印）：核对本方法实际钉住的 overlay 按 kind 计数，与 [FB-STATE-IN] 对比。
+            //   若 IN 含彩金档但 OUT 不含 → ShowFireballOverlay 创建彩金档 overlay 失败/被销毁（显示层问题）；
+            //   若两者都含彩金档 → 钉固正常，BUG 在别处（视觉层级/用户观察时机为旋转期而非停稳后）。
+            {
+                var outKinds = new System.Collections.Generic.Dictionary<string, int>();
+                foreach (var go in _fbOverlays)
+                {
+                    if (go == null) continue;
+                    var it = go.GetComponent<ReelItem>();
+                    if (it != null)
+                    {
+                        string k = it.m_type.ToString();
+                        if (!outKinds.ContainsKey(k)) outKinds[k] = 0;
+                        outKinds[k]++;
+                    }
+                }
+                var sbOut = new System.Text.StringBuilder("[FB-STATE-OUT] 钉住 overlay 按kind: ");
+                foreach (var kv in outKinds) sbOut.Append($"{kv.Key}={kv.Value} ");
+                UnityEngine.Debug.Log(sbOut.ToString());
+            }
         }
 
-        /// <summary>模式B 旋转期提前钉住「跨局持有」火球（不含本局新落火球；本局火球由 ShowGrid 底层卷轴滚动显示，避免重影）。
-        /// 解决"有圈圈时火球没固定"：开新局 ShowGrid→ClearAll 会清掉上局 overlay，若只等停轮后 ShowFeatureState 重钉，
-        /// 则旋转期间持有火球不可见，观感像没固定。此处让它整局持续可见（固定 overlay 盖在滚动卷轴之上，不随卷轴漂移）。</summary>
-        public void ShowHeldFireballs(HoldSpinState s, List<FireballCell> currentGame)
+        /// <summary>模式B 旋转期提前钉住「全部持有火球」（跨局持有 + 本局新落，二者都钉）。
+        /// 修复"火球在滚动过程中没有固定，只固定了倍数火球"：旧逻辑用 skip 跳过本局新落火球(baseFireballs 位置)，
+        /// 导致本局新落的彩金档火球旋转期只靠底层卷轴滚动显示、随卷轴滚走，观感像没固定；而跨局持有的(多为倍数火球)被钉住。
+        /// 现统一钉住 holdSpinState.cells 中所有 filled 火球（与停稳后 ShowFeatureState 完全一致）；
+        /// 底层卷轴在相同位置也停有同种火球(finalSyms=baseGrid 含 fbId)，overlay 在最上层盖住，位置/文字一致，无重影
+        /// （与跨局持有火球表现统一，不再因 kind 出现"只有倍数固定、彩金档滚走"的差别）。</summary>
+        public void ShowHeldFireballs(HoldSpinState s)
         {
             if (s == null) return;
-            // 本局新落火球已由底层卷轴(finalSyms=baseGrid 含 fbId)显示，跳过其位置，避免"滚动火球 + 固定 overlay"重影。
-            var skip = new HashSet<int>();
-            if (currentGame != null)
-                foreach (var c in currentGame)
-                    if (c != null && c.filled) skip.Add(c.reel * 100 + c.row);
 
             for (int r = 0; r < s.reels && r < _reels.Count; r++)
             {
                 for (int row = 0; row < s.cells[r].Length; row++)
                 {
                     var c = s.cells[r][row];
-                    if (c.filled && !skip.Contains(r * 100 + row))
+                    if (c.filled)
                         ShowFireballOverlay(r, row, c, playSound: false);
                 }
             }
             // ★ 诊断（总是打印）：重建后当前火球 overlay 按列计数，核对"某列火球是否真的被重建=是否真的固定"。
             {
                 var byCol = new System.Collections.Generic.Dictionary<int, int>();
+                var byKind = new System.Collections.Generic.Dictionary<string, int>();
                 foreach (var go in _fbOverlays)
                 {
                     if (go == null) continue;
                     if (ParseReelRow(go.name, out int rcol, out _)) { if (!byCol.ContainsKey(rcol)) byCol[rcol] = 0; byCol[rcol]++; }
+                    var it = go.GetComponent<ReelItem>();
+                    if (it != null) { string k = it.m_type.ToString(); if (!byKind.ContainsKey(k)) byKind[k] = 0; byKind[k]++; }
                 }
-                var sbH = new System.Text.StringBuilder("[ShowHeld] 当前火球overlay按列: ");
+                var sbH = new System.Text.StringBuilder("[ShowHeld] 当前火球overlay 按列: ");
                 foreach (var kv in byCol) sbH.Append($"r{kv.Key}={kv.Value} ");
                 UnityEngine.Debug.Log(sbH.ToString());
+                var sbK = new System.Text.StringBuilder("[ShowHeld-KIND] 旋转期钉住火球按kind: ");
+                foreach (var kv in byKind) sbK.Append($"{kv.Key}={kv.Value} ");
+                UnityEngine.Debug.Log(sbK.ToString());
             }
             RefreshColumnEffects(s);
         }
