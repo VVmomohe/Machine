@@ -168,12 +168,12 @@ namespace com.slot
                     var wasActive = kv.Value.activeSelf;
                     kv.Value.SetActive(false);
                     if (wasActive) hidden++;
-                    UnityEngine.Debug.Log($"[HideAllJackpotEffects] 隐藏 {kv.Key} (wasActive={wasActive} → now false)");
+                    //UnityEngine.Debug.Log($"[HideAllJackpotEffects] 隐藏 {kv.Key} (wasActive={wasActive} → now false)");
                 }
                 else
                 {
                     nullCount++;
-                    UnityEngine.Debug.LogWarning($"[HideAllJackpotEffects] {kv.Key} 的 GameObject 为 null! Inspector m_{kv.Key}Effect 未绑定");
+                    //UnityEngine.Debug.LogWarning($"[HideAllJackpotEffects] {kv.Key} 的 GameObject 为 null! Inspector m_{kv.Key}Effect 未绑定");
                 }
             }
 

@@ -797,7 +797,7 @@ MonoBehaviour:
   m_creditText: {fileID: 8992602321371020922}
   m_playSound: 0
   m_bigWinEffect: {fileID: 7713587465709871728}
-  m_bigWinThreshold: 50
+  m_bigWinThreshold: 100
   m_bigWinDuration: 3
 --- !u!1 &2915435408816971669
 GameObject:
@@ -1469,7 +1469,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_reelView: {fileID: 7523142777936236734}
-  m_counterTemplate: {fileID: 2339323398645577505}
   m_remainingText: {fileID: 4658167683141309434}
   m_freeSpinGap: 0.5
   m_finalShowTime: 2

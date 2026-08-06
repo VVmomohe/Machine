@@ -156,7 +156,7 @@ namespace com.slot
 
             if (existing.Count == 0)
             {
-                Debug.LogError("[ReelView] 场景里没有可用的 ReelFireNum 对象，请先在场景里放一个（火球倍率/倒计时计数器）！");
+                //Debug.LogError("[ReelView] 场景里没有可用的 ReelFireNum 对象，请先在场景里放一个（火球倍率/倒计时计数器）！");
                 return;
             }
 
