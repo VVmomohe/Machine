@@ -193,10 +193,10 @@ namespace com.slot
             int stripLen = (st.displayStrip != null) ? st.displayStrip.Count : 0;
             if (stripLen <= 0 || st.finalSyms == null) return;
             // 清除本列旧条目（预测/上一轮的残留）
-            int prefix = st.reelIdx * 100000;
+            int prefix = st.reelIdx * CellKey.SymBase;
             var stale = new List<int>();
             foreach (var kv in _fbStripMult)
-                if (kv.Key >= prefix && kv.Key < prefix + 100000) stale.Add(kv.Key);
+                if (kv.Key >= prefix && kv.Key < prefix + CellKey.SymBase) stale.Add(kv.Key);
             foreach (var key in stale) _fbStripMult.Remove(key);
             // 按实际停位构建
             for (int row = 0; row < st.finalSyms.Length; row++)
@@ -205,9 +205,9 @@ namespace com.slot
                 {
                     int k = m_buf + row;
                     int symIdx = ((st.stripBase + (int)st.stopAt + k) % stripLen + stripLen) % stripLen;
-                    int mkey = st.reelIdx * 100 + row;
+                    int mkey = CellKey.Encode(st.reelIdx, row);
                     if (_baseFireMults.TryGetValue(mkey, out FireballCell cell))
-                        _fbStripMult[st.reelIdx * 100000 + symIdx] = cell;
+                        _fbStripMult[CellKey.EncodeSym(st.reelIdx, symIdx)] = cell;
                 }
             }
         }
@@ -273,7 +273,7 @@ namespace com.slot
                 //   在最上层盖住滚动格，位置/文字一致，无重影（与主游戏 Hold&Spin 表现统一）。
                 if (sym == m_fireballSymbolId)
                 {
-                    int skey = st.reelIdx * 100000 + symIdx;
+                    int skey = CellKey.EncodeSym(st.reelIdx, symIdx);
                     if (_fbStripMult.TryGetValue(skey, out FireballCell cell)) SetCellFireballMult(st, k, cell);
                 }
             }
@@ -314,7 +314,7 @@ namespace com.slot
                     //   Mini 持久 overlay 模式也挂——停稳后 overlay 在最上层盖住，无重影。
                     if (sym == m_fireballSymbolId)
                     {
-                        int mkey = st.reelIdx * 100 + row;
+                        int mkey = CellKey.Encode(st.reelIdx, row);
                         if (_baseFireMults.TryGetValue(mkey, out FireballCell cell)) SetCellFireballMult(st, k, cell);
                     }
                 }
@@ -341,7 +341,7 @@ namespace com.slot
                 //   Mini 持久 overlay 模式也挂——位置/文字与 overlay 完全一致，无重影。
                 if (sym == m_fireballSymbolId)
                 {
-                    int mkey = st.reelIdx * 100 + row;
+                    int mkey = CellKey.Encode(st.reelIdx, row);
                     if (_baseFireMults.TryGetValue(mkey, out FireballCell cell)) SetCellFireballMult(st, k, cell);
                 }
             }

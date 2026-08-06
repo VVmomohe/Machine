@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace SlotMachine.Core
 {
@@ -45,26 +46,40 @@ namespace SlotMachine.Core
             //   百搭(wild)在纯随机架构下与其它符号同权（见 OutcomeGenerator.Spin，每格 1/12 均匀），不再单独规划。
             public BaseSpinConfig baseSpin;
 
+        [JsonIgnore] private Dictionary<int, SymbolPay> _byId;   // 懒构建：symbolId → SymbolPay，避免 GetSymbol 每次 O(n) 线性扫描（评估时每格都查，频率极高）
+        [JsonIgnore] private int _scatterId = -2;                // -2=未初始化；EnsureSymbolIndex 首次调用后置 -1（无）或 ≥0
+        [JsonIgnore] private int _wildId = -2;
+
+        private void EnsureSymbolIndex()
+        {
+            if (_byId != null) return;
+            _byId = new Dictionary<int, SymbolPay>(paytable.Count);
+            _scatterId = -1; _wildId = -1;
+            foreach (var s in paytable)
+            {
+                _byId[s.symbolId] = s;
+                if (s.scatter && _scatterId < 0) _scatterId = s.symbolId;
+                if (s.wild && _wildId < 0) _wildId = s.symbolId;
+            }
+        }
+
         public SymbolPay GetSymbol(int id)
         {
-            for (int i = 0; i < paytable.Count; i++)
-                if (paytable[i].symbolId == id) return paytable[i];
-            return null;
+            EnsureSymbolIndex();
+            return _byId.TryGetValue(id, out var s) ? s : null;
         }
 
         public int ScatterId()
         {
-            for (int i = 0; i < paytable.Count; i++)
-                if (paytable[i].scatter) return paytable[i].symbolId;
-            return -1;
+            EnsureSymbolIndex();
+            return _scatterId;
         }
 
         /// <summary>百搭(Wild)符号 id（-1=无）。</summary>
         public int WildId()
         {
-            for (int i = 0; i < paytable.Count; i++)
-                if (paytable[i].wild) return paytable[i].symbolId;
-            return -1;
+            EnsureSymbolIndex();
+            return _wildId;
         }
 
         /// <summary>是否为特性符号（火球/FireLink 等特性符，不参与基础连线/ways 判定，按特性符号跳过）。</summary>

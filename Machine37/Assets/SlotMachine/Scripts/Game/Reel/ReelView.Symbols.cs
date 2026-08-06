@@ -119,7 +119,7 @@ namespace com.slot
             if (m_persistentFireOverlays && id == m_fireballSymbolId)
             {
                 int row = k - m_buf;
-                int key = st.reelIdx * 100 + row;
+                int key = CellKey.Encode(st.reelIdx, row);
                 bool isOld = (m_preLockedFireRows != null) && m_preLockedFireRows.Contains(key);
                 if (isOld)
                 {
@@ -166,7 +166,7 @@ namespace com.slot
                     if (!freeFire && _baseFireMults != null)
                     {
                         int row = k - m_buf;
-                        if (_baseFireMults.TryGetValue(st.reelIdx * 100 + row, out var fc) && fc != null)
+                        if (_baseFireMults.TryGetValue(CellKey.Encode(st.reelIdx, row), out var fc) && fc != null)
                         {
                             // ★ 诊断（非防御）：FreeSpins 出现在 _baseFireMults 说明数据层异常（A 不应有 / B 基础轮 allowFreeMode=false）。
                             //   此处不篡改数据，如实显示免费外观，并告警供定位根因（真正的 A/B 判定看 [ConfigLoad] 日志）。
@@ -237,7 +237,7 @@ namespace com.slot
                     // ★ 火球：兜底写回 m_text 文字（即使 overlay 没显示，底层格也确保"x3"等可见）
                     if (id == m_fireballSymbolId && _baseFireMults != null)
                     {
-                        if (_baseFireMults.TryGetValue(st.reelIdx * 100 + row, out var cell) && cell != null)
+                        if (_baseFireMults.TryGetValue(CellKey.Encode(st.reelIdx, row), out var cell) && cell != null)
                             SetCellFireballMult(st, k, cell);
                     }
                 }

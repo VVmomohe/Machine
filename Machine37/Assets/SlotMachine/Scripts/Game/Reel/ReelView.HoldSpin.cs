@@ -98,7 +98,7 @@ namespace com.slot
                     var c = s.cells[r][row];
                     if (!c.filled) continue;
                     // ★ 仅钉"推进前已持有"的火球；本局新落(未持有过的格，含碰撞格被保留的旧火球视作已持有)才钉，其余(真·新落)不钉、随卷轴滚入。
-                    bool wasHeld = (s.preRoundHeldCells != null && s.preRoundHeldCells.Contains(r * 100 + row));
+                    bool wasHeld = (s.preRoundHeldCells != null && s.preRoundHeldCells.Contains(CellKey.Encode(r, row)));
                     if (!wasHeld) continue;
                     ShowFireballOverlay(r, row, c, playSound: false);
                 }

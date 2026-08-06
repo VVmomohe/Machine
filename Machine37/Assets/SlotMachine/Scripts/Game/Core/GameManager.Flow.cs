@@ -45,14 +45,14 @@ namespace com.slot
                         for (int row = 0; row < hs.cells[rr].Length; row++)
                         {
                             var c = hs.cells[rr][row];
-                            if (c.filled) fireMults[c.reel * 100 + c.row] = c;
+                            if (c.filled) fireMults[CellKey.Encode(c.reel, c.row)] = c;
                         }
                 }
                 if (r.baseFireballs != null)
                     foreach (var c in r.baseFireballs)
                         if (c.filled)
                         {
-                            int key = c.reel * 100 + c.row;
+                            int key = CellKey.Encode(c.reel, c.row);
                             if (!fireMults.ContainsKey(key)) fireMults[key] = c;
                         }
 
@@ -232,7 +232,7 @@ namespace com.slot
                 foreach (var w in wins)
                 {
                     var sbn = new System.Text.StringBuilder($"[WIN] sym={w.symbolId} count={w.count} pay={w.payout:F2} pos=");
-                    foreach (var p in w.positions) sbn.Append($"({p / 100},{p % 100})");
+                    foreach (var p in w.positions) sbn.Append($"({CellKey.Reel(p)},{CellKey.Row(p)})");
                     UnityEngine.Debug.Log(sbn.ToString());
                 }
                 if (wins.Count == 0) UnityEngine.Debug.Log("[WIN] 无普通连线赢分");

@@ -132,7 +132,7 @@ namespace SlotMachine.Core
                     int g = grid[reel][line[reel]];
                     var sp = cfg.GetSymbol(g);
                     if (g == bestSym || (sp != null && sp.wild))
-                        pos.Add(reel * 100 + line[reel]);
+                        pos.Add(CellKey.Encode(reel, line[reel]));
                 }
 
                 wins.Add(new Win
@@ -265,7 +265,7 @@ namespace SlotMachine.Core
                                 int s = grid[r][row];
                                 var cell = cfg.GetSymbol(s);
                                 if (s == sym || (cell != null && cell.wild))
-                                    w.positions.Add(r * 100 + row);
+                                    w.positions.Add(CellKey.Encode(r, row));
                             }
                         wins.Add(w);
                     }
@@ -315,7 +315,7 @@ namespace SlotMachine.Core
                         if (gid == sym || (sp != null && sp.wild))
                         {
                             has = true;
-                            positions.Add(reel * 100 + row);
+                            positions.Add(CellKey.Encode(reel, row));
                         }
                     }
                     if (!has) break;
@@ -360,7 +360,7 @@ namespace SlotMachine.Core
                     for (int row = 0; row < grid[reel].Length; row++)
                     {
                         if (exclude != null && reel < exclude.Length && row < exclude[reel].Length && exclude[reel][row]) continue; // 持有火球格不计入
-                        int pos = reel * 100 + row;
+                        int pos = CellKey.Encode(reel, row);
                         int gid = grid[reel][row];
                         if (gid == wildId && usedWilds.Contains(pos)) continue;   // 已服务于更高赔付赢
                         var sp = cfg.GetSymbol(gid);
@@ -383,7 +383,7 @@ namespace SlotMachine.Core
                 // 否则该 wild 不被占用，可供更低赢继续使用。
                 foreach (int p in posF)
                 {
-                    int reel = p / 100, row = p % 100;
+                    int reel = CellKey.Reel(p), row = CellKey.Row(p);
                     if (grid[reel][row] != wildId) continue;
                     bool colHasSym = false;
                     for (int r2 = 0; r2 < grid[reel].Length; r2++)

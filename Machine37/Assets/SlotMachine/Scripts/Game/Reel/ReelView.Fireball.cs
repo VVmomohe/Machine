@@ -107,8 +107,8 @@ namespace com.slot
             if (w.positions == null || w.positions.Count == 0) return;
             foreach (int pos in w.positions)
             {
-                int reel = pos / 100;
-                int row = pos % 100;
+                int reel = CellKey.Reel(pos);
+                int row = CellKey.Row(pos);
                 if (reel < 0 || reel >= _reels.Count) continue;
                 var st = _reels[reel];
                 int k = m_buf + row;

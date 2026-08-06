@@ -348,7 +348,7 @@ public class MiniGame : MonoBehaviour
         {
             var oldRows = new HashSet<int>();
             foreach (var f in _allFires)
-                if (f.reel >= 0 && f.row >= 0) oldRows.Add(f.reel * 100 + f.row);
+                if (f.reel >= 0 && f.row >= 0) oldRows.Add(CellKey.Encode(f.reel, f.row));
             m_reelView.m_preLockedFireRows = oldRows;
         }
 
@@ -425,7 +425,7 @@ public class MiniGame : MonoBehaviour
         //    传给 ShowGrid 让减速阶段就显示火球倍率/彩金（不等到停稳才出现）。
         var fireMults = new Dictionary<int, FireballCell>();
         foreach (var f in _allFires)
-            fireMults[f.reel * 100 + f.row] = f;
+            fireMults[CellKey.Encode(f.reel, f.row)] = f;
 
         // 5) ShowGrid 启动卷轴旋转。容器设为首个子节点(底层)，火球 overlay 在持久节点上为末位(上层)。
         m_reelView.ShowGrid(grid, fireMults);

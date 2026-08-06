@@ -71,7 +71,7 @@ namespace SlotMachine.Core
                 {
                     bool hadFilled = false;
                     for (int row = 0; row < holdBoard.cells[r].Length; row++)
-                        if (holdBoard.cells[r][row].filled) { hadFilled = true; preHeldCells.Add(r * 100 + row); }
+                        if (holdBoard.cells[r][row].filled) { hadFilled = true; preHeldCells.Add(CellKey.Encode(r, row)); }
                     preHeld[r] = !holdBoard.released[r] && !holdBoard.isFull[r] && (hadFilled || holdBoard.counter[r] > 0);
                     preCnt[r] = holdBoard.counter[r];   // ★ 推进前快照（此时尚未递减/重置，= 上一局结束值）
                 }
@@ -153,7 +153,7 @@ namespace SlotMachine.Core
                 foreach (var f in initial)
                 {
                     if (!f.filled) continue;
-                    if (!preHeldCells.Contains(f.reel * 100 + f.row))   // 推进前该格为空 → 本局真·新增一颗火球
+                    if (!preHeldCells.Contains(CellKey.Encode(f.reel, f.row)))   // 推进前该格为空 → 本局真·新增一颗火球
                         realNewInCol[f.reel] = true;
                 }
 

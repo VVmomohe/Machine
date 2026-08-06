@@ -185,7 +185,7 @@ namespace com.slot
                         for (int row = 0; row < hs.cells[rr].Length; row++)
                         {
                             if (!hs.cells[rr][row].filled) continue;
-                            int key = rr * 100 + row;
+                            int key = CellKey.Encode(rr, row);
                             if (!seen.Add(key)) continue;
                             var ri = m_reelView.GetReelItem(rr, row);
                             if (ri == null) { sbDiag.Append($" | (r{rr},row{row})=nullReelItem"); continue; }
@@ -202,7 +202,7 @@ namespace com.slot
                     foreach (var c in r.baseFireballs)
                     {
                         if (c == null || !c.filled) continue;
-                        int key = c.reel * 100 + c.row;
+                        int key = CellKey.Encode(c.reel, c.row);
                         if (!seen.Add(key)) continue;
                         var ri = m_reelView.GetReelItem(c.reel, c.row);
                         if (ri == null) { sbDiag.Append($" | (r{c.reel},row{c.row})=nullReelItem"); continue; }

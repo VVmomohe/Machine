@@ -80,9 +80,9 @@ namespace com.slot
         List<GameObject> _staticCells = new List<GameObject>(); // 开局静态棋盘
         bool _initDone;
 
-        // ★ 基础旋转火球：key = reel*100+row → FireballCell（含 kind/倍率，从 holdSpinState 传入 ShowGrid）
+        // ★ 基础旋转火球：key = CellKey.Encode(reel,row) → FireballCell（含 kind/倍率，从 holdSpinState 传入 ShowGrid）
         Dictionary<int, FireballCell> _baseFireMults = new Dictionary<int, FireballCell>();
-        // ★ 火球条带位置→FireballCell：key = reel*100000+stripIdx（BeginStop 后按实际停位构建）
+        // ★ 火球条带位置→FireballCell：key = CellKey.EncodeSym(reel,stripIdx)（BeginStop 后按实际停位构建）
         Dictionary<int, FireballCell> _fbStripMult = new Dictionary<int, FireballCell>();
 
         /// <summary>单列滚动状态。</summary>
