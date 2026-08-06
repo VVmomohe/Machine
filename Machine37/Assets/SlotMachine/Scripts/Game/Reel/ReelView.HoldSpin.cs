@@ -15,8 +15,6 @@ namespace com.slot
         HashSet<int> _collectedReels = new HashSet<int>();
         bool _wasSpinning = false;
 
-        //   故 StopNow 无法通过 st.spinning 命中。用这两个标志让 StopNow 能识别并提前打断 Hold 滚动。
-
         // ===== 基础局火球钉持久 overlay（ShowFeatureState 入口）=====
 
         public virtual void ShowFeatureState(HoldSpinState s)
@@ -163,15 +161,6 @@ namespace com.slot
         }
 
         // ===== 模式B 收集盘 respin 辅助（轻量，不滚盘）=====
-
-        /// <summary>播放某列 tong 演出并【等其真正播完】再返回（协程）。
-        /// 满列收集演出后阻塞流程，确保动画播完才进 Mini。</summary>
-        public IEnumerator PlayTongAndWait(int reel)
-        {
-            if (m_tongs == null || reel < 0 || reel >= m_tongs.Length || m_tongs[reel] == null) yield break;
-            m_tongs[reel].Play();
-            yield return m_tongs[reel].WaitDone();
-        }
 
         /// <summary>满列收集演出：复刻旧 HOLD 手感——每颗火球【原地变暗】的同时【新生成一个火球掉入桶(tong)】，
         /// 桶对每个落入的火球播放一次收取反应；顺序与旧 HOLD 一致——【先掉下面(row 小=底部)】，再往上。

@@ -258,7 +258,6 @@ public class MiniGame : MonoBehaviour
         // 结束：汇总全部火球（全场景一次性结算），回调交还 GameManager
         float bet = GameManager.Instance.m_machine != null && GameManager.Instance.m_machine.totalBet > 0
             ? GameManager.Instance.m_machine.totalBet : 1f;
-        _fireTotal = 0f;
         float totalMult = 0f;                       // 最终总倍数（全部火球倍率之和，含彩金档折算倍数）
         foreach (var f in _allFires) { _fireTotal += bet * f.multiplier; totalMult += f.multiplier; }
 
@@ -359,8 +358,8 @@ public class MiniGame : MonoBehaviour
             if (f.reel >= 0 && f.reel < grid.Length && f.row >= 0 && f.row < grid[f.reel].Length)
                 grid[f.reel][f.row] = fbId;
 
-        // 1.2) Mini 火球独立掷骰——概率远低于主游戏 RespinhSpin（火球永久不退，
-        //   过高会导致几轮后全盘满火球）。固定 3% 每格，约每轮 1~2 颗新火球。
+        // 1.2) Mini 火球独立掷骰——概率远低于主游戏（火球永久不退，
+        //   过高会导致几轮后全盘满火球）。固定 1.5% 每格（miniFbProb=0.015），约每轮 1~2 颗新火球。
         var rng = GameManager.Instance.m_machine.rng;
         const double miniFbProb = 0.015;
         for (int r = 0; r < grid.Length; r++)

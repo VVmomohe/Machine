@@ -156,7 +156,6 @@ namespace com.slot
 
             if (existing.Count == 0)
             {
-                //Debug.LogError("[ReelView] 场景里没有可用的 ReelFireNum 对象，请先在场景里放一个（火球倍率/倒计时计数器）！");
                 return;
             }
 
@@ -242,17 +241,6 @@ namespace com.slot
             for (int i = 0; i < _reels.Count; i++)
                 if (_reels[i].spinning || _reels[i].stopping) return true;
             return false;
-        }
-
-        /// <summary>读取某格当前显示的符号 ID（供 GameManager 构建 respin 网格做线奖结算）。
-        /// 火球格由 HoldSpinState 单独判定，这里只回普通格的 shownSym。</summary>
-        public int GetVisibleSymbol(int reel, int row)
-        {
-            if (reel < 0 || reel >= _reels.Count) return -1;
-            var st = _reels[reel];
-            int k = m_buf + row;
-            if (k < 0 || k >= st.shownSym.Length) return -1;
-            return st.shownSym[k];
         }
 
         void ClearAll()

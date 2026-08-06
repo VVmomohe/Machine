@@ -63,8 +63,8 @@ namespace com.slot
                 // 数据层也同步成安全值，避免后续按 cell.multiplier 读取仍为0
                 cell.multiplier = safeRate;
                 // ★ 免费外观严格按火球自身 kind 决定：FreeSpins 类型才显示免费火球(m_freeFire)，
-                //   倍数/彩金火球一律显示普通火球(m_fire)。不再参考 m_inFreeSpins（该字段全工程从未被置 true，是死代码，
-                //   且会错误地让倍数火球在"免费游戏"全局开关下变成免费火球外观）。
+                //   倍数/彩金火球一律显示普通火球(m_fire)。(m_inFreeSpins 为预留的全局"免费游戏"开关，
+                //   当前恒为 false，由 ReelView.Symbols 读取决定 freeFire；本分支不依赖它。)
                 bool freeFire = (cell != null && cell.kind == FireballKind.FreeSpins);
                 item.ShowFire(true, freeFire);
                 // ★ overlay 的 m_effect 必须关闭——m_effect 只在 ReelItem(卷轴格)上由 SetColumnEffect 管理，

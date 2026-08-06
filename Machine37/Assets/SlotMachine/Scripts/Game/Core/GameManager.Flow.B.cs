@@ -27,14 +27,14 @@ namespace com.slot
                 var hs = r.holdSpinState;
                 m_reelView.ShowFeatureState(hs);   // 钉全部已收集火球（覆盖基础局 + 历史跨局持有）
                 m_reelView.ActivateCounters();
-                // ★ 问题1/2 修复：满列 tong 演出必须【真正播完】才能进 Mini（PlayTongAndWait 内部等 Mecanim+序列帧+超时兜底），
+                // ★ 问题1/2 修复：满列 tong 演出必须【真正播完】才能进 Mini，
                 //   且圈圈显示 3→2→1→0（counter=0 时 ReelFireNum 显示“0”，不再用 counter>0 才显示）。
                 for (int rr = 0; rr < hs.reels; rr++)
                 {
                     if (hs.isFull[rr])
                     {
                         m_reelView.SetRespinCounterRow(rr, 0);
-                        yield return m_reelView.CollectFullReelAnimation(rr);   // 满列：火球逐颗掉入桶 + 桶逐颗反应（替代孤立的一次 PlayTongAndWait）
+                        yield return m_reelView.CollectFullReelAnimation(rr);   // 满列：火球逐颗掉入桶 + 桶逐颗反应
                     }
                     else if (!hs.released[rr])
                         m_reelView.SetRespinCounterRow(rr, hs.counter[rr]);   // 显示当前圈数（含 0：3→2→1→0）

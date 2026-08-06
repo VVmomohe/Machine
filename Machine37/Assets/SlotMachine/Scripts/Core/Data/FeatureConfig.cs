@@ -53,15 +53,11 @@ namespace SlotMachine.Core
         // 免费模式火球不派彩，按列收集到一定数量追加免费次数（FireballKind.FreeSpins）。
         public float freeModeRatio = 0.050f;   // 每颗新火球是"免费模式"(FreeSpins)类型的概率；2026-07-30 由 0.053 → 0.050（−0.3pp 让给 Mini，实际运行取值以 JSON 为准）
 
-        // ===== 旧 Hold&Spin 交互式参数（保留供 HoldSpinState 编译，收集盘玩法不使用）=====
+        // ===== 旧 Hold&Spin 交互式参数 =====
+        // respinCount / triggerMin 仍在使用（HoldSpinState.B.cs / GameSession.HoldB.cs 读取）。
+        // fireballHitProb / fbProb 为死字段已删除（火球概率实际由 OutcomeGenerator / RollFireball 决定）。
         public int respinCount = 3;
         public int triggerMin = 1;
-        public float fireballHitProb = 0.32f;
-
-        // 火球在 Hold&Spin 每轮每空格的落球概率（覆盖条带火球密度）。
-        // <0 或 0 表示回退到"该列 reelStrips 中火球占比"（旧行为）。
-        // 2026-07-24：原游戏火球概率比当前实测 15.4% 低约 30%，故设为 ≈0.108 对齐。
-        public float fbProb = -1f;
 
         // ===== 模式专用(holdMode 分支) =====
         public string holdMode = "Direct";     // 两模式现均为 "Direct"（直线结算，无 respin 循环）；"ReelFill" 为旧收集盘玩法残留值，已不使用。

@@ -131,8 +131,6 @@ namespace SlotMachine.Core
                 }
         }
 
-        public bool IsOver() => !active;
-
         public static bool ReelFull(HoldSpinState st, int r)
         {
             int filled = 0;

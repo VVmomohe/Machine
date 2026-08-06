@@ -94,7 +94,7 @@ namespace SlotMachine.Core
                         holdBoard.isFull[r] = true;
                         holdBoard.counter[r] = 0;
                         filledCols.Add(r);   // ★ 记录集满列（仅此列授予 FREE 火球免费次数）
-                        UnityEngine.Debug.Log($"[COLLECT-B] r{r} 整列集满→收集(火球回归队列) [新盘分支]");
+                        if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[COLLECT-B] r{r} 整列集满→收集(火球回归队列) [新盘分支]");
                         for (int row = 0; row < holdBoard.cells[r].Length; row++)
                             PayFireball(holdBoard.cells[r][row], bet, holdBoard, newJ);
                         res.enterMiniByColumnFill = true;
@@ -174,7 +174,7 @@ namespace SlotMachine.Core
 
                 if (releasePending)
                 {
-                    UnityEngine.Debug.Log($"[RELEASE-B] r{r} 圈圈归零→释放旧火球回队列 counter前={holdBoard.counter[r]} newInCol={newInCol[r]}{(newInCol[r] ? " (本局新火球将重新捕获)" : "")}");
+                    if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[RELEASE-B] r{r} 圈圈归零→释放旧火球回队列 counter前={holdBoard.counter[r]} newInCol={newInCol[r]}{(newInCol[r] ? " (本局新火球将重新捕获)" : "")}");
                     // 释放旧火球（清空本列 cells = 回归滚动队列）
                     for (int row = 0; row < holdBoard.cells[r].Length; row++)
                         holdBoard.cells[r][row] = new FireballCell { reel = r, row = row };
@@ -196,7 +196,7 @@ namespace SlotMachine.Core
                         holdBoard.isFull[r] = true;
                         holdBoard.counter[r] = 0;
                         filledCols.Add(r);
-                        UnityEngine.Debug.Log($"[COLLECT-B] r{r} 整列集满→收集(火球回归队列)");
+                        if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[COLLECT-B] r{r} 整列集满→收集(火球回归队列)");
                         for (int row = 0; row < holdBoard.cells[r].Length; row++)
                             PayFireball(holdBoard.cells[r][row], bet, holdBoard, newJ);
                         res.enterMiniByColumnFill = true;
@@ -226,7 +226,7 @@ namespace SlotMachine.Core
                     holdBoard.isFull[r] = true;
                     holdBoard.counter[r] = 0;
                     filledCols.Add(r);
-                    UnityEngine.Debug.Log($"[COLLECT-B] r{r} 整列集满→收集(火球回归队列)");
+                    if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[COLLECT-B] r{r} 整列集满→收集(火球回归队列)");
                     for (int row = 0; row < holdBoard.cells[r].Length; row++)
                         PayFireball(holdBoard.cells[r][row], bet, holdBoard, newJ);
                     res.enterMiniByColumnFill = true;
