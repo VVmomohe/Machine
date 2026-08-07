@@ -84,6 +84,8 @@ namespace com.slot
         Dictionary<int, FireballCell> _baseFireMults = new Dictionary<int, FireballCell>();
         // ★ 火球条带位置→FireballCell：key = CellKey.EncodeSym(reel,stripIdx)（BeginStop 后按实际停位构建）
         Dictionary<int, FireballCell> _fbStripMult = new Dictionary<int, FireballCell>();
+        // 越界 kind 告警去重：key=reel*1000+k，避免持久脏细胞每帧刷屏（清场时重置）
+        HashSet<long> _warnedIllegalKind = new HashSet<long>();
 
         /// <summary>单列滚动状态。</summary>
         class ReelState
@@ -250,6 +252,7 @@ namespace com.slot
             StopWinAnims();
             _baseFireMults.Clear();    // 清空基础旋转火球倍率
             _fbStripMult.Clear();      // 清空条带位置→倍率映射
+            _warnedIllegalKind.Clear(); // 重置越界 kind 告警去重
             foreach (var st in _reels) if (st.container != null) Destroy(st.container);
             _reels.Clear();
             foreach (var go in _staticCells) if (go != null) Destroy(go);

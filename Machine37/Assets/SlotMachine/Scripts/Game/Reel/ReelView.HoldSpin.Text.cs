@@ -17,14 +17,30 @@ namespace com.slot
             var item = st.cellItems[k];
             if (item == null) return;
 
-            item.m_type = cell.kind;
-            item.m_rate = cell.multiplier;
-            // ★ 诊断日志：仅对非法 kind（超出 0~5）告警。multiplier 大小不再作为彩金档推断依据——
-            //   用户已把 JSON multipliers 提到 [1,2,3,5,10,20,50,100]，x20/x50/x100 是合法高倍率，
-            //   必须显示为 xN，不能因 >10 而回退成 MINI/MINOR/MAJOR/MEGA 造成视觉与 m_type 不一致。
+            // ★ 越界 kind 兜底（根因=旧构建/旧配置残留的脏 FireballCell，Domain Reload 关闭时复用；
+            //   当前代码 RollFireball 最大只产 kind=4，配置仅 4 档彩金，不可能产出 kind=6）。
+            //   优先用权威索引 jackpotTier 还原正确档名；jackpotTier 也越界则回退为倍数火球(xN)。
+            FireballKind effKind = cell.kind;
             if ((int)cell.kind < 0 || (int)cell.kind > 5)
-                Debug.LogWarning($"[FireballLabel] 非法 kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} reel={st.reelIdx} k={k} → label={FireballLabel(cell)}");
-            ApplyFireballText(item.gameObject, cell);
+            {
+                if (cell.jackpotTier >= 0 && cell.jackpotTier < HoldSpinState.JackpotTierNames.Length)
+                    effKind = (FireballKind)(cell.jackpotTier + 1);
+                else
+                    effKind = FireballKind.Multiplier;
+
+                long wkey = (long)st.reelIdx * 1000 + k;
+                if (!_warnedIllegalKind.Contains(wkey))
+                {
+                    _warnedIllegalKind.Add(wkey);
+                    Debug.LogWarning($"[FireballLabel] 非法 kind={(int)cell.kind}({cell.kind}) mult={cell.multiplier} reel={st.reelIdx} k={k} → 已按 jackpotTier/multiplier 兜底显示(label={(effKind == FireballKind.Multiplier ? "x" + cell.multiplier : HoldSpinState.JackpotTierNames[(int)effKind - 1])})");
+                }
+            }
+
+            item.m_type = effKind;
+            item.m_rate = cell.multiplier;
+            // 用修复后的视图传给显示逻辑，避免 FireballLabel 仍读到越界 kind
+            var view = new FireballCell { filled = cell.filled, kind = effKind, multiplier = cell.multiplier, jackpotTier = cell.jackpotTier };
+            ApplyFireballText(item.gameObject, view);
         }
 
         /// <summary>火球显示文字：倍数火球="x1.5"，彩金火球=档位大写名（MINI/MINOR/MAJOR/MEGA），免费模式火球="FREE"。</summary>
