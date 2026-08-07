@@ -233,7 +233,7 @@ namespace com.slot
                 if (match) return pos;
             }
             // 极罕见：找不到对齐（strip 被 BuildDisplayStrip 改过导致不一致）→ 回退
-            UnityEngine.Debug.LogWarning($"[ReelView] ⚠️ reel{st.reelIdx} 找不到 align 位置，回退到 start={start}");
+            //UnityEngine.Debug.LogWarning($"[ReelView] ⚠️ reel{st.reelIdx} 找不到 align 位置，回退到 start={start}");
             return start;
         }
 

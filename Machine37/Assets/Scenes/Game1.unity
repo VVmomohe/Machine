@@ -449,6 +449,7 @@ GameObject:
   - component: {fileID: 482576642}
   - component: {fileID: 482576641}
   - component: {fileID: 482576640}
+  - component: {fileID: 482576643}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -522,6 +523,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &482576643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 482576639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 0}
 --- !u!1 &482576650
 GameObject:
   m_ObjectHideFlags: 0
@@ -736,6 +751,22 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3965177647015708915, guid: fdaa1e5aee1a24a4b960db4c27402284, type: 3}
   m_PrefabInstance: {fileID: 1509705206}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &825462382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 825462380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c69e7e3347b664419ee49fbb134f998, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_reelView: {fileID: 0}
+  m_remainingText: {fileID: 0}
+  m_freeSpinGap: 0.5
+  m_finalShowTime: 4
 --- !u!224 &903869511 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 107719056441612405, guid: e37c0852409438f4383e716c131a4142, type: 3}
@@ -869,6 +900,7 @@ GameObject:
   - component: {fileID: 1248216137}
   - component: {fileID: 1248216136}
   - component: {fileID: 1248216138}
+  - component: {fileID: 1248216139}
   m_Layer: 0
   m_Name: FmodSoundMgr
   m_TagString: Untagged
@@ -919,6 +951,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12e4be4a49e9434a99d3e82109e5155, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1248216139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1248216135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 0}
 --- !u!224 &1430598118 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4563883322664701893, guid: d4737eff2699b1b42b1c7b092e6ed80f, type: 3}

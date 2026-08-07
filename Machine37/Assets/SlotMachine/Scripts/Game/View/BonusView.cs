@@ -83,7 +83,7 @@ namespace com.slot
                 {
                     t.transform.localScale = GetNativeScale(t);   // 防御：脉冲/弹窗放大后强制复位到原生 base scale
                     t.text = FormatValue(kv.Value);
-                    UnityEngine.Debug.Log($"[ShowPots] tier={kv.Key} 显示={FormatValue(kv.Value)} (raw={kv.Value:F4})");
+                    //UnityEngine.Debug.Log($"[ShowPots] tier={kv.Key} 显示={FormatValue(kv.Value)} (raw={kv.Value:F4})");
                 }
         }
 

@@ -168,10 +168,8 @@ namespace com.slot
                         int row = k - m_buf;
                         if (_baseFireMults.TryGetValue(CellKey.Encode(st.reelIdx, row), out var fc) && fc != null)
                         {
-                            // ★ 诊断（非防御）：FreeSpins 出现在 _baseFireMults 说明数据层异常（A 不应有 / B 基础轮 allowFreeMode=false）。
-                            //   此处不篡改数据，如实显示免费外观，并告警供定位根因（真正的 A/B 判定看 [ConfigLoad] 日志）。
-                            if (fc.kind == FireballKind.FreeSpins)
-                                Debug.LogWarning($"[SetCell] ⚠️ _baseFireMults 含 FreeSpins(reel={st.reelIdx} row={row}) → 数据层异常，当前 holdMode 可能非 Direct");
+                            // ★ A 模式基础轮不应出现 FreeSpins 火球；若数据层泄漏进来，已由 StartBaseSpin 过滤（A 模式跳过 FreeSpins 细胞）不再渲染为 m_freeFire。
+                            //   此处仅在真正处于免费游戏(m_inFreeSpins)或 B 模式基础轮合法 FREE 火球时点亮 m_freeFire。
                             freeFire = (fc.kind == FireballKind.FreeSpins);
                         }
                     }

@@ -20,15 +20,21 @@ namespace com.slot
         public ISlotRng rng = new UnityRng();
         public GameSession session;
 
+        [Header("模式 A/B（唯一真值源；IsModeB() 读它而非 config.modeName 字符串。场景未指定 configText 时按场景名自动判定，也可在 Inspector 手动覆盖）")]
+        public SlotGameMode gameMode;
+
         [Header("押注")]
         public float totalBet = 1f;
 
         void Awake()
         {
-            // ★ 场景决定游戏（强制按场景名加载，防止 Game1 场景里 Inspector 残留的 configText 指向 modeB 导致整盘误跑 44668）：
+            // ★ 模式唯一真值源：场景未指定 configText 时按场景名判定；否则用 Inspector 手动指定的 gameMode。
+            //   gameMode 同时驱动 config 选择 与 IsModeB() 判定，不再依赖 config.modeName 字符串解析（避免命名改动误判）。
             //   Game1 = 模式A(China Street / modeA_4x5)；其余(如 Game0) = 模式B(Cash Falls / modeB_44668)。
             string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            string cfgName = (sceneName == "Game1") ? "Configs/modeA_4x5" : "Configs/modeB_44668";
+            if (configText == null)
+                gameMode = (sceneName == "Game1") ? SlotGameMode.ModeA : SlotGameMode.ModeB;
+            string cfgName = (gameMode == SlotGameMode.ModeA) ? "Configs/modeA_4x5" : "Configs/modeB_44668";
             TextAsset loaded = Resources.Load<TextAsset>(cfgName);
             if (loaded != null)
                 configText = loaded;   // ★ 场景决定，忽略 Inspector 残留（防止 Game1 误跑 modeB_44668 而生成 FreeSpins）
@@ -44,7 +50,7 @@ namespace com.slot
         void ApplyConfig()
         {
             if (config == null) return;
-            session = new GameSession(config, rng);
+            session = new GameSession(config, rng, gameMode);
         }
 
         public static ReelConfig LoadConfig(TextAsset t)

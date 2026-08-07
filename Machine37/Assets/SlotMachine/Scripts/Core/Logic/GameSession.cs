@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SlotMachine.Core
 {
+    /// <summary>A/B 双模式显式标记。作为模式唯一真值源，替代从 config.modeName 字符串推断（避免命名改动导致 IsModeB 误判）。</summary>
+    public enum SlotGameMode { ModeA, ModeB }
+
     /// <summary>
     /// 一次完整游戏动作编排（逻辑层，不依赖 UnityEngine）：
     ///   基础旋转 → 火球 Hold&amp;Spin（≥1颗火球触发） → Scatter 免费旋转。
@@ -13,6 +16,7 @@ namespace SlotMachine.Core
     {
         private readonly ReelConfig _cfg;
         private readonly ISlotRng _rng;
+        private readonly SlotGameMode _mode;   // ★ 显式模式标记，替代从 modeName 字符串推断 IsModeB()
 
         // 渐进奖池
         private Dictionary<string,float> _pots = new Dictionary<string,float>();
@@ -30,10 +34,11 @@ namespace SlotMachine.Core
         /// 逻辑层不直接引用 View。挂 null 即关闭自动刷新。</summary>
         public Action<IReadOnlyDictionary<string,float>> OnPotsChanged;
 
-        public GameSession(ReelConfig cfg, ISlotRng rng)
+        public GameSession(ReelConfig cfg, ISlotRng rng, SlotGameMode mode)
         {
             _cfg = cfg;
             _rng = rng;
+            _mode = mode;
         }
 
         public IReadOnlyDictionary<string,float> Pots => _pots;
@@ -106,7 +111,7 @@ namespace SlotMachine.Core
                 _pots[j.tier] = j.potCap;
                 capped = true;
             }
-            UnityEngine.Debug.Log($"[{(_tierSpinCount[j.tier] == cnt ? "Refresh" : "Contribute")}] bet={bet}(eff={effBet}) tier={j.tier} ={val:F4} (effBet×betMult={effBet*j.betMult:F4}+potRate×局数={j.potRate*cnt:F4}[局数={cnt}])  {before:F2}→{_pots[j.tier]:F2}{(capped ? " [CAPPED@"+j.potCap+"]" : "")}");
+            //UnityEngine.Debug.Log($"[{(_tierSpinCount[j.tier] == cnt ? "Refresh" : "Contribute")}] bet={bet}(eff={effBet}) tier={j.tier} ={val:F4} (effBet×betMult={effBet*j.betMult:F4}+potRate×局数={j.potRate*cnt:F4}[局数={cnt}])  {before:F2}→{_pots[j.tier]:F2}{(capped ? " [CAPPED@"+j.potCap+"]" : "")}");
         }
 
         /// <summary>中奖重置：清掉该档累计局数并据此重算彩金值（回落到 有效压分×betMult）。
@@ -187,9 +192,10 @@ namespace SlotMachine.Core
             int fsAward = 0;
             if (_cfg.freeSpins != null)
             {
-                // A 模式(useVolatility)：Free Games 符号在指定列(freeGameReels)各出现 1 个 → 波动性选局数+倍率；
-                // B 模式：Scatter 触发改为「左到右连续相邻」口径（reel0 起连续列每列≥1个，长度≥triggerScatter=3），
-                //   不再全盘任意位置凑够 3 个。两者都只记次数，免费局由 MiniGame 运行。
+                // A 模式(useVolatility)：左起连续 ≥triggerScatter(默认3) 列、每列≥1 个 Free Games 符号即触发 → 波动性选局数+倍率；
+                //   同列多个 Scatter 只算 1 列（按列去重），必须从最左列(reel0)起连续（左起口径）；奖励仍随机选 局数×倍率。
+                // B 模式：Scatter 触发改为「左到右连续相邻」口径（reel0 起连续列每列≥1个，长度≥triggerScatter=3）。
+                //   两者都只记次数，免费局由 MiniGame 运行。
                 if (_cfg.freeSpins.useVolatility)
                 {
                     fsAward = PickVolatilityFreeSpins(grid);
@@ -217,30 +223,25 @@ namespace SlotMachine.Core
             return res;
         }
 
-        /// <summary>A 模式波动性免费转触发+选择：freeGameReels 指定的每一列都出现 ≥1 个 Scatter(=Free Games 符号) 即触发；
+        /// <summary>A 模式波动性免费转触发+选择：左起连续 ≥triggerScatter(默认3) 列、每列≥1 个 Scatter(=Free Games 符号) 即触发
+        /// （同一列多个 Scatter 只算 1 列，必须从 reel0 起连续，即"左起连续3列"口径；reel0 无 Scatter 则整局不触发）；
         /// 触发后随机选一档波动性( volatilitySpins[i] 局 + 对应 volatilityMultipliers[i] 倍 )，并把倍率写入 cfg.freeSpins.multiplier
         /// （供 MiniGame 结算免费局赢分时使用；当前 MiniGame 未消费该倍率，已标记 TODO）。
-        /// 未满足指定列条件则不触发(返回 0)。</summary>
+        /// 不足 triggerScatter 列则不触发(返回 0)。</summary>
         int PickVolatilityFreeSpins(int[][] grid)
         {
             var fs = _cfg.freeSpins;
-            if (fs.freeGameReels == null || fs.freeGameReels.Count == 0) return 0;
-            int sid = _cfg.ScatterId();
-            foreach (int reel in fs.freeGameReels)
-            {
-                if (reel < 0 || reel >= grid.Length) return 0;
-                bool has = false;
-                for (int row = 0; row < grid[reel].Length; row++)
-                    if (grid[reel][row] == sid) { has = true; break; }
-                if (!has) return 0;
-            }
+            // ★ 触发口径：左起连续列数（每列≥1个Scatter算1列，断列即停；同列多个只算1个 → "1列4个当一个处理"）。
+            //   必须从 reel0 起连续 ≥ triggerScatter(默认3) 列才触发；reel0 无 Scatter 则整局不触发。
+            int cols = ScatterUtil.CountLeftToRight(grid, _cfg);
+            if (cols < fs.triggerScatter) return 0;
             int n = Math.Min(fs.volatilitySpins.Count, fs.volatilityMultipliers.Count);
             if (n <= 0) return 0;
             int idx = _rng.Next(n);
             int spins = fs.volatilitySpins[idx];
             int mult = fs.volatilityMultipliers[idx];
             fs.multiplier = mult;   // ★ 写入倍率供 MiniGame 结算用（当前 MiniGame 未消费，标记 TODO）
-            UnityEngine.Debug.Log($"[FreeSpins-A] 波动性触发：列[{string.Join(",", fs.freeGameReels)}] 各含 Free Games 符号 → {spins} 局 ×{mult}");
+            UnityEngine.Debug.Log($"[FreeSpins-A] 波动性触发：左起连续 {cols} 列含 Scatter(≥{fs.triggerScatter}) → {spins} 局 ×{mult}");
             return spins;
         }
 
@@ -274,14 +275,15 @@ namespace SlotMachine.Core
             int fbId = _cfg.fireballSymbolId;
             var initial = new List<FireballCell>();
 
+            // 火球"免费模式"按模式区分：B 模式 base-spin 传 true（火球可生成 FREE 类型累加免费局），
+            // A 模式传 false（设计：火球不生成 FREE 类型，直接禁止，不依赖 freeModeRatio 配置）。
+            bool allowFree = IsModeB();
+
             for (int r = 0; r < grid.Length; r++)
                 for (int row = 0; row < grid[r].Length; row++)
                     if (grid[r][row] == fbId)
                     {
-                        // ★ 基础旋转每颗火球立刻定倍率/彩金档/FREE（与 Hold&Spin 同口径 RollFireball）。
-                        //   allowFreeMode:true → B 模式(freeModeRatio>0) 底轮火球可出现 FREE 类型，累加免费次数触发 Mini；
-                        //   A 模式(freeModeRatio=0) 即使 allowFreeMode=true 也不会生成 FREE（被 effFreeRatio>0 门控）。
-                        var c = HoldSpinState.RollFireball(_cfg, _rng, bet, _pots, allowFreeMode: true);
+                        var c = HoldSpinState.RollFireball(_cfg, _rng, bet, _pots, allowFreeMode: allowFree);
                         c.reel = r; c.row = row; c.filled = true;
                         initial.Add(c);
                         if (res.baseFireballs == null) res.baseFireballs = new List<FireballCell>();

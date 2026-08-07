@@ -17,11 +17,6 @@ namespace com.slot
             var item = st.cellItems[k];
             if (item == null) return;
 
-            // ★ 诊断（非防御）：基础轮火球出现 FreeSpins 说明数据层异常（A 硬禁 / B 基础轮 allowFreeMode=false）。
-            //   不篡改数据，如实显示并告警供定位根因（真正的 A/B 判定看 [ConfigLoad] 日志）。
-            if (cell.kind == FireballKind.FreeSpins)
-                Debug.LogWarning($"[FireballLabel] ⚠️ 出现 FreeSpins 火球(reel={st.reelIdx} k={k}) → 数据层异常，当前 holdMode 可能非 Direct");
-
             item.m_type = cell.kind;
             item.m_rate = cell.multiplier;
             // ★ 诊断日志：仅对非法 kind（超出 0~5）告警。multiplier 大小不再作为彩金档推断依据——

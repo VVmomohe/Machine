@@ -11,11 +11,10 @@ namespace SlotMachine.Core
     ///   与 B 模式的 HoldSpinState.Start 分支完全分离，互不影响。</summary>
     public partial class GameSession
     {
-        /// <summary>是否模式B(Cash Falls / 收集盘)：火球"免费模式"按单列收集。与 GameManager.IsModeB 同口径（modeName 含 "ModeB"）。</summary>
+        /// <summary>是否模式B(Cash Falls / 收集盘)：火球"免费模式"按单列收集。与 GameManager.IsModeB 同口径（读显式 _mode 枚举，不再解析 modeName 字符串）。</summary>
         bool IsModeB()
         {
-            return _cfg.modeName != null
-                && _cfg.modeName.IndexOf("ModeB", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            return _mode == SlotGameMode.ModeB;
         }
 
         /// <summary>A/B 共用直线结算：所有火球倍率之和 ×bet 计入 featureWin；彩金火球落定即中 + 即时清池，
@@ -51,7 +50,6 @@ namespace SlotMachine.Core
                     string t = HoldSpinState.JackpotTierNames[c.jackpotTier];
                     res.wonJackpots.Add(t);
                     ResetJackpot(t);   // A/B 直线结算：彩金火球落定即中 + 即时清池（与基础轮火球同源，落定即中）
-                    UnityEngine.Debug.Log($"[JACKPOT-WIN] direct reel={c.reel} row={c.row} tier={t} → ResetJackpot({t})");
                 }
             }
             res.featureWin += fbWin;
@@ -74,8 +72,7 @@ namespace SlotMachine.Core
                 }
                 else if (freeGlobal > 0)
                 {
-                    // 防御：A 模式若意外出现 FREE 火球（freeModeRatio 应=0），不派免费次数并记录告警。
-                    UnityEngine.Debug.LogWarning($"[Fireball-A] 警告：A 模式出现 {freeGlobal} 颗 FREE 火球（freeModeRatio 应为 0），已忽略，不派免费次数");
+                    // A 模式不应出现 FREE 火球（freeModeRatio 应=0），不派免费次数。
                 }
             }
             if (SlotDebug.VerboseLogs) UnityEngine.Debug.Log($"[Fireball-{(modeB ? "B" : "A")}] 直线结算：{initial.Count} 火球 → +{fbWin:F2} (featureWin={res.featureWin:F2})");

@@ -211,7 +211,7 @@ namespace SlotMachine.Core
             // ★ 自 2026-07-30 起 A/B 两模式均为 holdMode="Direct"（直线结算，无 respin 循环）。
             //   是否生成 FREE 火球完全由调用方 allowFreeMode 决定：
             //   - B 模式 base-spin 传 allowFreeMode:true，且 JSON freeModeRatio>0 → 可生成 FREE 火球累加免费局（触发 Mini）；
-            //   - A 模式 base-spin 同样传 allowFreeMode:true，但 freeModeRatio=0 → isFree 被 effFreeRatio>0 门控，等价于旧硬约束（不会生成 FREE）；
+            //   - A 模式 base-spin 传 allowFreeMode:false（设计：火球不生成 FREE 类型），isFree 直接 false，彻底不生成 FREE；
             //   - Mini 免费局(HoldSpinState.Start) 传 allowFreeMode:false → 不生成 FREE。
             //   故此处不再按 holdMode 强制关 FREE，避免 B 模式的 FREE 火球被误杀。
 
@@ -221,9 +221,6 @@ namespace SlotMachine.Core
             bool isFree = allowFreeMode && effFreeRatio > 0f && r < effFreeRatio;
             if (isFree)
             {
-                // ★ 根因诊断（非防御）：一旦生成 FreeSpins，打印调用栈 + 当前 holdMode/allowFreeMode/effFreeRatio，
-                //   直接定位"为什么生成了免费火球"。A 模式(modeA:holdMode=Direct, freeModeRatio=0)逻辑上不可能触发此处。
-                UnityEngine.Debug.LogWarning($"[FreeSpins-GEN] 生成 FreeSpins 火球！根因诊断 → holdMode={hc?.holdMode} allowFreeMode={allowFreeMode} effFreeRatio={effFreeRatio} r={r:F4}\n{System.Environment.StackTrace}");
                 return new FireballCell { filled = true, kind = FireballKind.FreeSpins, multiplier = 0f };
             }
 

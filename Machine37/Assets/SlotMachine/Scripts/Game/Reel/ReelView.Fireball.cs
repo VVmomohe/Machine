@@ -25,6 +25,7 @@ namespace com.slot
         Dictionary<Image, Sprite> _winOrig = new Dictionary<Image, Sprite>(); // 高亮前原 sprite，用于还原
         Coroutine _winSeq = null;                    // 顺序播放协程(A 模式)，独立于 _winCoroutines 避免自停
         List<ReelItem> _winArtItems = new List<ReelItem>();   // 中奖时显示了专属美术(Starfish/Fish/Octopus/Wild/Scatter)的格，清除时还原
+        List<ReelItem> _scatterArtItems = new List<ReelItem>();   // Scatter 触发免费游戏高亮专用列表（与 _winArtItems 隔离，避免被模式A 逐条顺序连线动画的 ClearWinCells 冲掉）
 
         /// <summary>按 Win 列表高亮中奖格。m_winSequential=true 时逐条顺序播放（A 模式），否则所有线同时高亮（B 模式）。</summary>
         public virtual void HighlightWins(List<Win> wins)
@@ -84,7 +85,7 @@ namespace com.slot
                     var item = st.cellItems[k];
                     if (item != null && item.ShowWinArt(SCATTER_ID))
                     {
-                        _winArtItems.Add(item);
+                        _scatterArtItems.Add(item);
                         any = true;
                     }
                 }
@@ -96,9 +97,9 @@ namespace com.slot
         IEnumerator ClearScatterWinArtAfter(float dur)
         {
             yield return new WaitForSeconds(dur);
-            foreach (var it in _winArtItems)
+            foreach (var it in _scatterArtItems)
                 if (it != null) it.HideWinArt();
-            _winArtItems.Clear();
+            _scatterArtItems.Clear();
         }
 
         /// <summary>高亮单条 Win 的所有格子（起逐格循环动画协程，记入 _winCoroutines）。</summary>
@@ -172,6 +173,10 @@ namespace com.slot
             foreach (var it in _winArtItems)
                 if (it != null) it.HideWinArt();
             _winArtItems.Clear();
+            // ★ 还原 Scatter 触发高亮美术（与 _winArtItems 独立，开新局/清场时一并还原）
+            foreach (var it in _scatterArtItems)
+                if (it != null) it.HideWinArt();
+            _scatterArtItems.Clear();
         }
 
         /// <summary>彻底停止高亮（含顺序播放协程）——开新局清场 / 重新高亮前调用。</summary>
@@ -190,6 +195,7 @@ namespace com.slot
             _winCoroutines.Clear();
             _winOrig.Clear();
             _winArtItems.Clear();   // cell 即将销毁，清掉追踪避免持有已销毁 ReelItem 引用
+            _scatterArtItems.Clear();
         }
 
         /// <summary>中奖格放大缩小 + 帧动画循环（参考原游戏：中奖符号缩放脉冲同时播 _2 动画）。</summary>

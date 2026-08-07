@@ -50,7 +50,10 @@ namespace com.slot
                 }
                 if (r.baseFireballs != null)
                     foreach (var c in r.baseFireballs)
-                        if (c.filled)
+                        // ★ A 模式基础轮不允许 FreeSpins 火球出现在卷轴显示（其 multiplier=0、无显示意义，且 A 模式不靠火球派免费）：
+                        //   若数据层因旧构建遗留/复用泄漏进 FreeSpins 细胞，在此过滤掉，避免错误显示为 m_freeFire。
+                        //   B 模式(isFree 可能由 RollFireball 合法产生) 保留，交给 ShowFeatureState/结算处理。
+                        if (c.filled && !(c.kind == FireballKind.FreeSpins && !IsModeB()))
                         {
                             int key = CellKey.Encode(c.reel, c.row);
                             if (!fireMults.ContainsKey(key)) fireMults[key] = c;
@@ -119,9 +122,7 @@ namespace com.slot
 
         bool IsModeB()
         {
-            return m_machine != null && m_machine.config != null
-                && m_machine.config.modeName != null
-                && m_machine.config.modeName.IndexOf("ModeB", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            return m_machine != null && m_machine.gameMode == SlotGameMode.ModeB;
         }
 
         IEnumerator WaitReelsStop()
@@ -150,6 +151,10 @@ namespace com.slot
                            : (r.enterMiniByColumnFill) ? "基础局集满一列"
                            : "基础局火球(FreeSpins单列)";
             LogMiniEntry(miniSrc, r, r.freeSpinsFromScatter, r.freeSpinsFromFireball, r.holdSpinState, toMini);
+            // ★ 免费游戏触发时高亮屏上所有 Scatter（让玩家看清"是这几个触发了免费游戏"）：
+            //   基础局结算即高亮，持续 2.5s 自动清除；用独立列表(_scatterArtItems)，不被模式A 逐条顺序连线动画冲掉。
+            if (r.freeSpinsAwarded > 0 && m_reelView != null)
+                m_reelView.HighlightScatterCells(r.baseGrid, 2.5f);
             if (toMini)
             {
                 r.freeSpinsWin = 0;
@@ -280,7 +285,8 @@ namespace com.slot
                 m_bonus.ShowPots(m_machine.session.Pots);
             }
 
-            string fbTag = "none";
+            int fbCount = (r.baseFireballs != null) ? r.baseFireballs.Count : 0;
+            string fbTag = (fbCount > 0) ? $"{fbCount}" : "none";
             Debug.Log($"[Spin] mode={m_machine.config.modeName} total={r.totalPayout:F2} " +
                       $"base={r.baseWin:F2} scatter={r.scatterPayout:F2}({r.scatterCount}) " +
                       $"feature={r.featureWin:F2} fs={r.freeSpinsWin:F2}(x{r.freeSpinsAwarded}) " +
