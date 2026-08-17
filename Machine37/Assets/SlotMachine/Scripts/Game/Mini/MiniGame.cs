@@ -47,6 +47,17 @@ public class MiniGame : MonoBehaviour
     float _fireTotal;                       // 全部火球累计派彩（×bet）
     List<FireballCell> _allFires;           // 全部火球（用于最终统计/显示）
     System.Action<MiniResult> _onDone;
+
+    // ===== Mini 行锁定（config 驱动；A/B 模式共用 Mini）=====
+    MiniLockConfig _lockCfg;                // MiniLockConfig（m_miniCfg.miniLock 引用）
+    HashSet<int> _lockedRows;               // 当前仍锁定的行（0-indexed，0=最上）
+    List<int> _lockOrder;                   // 锁定顺序（解锁时从尾部弹出 = 最外侧先解）
+    List<FireballCell> _lockedFires;        // 锁定行上的火球：可见但【不计入】派彩（解锁时回收进 _allFires）
+    int _locksRemaining;
+    int _spinsSinceUnlock;
+    MiniRowLockView _lockView;              // 锁视觉（运行时解析到的实例）
+    [SerializeField] private MiniRowLockView m_rowLockView;  // ★ 首选：手动挂在 "Excel" 节点上的 MiniRowLockView，直接拖进来
+    [SerializeField] private Transform m_excelNode;          // 兜底：未填上面时，从此节点(或按名找 "Excel")取组件；不会自动 AddComponent
     ReelConfig m_miniCfg;                   // Mini 专用配置副本（仅 reelRows=8×5，其余共享主配置）
 
     public bool IsActive => _active;
@@ -74,6 +85,7 @@ public class MiniGame : MonoBehaviour
         _onDone = onDone;
 
         SetupBoard();
+        InitRowLock();      // ★ 行锁定：根据 miniLock 配置计算锁定行并绑定锁视觉
 
         // 显示 Mini，隐藏 Main（显式控制两个独立的 ReelView）
         if (GameManager.Instance.m_mainGame != null) GameManager.Instance.m_mainGame.SetActive(false);
@@ -167,6 +179,7 @@ public class MiniGame : MonoBehaviour
         c.holdSpin = src.holdSpin;
         c.jackpots = src.jackpots;
         c.freeSpins = src.freeSpins;
+        c.miniLock = src.miniLock;     // Mini 行锁定配置（A/B 共用，随主配置走）
         return c;
     }
 
@@ -194,6 +207,144 @@ public class MiniGame : MonoBehaviour
             rt.sizeDelta = new Vector2(rv.m_cellSize, rv.m_cellSize * 8);
             rv.m_node[i] = col;
         }
+    }
+
+    // ===== Mini 行锁定（config 驱动：m_miniCfg.miniLock） =====
+
+    /// <summary>进入 Mini 时按配置计算锁定行并绑定锁视觉。未启用或配置为空则整局无锁定。</summary>
+    void InitRowLock()
+    {
+        _lockedRows = new HashSet<int>();
+        _lockOrder = new List<int>();
+        _lockedFires = new List<FireballCell>();
+        _locksRemaining = 0;
+        _spinsSinceUnlock = 0;
+        _lockCfg = (m_miniCfg != null) ? m_miniCfg.miniLock : null;
+        _lockView = null;
+
+        if (_lockCfg != null && _lockCfg.enabled && m_miniCfg != null)
+        {
+            int totalRows = (m_miniCfg.reelRows != null && m_miniCfg.reelRows.Count > 0) ? m_miniCfg.reelRows[0] : 8;
+            _lockOrder = ComputeLockedRows(_lockCfg.bottom, _lockCfg.lockRows, totalRows);
+            foreach (var r in _lockOrder) _lockedRows.Add(r);
+            _locksRemaining = _lockOrder.Count;
+            int reelCount = (m_miniCfg.reelRows != null) ? m_miniCfg.reelRows.Count : 5;
+            float cellSize = (m_reelView != null) ? m_reelView.m_cellSize : 135f;
+            BindLockView(totalRows, cellSize, reelCount * cellSize);
+            Debug.Log($"[MiniGame] 行锁定启用：底={_lockCfg.bottom} 锁定行=[{string.Join(",", _lockOrder)}] 每{_lockCfg.unlockEvery}轮解1锁");
+        }
+    }
+
+    /// <summary>解析锁视觉（MiniRowLockView 由美术手动挂在 "Excel" 节点上）：
+    /// 优先用 inspector 直填的 m_rowLockView，其次从 m_excelNode / 按名找到的 "Excel" 节点取组件。
+    /// 若 m_box 未手动填，MiniRowLockView 会运行时自动生成占位锁行（供测试）；美术就绪填 m_box 即覆盖。
+    /// totalRows/cellSize/boardWidth 仅用于自动生成占位行的布局。</summary>
+    void BindLockView(int totalRows, float cellSize, float boardWidth)
+    {
+        _lockView = m_rowLockView;
+        if (_lockView == null)
+        {
+            if (m_excelNode == null) m_excelNode = FindChildRecursive(transform, "Excel");
+            if (m_excelNode != null) _lockView = m_excelNode.GetComponent<MiniRowLockView>();
+        }
+        if (_lockView == null)
+        {
+            Debug.LogWarning("[MiniGame] 行锁定：未找到 MiniRowLockView（请把它挂到 MINIGame/Excel 节点，或填 m_rowLockView）。本局仅跑逻辑，无锁视觉。");
+            return;
+        }
+        _lockView.Init(_lockOrder, totalRows, cellSize, boardWidth);
+        RefreshLockCounts();
+    }
+
+    /// <summary>刷新每行 Box 下的锁数文本 = 该行还需转几轮才解锁。
+    /// _lockOrder 从尾部弹出解锁（最外侧先解），所以尾部第 k 个（k 从 1 起）在第 k×unlockEvery 轮解开，
+    /// 剩余轮数 = k×unlockEvery − 本轮已累计的 _spinsSinceUnlock。</summary>
+    void RefreshLockCounts()
+    {
+        if (_lockView == null || _lockCfg == null || _lockOrder == null) return;
+        int every = Mathf.Max(1, _lockCfg.unlockEvery);
+        for (int i = 0, k = 1; i < _lockOrder.Count; i++, k++)
+            _lockView.SetRowCount(_lockOrder[i], k * every - _spinsSinceUnlock);
+    }
+
+    /// <summary>计算锁定行。行号一律 0-indexed，范围 0..totalRows-1（8 行棋盘 = 0~7，0=最上行）。
+    /// bottom = 棋盘「底」所在的行号（0 或 totalRows-1，即 0 或 7），锁的总是【远离底】的那半：
+    ///   底=0 → 锁下半 [4,5,6,7]；
+    ///   底=7 → 锁上半 [3,2,1,0]。
+    /// "从中间开始锁"：从中间行向该半延伸，所以 _lockOrder[0] 是最靠中间的行、尾部是最外侧行。
+    /// 解锁时从 _lockOrder 头部弹出 → 最靠中间的行先解，最外侧行锁得最久。</summary>
+    List<int> ComputeLockedRows(int bottom, int lockRows, int totalRows)
+    {
+        var list = new List<int>();
+        if (totalRows <= 0 || lockRows <= 0) return list;
+        lockRows = Mathf.Min(lockRows, totalRows);
+        int mid = totalRows / 2;     // 8 → 4
+        // bottom 落在上半(<=中位) → 底在顶部 → 锁**上半**(row 0~lockRows-1)；否则底在底部 → 锁**下半**。
+        // ★ 列表顺序：**最靠近中间的行排在前面**（_lockOrder[0] 最先被头部弹出解锁）。
+        //   这样 RefreshLockCounts 的 k=1 对应"最靠近中间的行"(最早解、数字最小)，
+        //   k=lockRows 对应"最边缘的行"(最晚解、数字最大)，视觉上从上到下递减(10,7,4,1)。
+        if (bottom <= (totalRows - 1) / 2)
+        {
+            // 锁上半 [0..lockRows-1]，但从最靠近中间的那行开始往前排
+            for (int i = lockRows - 1; i >= 0; i--)
+                list.Add(i);
+        }
+        else
+        {
+            // 锁下半 [totalRows-lockRows .. totalRows-1]，从最靠近中间的那行开始往后排
+            int start = totalRows - lockRows;
+            for (int i = 0; i < lockRows; i++)
+                list.Add(start + i);
+        }
+        return list;
+    }
+
+    /// <summary>每转一轮调用：累计计数并刷新各行锁数文本；满 unlockEvery 轮解一个锁（中间行先解、最外侧最后解），
+    /// 并回收该行"只显示不算"的火球进 _allFires。</summary>
+    void AdvanceUnlock()
+    {
+        if (_lockCfg == null || !_lockCfg.enabled || _locksRemaining <= 0 || _lockOrder.Count == 0) return;
+        _spinsSinceUnlock++;
+
+        if (_spinsSinceUnlock >= _lockCfg.unlockEvery)
+        {
+            _spinsSinceUnlock = 0;
+
+            int row = _lockOrder[0];
+            _lockOrder.RemoveAt(0);
+            _lockedRows.Remove(row);
+            _locksRemaining--;
+
+            // ★ 回收：该行上此前"只显示不算"的火球，解锁后正式计入 _allFires（kind 已在落入时 Roll 好）。
+            for (int i = _lockedFires.Count - 1; i >= 0; i--)
+            {
+                if (_lockedFires[i].row == row)
+                {
+                    _allFires.Add(_lockedFires[i]);
+                    _lockedFires.RemoveAt(i);
+                }
+            }
+
+            if (_lockView != null) _lockView.RemoveLock(row);
+            Debug.Log($"[MiniGame] 解锁行 row={row}，剩余锁={_locksRemaining}");
+            // ★ 解锁瞬间立即重钉：该行原 _lockedFires 已转入 _allFires，马上 PinFireOverlays 让它们固定显示(不再等下一轮停稳)，消除确认等待期的"未固定"观感。
+            PinFireOverlays();
+        }
+
+        RefreshLockCounts();   // 未解锁的轮次也要让数字倒数（3→2→1）
+    }
+
+    /// <summary>递归查找子节点（按名），兼容 Excel 节点非直接子级的情况。</summary>
+    static Transform FindChildRecursive(Transform root, string name)
+    {
+        if (root == null) return null;
+        if (root.name == name) return root;
+        foreach (Transform c in root)
+        {
+            var f = FindChildRecursive(c, name);
+            if (f != null) return f;
+        }
+        return null;
     }
 
     // ===== 输入（Mini 自己读 Start 键，不依赖 GameManager 转发） =====
@@ -233,6 +384,16 @@ public class MiniGame : MonoBehaviour
 
     IEnumerator MiniLoop()
     {
+        #if UNITY_EDITOR
+        // ★ 编辑器开发便利：进入免费小游戏即暂停编辑器，便于在 Inspector 检视刚装配好的棋盘状态（行锁定/火球等）。
+        //   仅作用于编辑器 Play 模式，玩家真机构建被 #if 剥离，无任何副作用。手动在编辑器点"继续"即可恢复。
+        if (UnityEditor.EditorApplication.isPlaying && !UnityEditor.EditorApplication.isPaused)
+        {
+            Debug.Log("[MiniGame] 进入免费小游戏，编辑器已暂停以便检视（点编辑器 继续/Play 恢复）");
+            UnityEditor.EditorApplication.isPaused = true;
+        }
+        #endif
+
         UpdateRemainingDisplay();   // 初始显示（如 "剩余 3 次"）
 
         while (_freeSpinsLeft > 0)
@@ -252,6 +413,7 @@ public class MiniGame : MonoBehaviour
             _roundsPlayed++;
             UpdateRemainingDisplay();
             yield return StartCoroutine(PlayOneFreeSpin());
+            AdvanceUnlock();   // ★ 每转一轮计数；满 unlockEvery 轮解一个锁并回收该行火球
             yield return StartCoroutine(WaitForMiniConfirm());
         }
 
@@ -284,8 +446,10 @@ public class MiniGame : MonoBehaviour
 
         // ★ 这 4 秒结算展示期间，主 HUD 也要亮出总派彩赢分（不再一直挂 0）。
         //   仅显示、不滚余额——余额滚入仍由回调用 AddFeatureWin 一次性完成，避免重复入账。
+        //   注意：此处 allowBigWin:false —— BIG WIN 统一由 onDone 回调的 ShowWinValue(combined) 播放，
+        //   否则结算预览播一次、回调再播一次 → 免费游戏退出后 BIG WIN 播放 2 次。
         if (GameManager.Instance != null && GameManager.Instance.m_player != null && result.fireTotal > 0f)
-            GameManager.Instance.m_player.ShowWinValue((long)System.Math.Round(result.fireTotal));
+            GameManager.Instance.m_player.ShowWinValue((long)System.Math.Round(result.fireTotal), allowBigWin: false);
 
         yield return StartCoroutine(ShowFinalMultiplier(totalMult));
 
@@ -320,9 +484,19 @@ public class MiniGame : MonoBehaviour
             m_reelView.gameObject.SetActive(false);              // 隐藏 Mini 独立 ReelView
             gameObject.SetActive(false);                         // 隐藏 Mini GameObject
             if (GameManager.Instance.m_reelView != null) GameManager.Instance.m_reelView.gameObject.SetActive(true);  // 显示主棋盘
-            if (GameManager.Instance.m_mainGame != null) GameManager.Instance.m_mainGame.SetActive(true);  // 显示 Main
-            _active = false;
-            _onDone?.Invoke(result);
+        if (GameManager.Instance.m_mainGame != null) GameManager.Instance.m_mainGame.SetActive(true);  // 显示 Main
+
+        // ★ 清理行锁定状态与锁视觉（避免残留进下一局 Mini）
+        _lockView?.Clear();
+        _lockedRows?.Clear();
+        _lockOrder?.Clear();
+        _lockedFires?.Clear();
+        _locksRemaining = 0;
+        _spinsSinceUnlock = 0;
+        _lockView = null;
+
+        _active = false;
+        _onDone?.Invoke(result);
     }
 
     void UpdateRemainingDisplay()
@@ -349,12 +523,20 @@ public class MiniGame : MonoBehaviour
             var oldRows = new HashSet<int>();
             foreach (var f in _allFires)
                 if (f.reel >= 0 && f.row >= 0) oldRows.Add(CellKey.Encode(f.reel, f.row));
+            // ★ 锁定行火球也一并抑制：它们已落格，应像老火球一样钉在盘面(固定显示、不随卷轴重影/闪)；
+            //   解锁后转入 _allFires 仍被抑制(已含)，逻辑不变。仅影响显示，不改计数(仍只看 _allFires)。
+            foreach (var f in _lockedFires)
+                if (f.reel >= 0 && f.row >= 0) oldRows.Add(CellKey.Encode(f.reel, f.row));
             m_reelView.m_preLockedFireRows = oldRows;
         }
 
         // 1) 基础旋转：生成棋盘，然后把已有火球锁回格子（它们在后续旋转中不消失）
         int[][] grid = OutcomeGenerator.Spin(cfg, GameManager.Instance.m_machine.rng, GameManager.Instance.m_testDoubleFireball);
         foreach (var f in _allFires)
+            if (f.reel >= 0 && f.reel < grid.Length && f.row >= 0 && f.row < grid[f.reel].Length)
+                grid[f.reel][f.row] = fbId;
+        // ★ 锁定行火球：同样盖回盘面（保持可见），但绝不进 _allFires → 不算派彩（见下检测分支）。
+        foreach (var f in _lockedFires)
             if (f.reel >= 0 && f.reel < grid.Length && f.row >= 0 && f.row < grid[f.reel].Length)
                 grid[f.reel][f.row] = fbId;
 
@@ -398,7 +580,26 @@ public class MiniGame : MonoBehaviour
                     foreach (var f in _allFires)
                         if (f.reel == r && f.row == row) { already = true; break; }
                     if (!already)
-                        newFires.Add(new FireballCell { reel = r, row = row, filled = true });
+                        foreach (var f in _lockedFires)
+                            if (f.reel == r && f.row == row) { already = true; break; }
+                    if (!already)
+                    {
+                        var c = new FireballCell { reel = r, row = row, filled = true };
+                        if (_lockedRows.Contains(row))
+                        {
+                            // ★ 锁定行火球：只显示、不计入。先 Roll 好 kind/倍率（解锁时直接回收进 _allFires，无需重 Roll）。
+                            //   allowFreeMode=false → RollFireball 绝不产 FreeSpins（与 Mini 全局一致）。
+                            var rolled = HoldSpinState.RollFireball(cfg, rng, bet, pots, allowFreeMode: false);
+                            c.kind = rolled.kind;
+                            c.multiplier = rolled.multiplier;
+                            c.jackpotTier = rolled.jackpotTier;
+                            _lockedFires.Add(c);
+                        }
+                        else
+                        {
+                            newFires.Add(c);
+                        }
+                    }
                 }
 
         // 3) 新火球滚动 kind/multiplier 并加入全部火球集
@@ -423,8 +624,13 @@ public class MiniGame : MonoBehaviour
 
         // 4) 构建 fireMults（主游戏同款格式：reel*100+row → FireballCell），
         //    传给 ShowGrid 让减速阶段就显示火球倍率/彩金（不等到停稳才出现）。
+        //    ★ 锁定行火球虽不计入派彩，但已 stamp 进 grid 显示在盘面上，必须也写进 fireMults，
+        //      否则 SetCellFireballMult 不会被调用 → 表现为"光有火球图标、没有倍数/彩金档名"。
+        //      仅影响显示，不改变计数（计数仍只看 _allFires，锁定火球解锁时才回收计入）。
         var fireMults = new Dictionary<int, FireballCell>();
         foreach (var f in _allFires)
+            fireMults[CellKey.Encode(f.reel, f.row)] = f;
+        foreach (var f in _lockedFires)
             fireMults[CellKey.Encode(f.reel, f.row)] = f;
 
         // 5) ShowGrid 启动卷轴旋转。容器设为首个子节点(底层)，火球 overlay 在持久节点上为末位(上层)。
@@ -437,16 +643,29 @@ public class MiniGame : MonoBehaviour
             yield return null;
         }
 
-        // 7) 卷轴停稳后刷新火球 overlay（含旧火球 + 本轮新落火球）
-        //    旧 overlay 被 ClearFireballOverlays 销毁，随后用最新 _allFires 重建。
-        if (_allFires.Count > 0)
-        {
-            var hs = HoldSpinState.Start(cfg, GameManager.Instance.m_machine.rng, bet, _allFires, pots);
-            m_reelView.ClearWinHighlight();
-            m_reelView.ShowFeatureState(hs);
-        }
+        // 7) 卷轴停稳后刷新火球 overlay（含旧火球 + 本轮新落火球 + 锁定行火球）。
+        //    ★ 锁定行火球也钉在盘面(固定显示、可见)，但【不计入派彩】(计数只看 _allFires，解锁时才回收计入)。
+        //      旧 overlay 被 ClearFireballOverlays 销毁，随后用最新 _allFires+_lockedFires 重建。
+        PinFireOverlays();
 
         // ★ 每轮不结算也不触发彩金特效——全部攒到 Mini 结束时统一结算 + 统一播特效。
+    }
+
+    /// <summary>重建火球 overlay：把当前所有"应钉在盘面"的火球(_allFires 已计入 + _lockedFires 锁定行只显示)一次性钉成持久 overlay。
+    /// 区别：_allFires 计入派彩，_lockedFires 仅显示不计入(解锁时由 AdvanceUnlock 回收进 _allFires)。
+    /// 每轮停稳、以及每次解锁后立即调用，保证锁定行火球也固定显示、不随卷轴闪。</summary>
+    void PinFireOverlays()
+    {
+        if (m_reelView == null || m_miniCfg == null || GameManager.Instance?.m_machine == null) return;
+        var cfg = m_miniCfg;
+        float bet = GameManager.Instance.m_machine.totalBet > 0 ? GameManager.Instance.m_machine.totalBet : 1f;
+        var pots = GameManager.Instance.m_machine.session != null ? GameManager.Instance.m_machine.session.Pots : null;
+        var display = new List<FireballCell>(_allFires);
+        display.AddRange(_lockedFires);   // ★ 锁定行火球也钉在盘面(固定显示)，但下面 ShowFeatureState 只用于显示、不改变计数
+        if (display.Count == 0) { m_reelView.ClearFireballOverlays(); return; }
+        var hs = HoldSpinState.Start(cfg, GameManager.Instance.m_machine.rng, bet, display, pots, allowFreeMode: false);
+        m_reelView.ClearWinHighlight();
+        m_reelView.ShowFeatureState(hs);
     }
 
     // ===== 免费次数追加（方式 A / B） =====

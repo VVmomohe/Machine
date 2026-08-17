@@ -1,5 +1,11 @@
 {
   "modeName": "ModeA_4x5",
+  "miniLock": {
+    "enabled": true,
+    "bottom": 0,
+    "lockRows": 4,
+    "unlockEvery": 3
+  },
   "reelCount": 5,
   "reelRows": [
     4,
@@ -1664,7 +1670,7 @@
     "multiplier": 1,
     "retrigger": false,
     "awardSpins": 2,
-    "maxSpins": 20,
+    "maxSpins": 10,
     "scatterRetriggerCounts": [
       3,
       4,
@@ -1686,7 +1692,7 @@
       10
     ],
     "miniCap": 50,
-    "useVolatility": true,
+    "useVolatility": false,
     "freeGameReels": [
       1,
       2,

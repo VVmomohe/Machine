@@ -89,7 +89,14 @@ namespace SlotMachine.Core
                     if (f.reel >= 0 && f.reel < st.reels && f.row >= 0 && f.row < st.cells[f.reel].Length)
                     {
                         f.filled = true;
-                        if (f.kind == FireballKind.Multiplier && f.multiplier <= 0f)
+                        // ★ 火球 kind 赋值：默认情况(全新细胞 kind=Multiplier 且未定倍率)重 Roll 决定 倍数/彩金。
+                        //   allowFreeMode=false（Mini 免费局 / A 模式基础轮）时，若传入细胞残留 FreeSpins 类型
+                        //   （旧构建 Domain Reload 关闭、跨重编译残留的脏单元格，与之前 A 模式基础轮 FreeSpins 同源），
+                        //   强制重 Roll 净化为 倍数/彩金（RollFireball 在 allowFreeMode=false 时绝不产 FreeSpins），
+                        //   从源头杜绝 Mini 出现"免费火球"。主游戏 Hold&Spin(allowFreeMode=true) 不受影响，FreeSpins 合法保留。
+                        bool needRoll = (f.kind == FireballKind.Multiplier && f.multiplier <= 0f)
+                                        || (!allowFreeMode && f.kind == FireballKind.FreeSpins);
+                        if (needRoll)
                         {
                             var rolled = RollFireball(cfg, rng, bet, pots, allowFreeMode);
                             f.kind = rolled.kind;

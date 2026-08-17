@@ -1,5 +1,11 @@
 {
   "modeName": "ModeB_44668",
+  "miniLock": {
+    "enabled": true,
+    "bottom": 0,
+    "lockRows": 4,
+    "unlockEvery": 3
+  },
   "reelCount": 5,
   "reelRows": [
     4,

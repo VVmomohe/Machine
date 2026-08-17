@@ -123,4 +123,17 @@ namespace SlotMachine.Core
             return award;
         }
     }
+
+    /// <summary>Mini 免费小游戏「行锁定」配置（数据驱动；A/B 模式共用 Mini，故两份 config 均可配）。
+    /// 进入 Mini 先锁 lockRows 行，每转 unlockEvery 轮解一个锁；锁定行上的火球只显示、不计入派彩。
+    /// 行号一律 0-indexed（8 行棋盘 = 0~7，0=最上行）。bottom = 棋盘「底」所在的行号（0 或 7），
+    /// 锁的总是【远离底】的那半：底=0 → 锁下半 [4,5,6,7]；底=7 → 锁上半 [3,2,1,0]。锁从中间行向该半延伸。</summary>
+    [Serializable]
+    public class MiniLockConfig
+    {
+        public bool enabled = false;     // 是否启用 Mini 行锁定
+        public int bottom = 0;           // 棋盘「底」的行号(0-indexed)：0=底在顶→锁下半[4,5,6,7] / 7=底在底→锁上半[3,2,1,0]
+        public int lockRows = 4;         // 锁定行数
+        public int unlockEvery = 3;      // 每转几轮解一个锁
+    }
 }

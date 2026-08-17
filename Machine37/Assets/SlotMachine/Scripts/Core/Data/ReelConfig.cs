@@ -37,6 +37,7 @@ namespace SlotMachine.Core
         public HoldSpinConfig holdSpin;                      // 火球锁定参数
         public List<JackpotTier> jackpots = new List<JackpotTier>(); // Mini/Minor/Major/Mega
         public FreeSpinsConfig freeSpins;                    // Scatter 免费转
+        public MiniLockConfig miniLock;                      // Mini 免费小游戏「行锁定」配置（A/B 共用）
 
             // ===== 基础旋转符号密度（与转轮条带密度解耦，直接控制每格出什么符号）=====
             // 设计（用户 2026-07-30）：普通ICON≈80% / 章鱼2% / 百搭2% / 免费3% / 火球13%。

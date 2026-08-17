@@ -97,6 +97,10 @@ namespace com.slot
                 }
                 _reels.Add(st);
             }
+            // ★ 即时布局一次：ShowGrid 创建的 cells 初始 y 全在 row0（CreateCell 传 visualRow=0，
+            //   依赖 Update→LayoutReel 每帧重排）。暂停/首帧时 Update 不跑会被看到"全部图标堆在底行"，
+            //   这里立即按 finalSyms 定格一次，保证初始即 8 行正确散布（后续 Update 接管滚动无副作用）。
+            foreach (var st in _reels) LayoutFinalReel(st, 0);
             // ★ 新基础局：重建卷轴后强制关闭所有列预警特效（prefab 默认 m_effect 可能 active，
             //   且上局 Hold&Spin 残留状态不应带入基础局），防止"一列没火球但 m_effect 仍亮"。
             ClearAllColumnEffects();

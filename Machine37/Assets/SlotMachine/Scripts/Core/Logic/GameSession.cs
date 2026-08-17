@@ -192,9 +192,12 @@ namespace SlotMachine.Core
             int fsAward = 0;
             if (_cfg.freeSpins != null)
             {
-                // A 模式(useVolatility)：左起连续 ≥triggerScatter(默认3) 列、每列≥1 个 Free Games 符号即触发 → 波动性选局数+倍率；
-                //   同列多个 Scatter 只算 1 列（按列去重），必须从最左列(reel0)起连续（左起口径）；奖励仍随机选 局数×倍率。
-                // B 模式：Scatter 触发改为「左到右连续相邻」口径（reel0 起连续列每列≥1个，长度≥triggerScatter=3）。
+                // ★ A/B 现已统一为同一口径同一奖励表（2026-08-07）：
+                //   触发口径：ScatterUtil.CountLeftToRight —— 从 reel0 起「左到右连续」列，每列≥1 个 Scatter 算 1 列，
+                //             同列多个只算 1 列，断列即停；列数 ≥ triggerScatter(默认3) 才触发，reel0 无 Scatter 则整局不触发。
+                //   奖励分档：SpinsFor → scatterRetriggerCounts[3,4,5] / scatterRetriggerAwards[2,5,10]，即 3列→2次 / 4列→5次 / 5列→10次。
+                //   A 模式 JSON 已置 useVolatility=false（与 C# 默认值一致），故走 else 分支；
+                //   volatility 分支(PickVolatilityFreeSpins)保留为可配置开关，置 true 才启用「随机局数×倍率」旧玩法。
                 //   两者都只记次数，免费局由 MiniGame 运行。
                 if (_cfg.freeSpins.useVolatility)
                 {
