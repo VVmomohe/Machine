@@ -147,6 +147,11 @@ public class MiniGame : MonoBehaviour
 
         // ★ Mini 火球持久 overlay——与主游戏 Hold&Spin 一致，卷轴滚动中 overlay 固定在 m_node 上不随卷轴滚走，
         //   实现"火球锁定"视觉。ShowFeatureState 每轮停稳后 Clear + 重建，保证新火球也出现在正确位置。
+        // ★ 真根修复：开启持久模式【前】必须先无差别清掉基础轮残留的火球 overlay（含基础轮可能合法产生的 FREE 火球）。
+        //   否则下方 m_persistentFireOverlays=true 会让首轮 ShowGrid→ClearAll→ClearFireballOverlaysExceptReleasing
+        //   直接 return（见 ReelView.cs 该行 if(m_persistentFireOverlays) return），基础轮残留 overlay 不被销毁、
+        //   原样叠到 Mini 棋盘 → 表现为「Mini 里凭空出现 FREE 火球」。这正是真根（不是 Domain Reload 残留）。
+        rv.ClearFireballOverlays();
         rv.m_persistentFireOverlays = true;
 
         // ★ Mini 棋盘：火球显示 m_fire（与主游戏一致），普通图标 m_image 隐藏
@@ -612,15 +617,21 @@ public class MiniGame : MonoBehaviour
                 FMODSoundMgr.Instance.PlaySound("event:/Sounds/13");
         }
 
-        // ★ 防御：Mini 中绝不应出现 FreeSpins 火球（只应在主游戏 Hold&Spin 生成）。
-        //   若出现则降级为普通倍数火球，避免 m_freeFire 错误显示。
-        foreach (var f in _allFires)
-            if (f.kind == FireballKind.FreeSpins)
-            {
-                f.kind = FireballKind.Multiplier;
-                f.multiplier = 1f;
-                Debug.LogWarning($"[MiniGame] 防御：_allFires 出现 FreeSpins(reel={f.reel} row={f.row})，已降级为 Multiplier x1");
-            }
+        // ★ 纵深监控（非主修复）：Mini 内部 RollFireball 一律传 allowFreeMode:false，数学上不应产生 FreeSpins。
+        //   若出现说明 RollFireball 在 Mini 路径被误传 allowFreeMode=true（或外部脏细胞未净），此处降级+告警便于定位，
+        //   而非静默显示 FREE 外观。主修复见 StartMini 开头 ClearFireballOverlays（清基础轮残留 overlay）。
+        int purgedCount = 0;
+        foreach (var list in new[] { _allFires, _lockedFires })
+            foreach (var f in list)
+                if (f.kind == FireballKind.FreeSpins)
+                {
+                    f.kind = FireballKind.Multiplier;
+                    f.multiplier = 1f;
+                    purgedCount++;
+                    Debug.LogWarning($"[MiniGame] 监控：_allFires/_lockedFires 出现 FreeSpins(reel={f.reel} row={f.row})，已降级为 Multiplier x1（请查 Mini 火球生成路径）");
+                }
+        if (purgedCount > 0)
+            Debug.LogError($"[MiniGame] ★★ Mini 内部仍出现 {purgedCount} 个 FreeSpins 细胞，根因是 RollFireball 被误传 allowFreeMode=true 或外部脏数据未净，请查 PlayOneFreeSpin ★★");
 
         // 4) 构建 fireMults（主游戏同款格式：reel*100+row → FireballCell），
         //    传给 ShowGrid 让减速阶段就显示火球倍率/彩金（不等到停稳才出现）。
@@ -629,9 +640,11 @@ public class MiniGame : MonoBehaviour
         //      仅影响显示，不改变计数（计数仍只看 _allFires，锁定火球解锁时才回收计入）。
         var fireMults = new Dictionary<int, FireballCell>();
         foreach (var f in _allFires)
-            fireMults[CellKey.Encode(f.reel, f.row)] = f;
+            if (f.kind != FireballKind.FreeSpins)
+                fireMults[CellKey.Encode(f.reel, f.row)] = f;
         foreach (var f in _lockedFires)
-            fireMults[CellKey.Encode(f.reel, f.row)] = f;
+            if (f.kind != FireballKind.FreeSpins)
+                fireMults[CellKey.Encode(f.reel, f.row)] = f;
 
         // 5) ShowGrid 启动卷轴旋转。容器设为首个子节点(底层)，火球 overlay 在持久节点上为末位(上层)。
         m_reelView.ShowGrid(grid, fireMults);
@@ -662,6 +675,8 @@ public class MiniGame : MonoBehaviour
         var pots = GameManager.Instance.m_machine.session != null ? GameManager.Instance.m_machine.session.Pots : null;
         var display = new List<FireballCell>(_allFires);
         display.AddRange(_lockedFires);   // ★ 锁定行火球也钉在盘面(固定显示)，但下面 ShowFeatureState 只用于显示、不改变计数
+        // ★ 显示兜底：剔除 FreeSpins（若上面监控循环已降级则此处无作用；保留以防任何漏网细胞生成 FREE overlay 外观）
+        display.RemoveAll(f => f.kind == FireballKind.FreeSpins);
         if (display.Count == 0) { m_reelView.ClearFireballOverlays(); return; }
         var hs = HoldSpinState.Start(cfg, GameManager.Instance.m_machine.rng, bet, display, pots, allowFreeMode: false);
         m_reelView.ClearWinHighlight();
